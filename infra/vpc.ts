@@ -73,7 +73,8 @@ new aws.ec2.RouteTableAssociation("private-rta-1b", {
   routeTableId: privateRt.id,
 });
 
-const sgEndpoints = new aws.ec2.SecurityGroup("sg-endpoints", {
+const sgEndpoints = new aws.ec2.SecurityGroup("endpoints", {
+  name: "serfel-dev-endpoints",
   vpcId: vpc.id,
   description: "VPC Endpoints: HTTPS inbound from VPC",
   ingress: [{
@@ -87,14 +88,16 @@ const sgEndpoints = new aws.ec2.SecurityGroup("sg-endpoints", {
   tags: { Name: "serfel-dev-sg-endpoints" },
 });
 
-const sgRds = new aws.ec2.SecurityGroup("sg-rds", {
+const sgRds = new aws.ec2.SecurityGroup("rds", {
+  name: "serfel-dev-rds",
   vpcId: vpc.id,
   description: "RDS MariaDB: inbound from Lambda only",
   egress: [],
   tags: { Name: "serfel-dev-sg-rds" },
 });
 
-const sgLambda = new aws.ec2.SecurityGroup("sg-lambda", {
+const sgLambda = new aws.ec2.SecurityGroup("lambda", {
+  name: "serfel-dev-lambda",
   vpcId: vpc.id,
   description: "Lambda functions: egress to RDS and VPC Endpoints",
   egress: [
