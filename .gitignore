@@ -4,3 +4,4 @@ node_modules/
 .env.local
 dist/
 *.js.map
+sst-env.d.ts
