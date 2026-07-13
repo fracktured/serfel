@@ -6,7 +6,17 @@ settings:
 
 importers:
 
-  .: {}
+  .:
+    devDependencies:
+      '@pulumi/aws':
+        specifier: ^6.0.0
+        version: 6.83.4
+      '@pulumi/pulumi':
+        specifier: ^3.0.0
+        version: 3.251.0
+      sst:
+        specifier: latest
+        version: 4.17.0
 
   apps/frontend: {}
 
