@@ -1,1 +1,20 @@
-{ "name": "@serfel/db", "version": "0.0.1", "private": true }
+{
+  "name": "@serfel/db",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "scripts": {
+    "introspect": "drizzle-kit pull --config drizzle-introspect.config.ts",
+    "generate": "drizzle-kit generate",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.44.0",
+    "mysql2": "^3.14.0"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.0",
+    "vitest": "^3.0.0"
+  }
+}

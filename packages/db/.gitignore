@@ -1,0 +1,4 @@
+dump/
+*.sql
+introspected/
+!migrations/*.sql

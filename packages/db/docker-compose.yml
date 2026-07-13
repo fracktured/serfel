@@ -1,0 +1,13 @@
+services:
+  mariadb:
+    image: mariadb:11.4
+    ports:
+      - "3307:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: serfel
+      MARIADB_DATABASE: serfel
+    volumes:
+      - mariadb-data:/var/lib/mysql
+
+volumes:
+  mariadb-data:
