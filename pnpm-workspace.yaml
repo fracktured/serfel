@@ -4,4 +4,5 @@ packages:
   - 'lambdas'
   - 'infra'
 allowBuilds:
+  esbuild: true
   protobufjs: true
