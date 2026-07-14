@@ -7,12 +7,19 @@
     "pnpm": ">=9"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:start": "./scripts/db-start.sh",
+    "db:stop": "./scripts/db-stop.sh",
+    "db:tunnel": "./scripts/db-tunnel.sh",
+    "db:migrate": "./scripts/db-migrate.sh",
+    "bastion:start": "./scripts/bastion-start.sh",
+    "bastion:stop": "./scripts/bastion-stop.sh"
   },
   "devDependencies": {
     "@pulumi/aws": "^6.0.0",
     "@pulumi/pulumi": "^3.0.0",
     "@pulumi/random": "^4.16.0",
-    "sst": "latest"
+    "sst": "latest",
+    "typescript": "^7.0.2"
   }
 }
