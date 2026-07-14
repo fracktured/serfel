@@ -26,5 +26,6 @@ export default $config({
     await import("./infra/database");
     await import("./infra/bastion");
     await import("./infra/migrate");
+    await import("./infra/db-guard");
   },
 });
