@@ -20,6 +20,6 @@
     "@pulumi/pulumi": "^3.0.0",
     "@pulumi/random": "^4.16.0",
     "sst": "latest",
-    "typescript": "^7.0.2"
+    "typescript": "^5.7.0"
   }
 }

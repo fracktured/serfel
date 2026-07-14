@@ -10,16 +10,19 @@ importers:
     devDependencies:
       '@pulumi/aws':
         specifier: ^6.0.0
-        version: 6.83.4
+        version: 6.83.4(typescript@5.9.3)
       '@pulumi/pulumi':
         specifier: ^3.0.0
-        version: 3.251.0
+        version: 3.251.0(typescript@5.9.3)
       '@pulumi/random':
         specifier: ^4.16.0
-        version: 4.21.0
+        version: 4.21.0(typescript@5.9.3)
       sst:
         specifier: latest
         version: 4.17.1
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
 
   apps/frontend: {}
 
@@ -27,10 +30,10 @@ importers:
     devDependencies:
       '@pulumi/aws':
         specifier: ^6.0.0
-        version: 6.83.4
+        version: 6.83.4(typescript@5.9.3)
       '@pulumi/pulumi':
         specifier: ^3.0.0
-        version: 3.251.0
+        version: 3.251.0(typescript@5.9.3)
       sst:
         specifier: latest
         version: 4.17.1
@@ -2016,6 +2019,11 @@ packages:
     resolution: {integrity: sha512-50QV99kCKH5P/Vs4E2Gzp7BopNV+KzTXqWeaxrfu5IQJBOULRsTIS9seSsOVT8ZnGXzCyx55nYWAi4qJzpZKEQ==}
     engines: {node: ^20.17.0 || >=22.9.0}
 
+  typescript@5.9.3:
+    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
   undici-types@8.3.0:
     resolution: {integrity: sha512-j375ScV60dom+YkPFIfTLcOiPxkN/buHz5GobjLhixFuANaNs3C9l4GmrWqejgXWJ7BbJcFYpTEUkS1Ge8bpZQ==}
 
@@ -2996,16 +3004,16 @@ snapshots:
 
   '@protobufjs/utf8@1.1.2': {}
 
-  '@pulumi/aws@6.83.4':
+  '@pulumi/aws@6.83.4(typescript@5.9.3)':
     dependencies:
-      '@pulumi/pulumi': 3.251.0
+      '@pulumi/pulumi': 3.251.0(typescript@5.9.3)
       mime: 2.6.0
     transitivePeerDependencies:
       - supports-color
       - ts-node
       - typescript
 
-  '@pulumi/pulumi@3.251.0':
+  '@pulumi/pulumi@3.251.0(typescript@5.9.3)':
     dependencies:
       '@grpc/grpc-js': 1.14.4
       '@logdna/tail-file': 2.2.0
@@ -3030,12 +3038,14 @@ snapshots:
       semver: 7.8.5
       source-map-support: 0.5.21
       upath: 1.2.0
+    optionalDependencies:
+      typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
 
-  '@pulumi/random@4.21.0':
+  '@pulumi/random@4.21.0(typescript@5.9.3)':
     dependencies:
-      '@pulumi/pulumi': 3.251.0
+      '@pulumi/pulumi': 3.251.0(typescript@5.9.3)
     transitivePeerDependencies:
       - supports-color
       - ts-node
@@ -4102,6 +4112,8 @@ snapshots:
       make-fetch-happen: 15.0.6
     transitivePeerDependencies:
       - supports-color
+
+  typescript@5.9.3: {}
 
   undici-types@8.3.0: {}
 
