@@ -67,6 +67,7 @@ new aws.ec2.SecurityGroupRule("rds-from-bastion", {
   description: "MariaDB from bastion",
 });
 
+// AMI drift must not replace the bastion; recreate deliberately by removing ignoreChanges.
 const bastion = new aws.ec2.Instance("bastion", {
   ami: al2023.id,
   instanceType: "t4g.nano",
@@ -76,6 +77,6 @@ const bastion = new aws.ec2.Instance("bastion", {
   iamInstanceProfile: bastionProfile.name,
   metadataOptions: { httpTokens: "required" }, // IMDSv2 only
   tags: { Name: "serfel-dev-bastion" },
-});
+}, { ignoreChanges: ["ami"] });
 
 export const bastionInstanceId = bastion.id;
