@@ -23,5 +23,6 @@ new sst.aws.Function("Migrate", {
   ],
   transform: {
     function: { name: "serfel-dev-migrate" },
+    logGroup: { name: "/aws/lambda/serfel-dev-migrate" },
   },
 });
