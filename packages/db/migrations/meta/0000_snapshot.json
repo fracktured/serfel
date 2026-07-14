@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "b4a1634e-847f-40f1-b3cf-58b4c83be9f2",
+  "id": "569e3f80-b39b-448c-bcc5-06d9cbde3c22",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "10_m_cliente": {
@@ -115,8 +115,8 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "10_m_cliente_id_lista_precio_40_m_lista_precio_id_lista_precio_fk": {
-          "name": "10_m_cliente_id_lista_precio_40_m_lista_precio_id_lista_precio_fk",
+        "clie_list_prec": {
+          "name": "clie_list_prec",
           "tableFrom": "10_m_cliente",
           "tableTo": "40_m_lista_precio",
           "columnsFrom": [
@@ -128,8 +128,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "10_m_cliente_id_estado_99_p_estado_id_estado_fk": {
-          "name": "10_m_cliente_id_estado_99_p_estado_id_estado_fk",
+        "clie_est": {
+          "name": "clie_est",
           "tableFrom": "10_m_cliente",
           "tableTo": "99_p_estado",
           "columnsFrom": [
@@ -288,8 +288,8 @@
         }
       },
       "foreignKeys": {
-        "10_m_empresa_id_usuario_mod_10_m_usuario_id_usuario_fk": {
-          "name": "10_m_empresa_id_usuario_mod_10_m_usuario_id_usuario_fk",
+        "emp_usu": {
+          "name": "emp_usu",
           "tableFrom": "10_m_empresa",
           "tableTo": "10_m_usuario",
           "columnsFrom": [
@@ -301,8 +301,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "10_m_empresa_id_estado_99_p_estado_id_estado_fk": {
-          "name": "10_m_empresa_id_estado_99_p_estado_id_estado_fk",
+        "emp_est": {
+          "name": "emp_est",
           "tableFrom": "10_m_empresa",
           "tableTo": "99_p_estado",
           "columnsFrom": [
@@ -508,8 +508,8 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "10_m_local_cliente_rut_cliente_10_m_cliente_rut_cliente_fk": {
-          "name": "10_m_local_cliente_rut_cliente_10_m_cliente_rut_cliente_fk",
+        "loc_clie_clie": {
+          "name": "loc_clie_clie",
           "tableFrom": "10_m_local_cliente",
           "tableTo": "10_m_cliente",
           "columnsFrom": [
@@ -521,8 +521,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "10_m_local_cliente_id_estado_99_p_estado_id_estado_fk": {
-          "name": "10_m_local_cliente_id_estado_99_p_estado_id_estado_fk",
+        "loc_clie_est": {
+          "name": "loc_clie_est",
           "tableFrom": "10_m_local_cliente",
           "tableTo": "99_p_estado",
           "columnsFrom": [
@@ -666,8 +666,8 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "10_m_usuario_id_tipo_usuario_10_p_tipo_usuario_id_tipo_usuario_fk": {
-          "name": "10_m_usuario_id_tipo_usuario_10_p_tipo_usuario_id_tipo_usuario_fk",
+        "usu_tipo_usu": {
+          "name": "usu_tipo_usu",
           "tableFrom": "10_m_usuario",
           "tableTo": "10_p_tipo_usuario",
           "columnsFrom": [
@@ -679,8 +679,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "10_m_usuario_id_estado_99_p_estado_id_estado_fk": {
-          "name": "10_m_usuario_id_estado_99_p_estado_id_estado_fk",
+        "usu_est": {
+          "name": "usu_est",
           "tableFrom": "10_m_usuario",
           "tableTo": "99_p_estado",
           "columnsFrom": [
@@ -857,8 +857,8 @@
         }
       },
       "foreignKeys": {
-        "20_m_porcion_id_producto_20_m_producto_id_producto_fk": {
-          "name": "20_m_porcion_id_producto_20_m_producto_id_producto_fk",
+        "fk_porcion_producto": {
+          "name": "fk_porcion_producto",
           "tableFrom": "20_m_porcion",
           "tableTo": "20_m_producto",
           "columnsFrom": [
@@ -870,8 +870,8 @@
           "onDelete": "cascade",
           "onUpdate": "restrict"
         },
-        "20_m_porcion_id_usuario_10_m_usuario_id_usuario_fk": {
-          "name": "20_m_porcion_id_usuario_10_m_usuario_id_usuario_fk",
+        "fk_porcion_usuario": {
+          "name": "fk_porcion_usuario",
           "tableFrom": "20_m_porcion",
           "tableTo": "10_m_usuario",
           "columnsFrom": [
@@ -883,8 +883,8 @@
           "onDelete": "cascade",
           "onUpdate": "restrict"
         },
-        "20_m_porcion_id_estado_99_p_estado_id_estado_fk": {
-          "name": "20_m_porcion_id_estado_99_p_estado_id_estado_fk",
+        "fk_porcion_estado": {
+          "name": "fk_porcion_estado",
           "tableFrom": "20_m_porcion",
           "tableTo": "99_p_estado",
           "columnsFrom": [
@@ -1038,8 +1038,8 @@
         }
       },
       "foreignKeys": {
-        "20_m_producto_id_tipo_producto_20_p_tipo_producto_id_tipo_producto_fk": {
-          "name": "20_m_producto_id_tipo_producto_20_p_tipo_producto_id_tipo_producto_fk",
+        "prod_tipo_prod": {
+          "name": "prod_tipo_prod",
           "tableFrom": "20_m_producto",
           "tableTo": "20_p_tipo_producto",
           "columnsFrom": [
@@ -1051,8 +1051,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "20_m_producto_id_marca_20_p_marca_id_marca_fk": {
-          "name": "20_m_producto_id_marca_20_p_marca_id_marca_fk",
+        "prod_marca": {
+          "name": "prod_marca",
           "tableFrom": "20_m_producto",
           "tableTo": "20_p_marca",
           "columnsFrom": [
@@ -1064,8 +1064,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "20_m_producto_id_UM_20_p_unidad_medida_id_UM_fk": {
-          "name": "20_m_producto_id_UM_20_p_unidad_medida_id_UM_fk",
+        "prod_UM": {
+          "name": "prod_UM",
           "tableFrom": "20_m_producto",
           "tableTo": "20_p_unidad_medida",
           "columnsFrom": [
@@ -1077,8 +1077,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "20_m_producto_id_usuario_mod_10_m_usuario_id_usuario_fk": {
-          "name": "20_m_producto_id_usuario_mod_10_m_usuario_id_usuario_fk",
+        "prod_usu": {
+          "name": "prod_usu",
           "tableFrom": "20_m_producto",
           "tableTo": "10_m_usuario",
           "columnsFrom": [
@@ -1090,8 +1090,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "20_m_producto_id_estado_99_p_estado_id_estado_fk": {
-          "name": "20_m_producto_id_estado_99_p_estado_id_estado_fk",
+        "prod_est": {
+          "name": "prod_est",
           "tableFrom": "20_m_producto",
           "tableTo": "99_p_estado",
           "columnsFrom": [
@@ -1227,8 +1227,8 @@
         }
       },
       "foreignKeys": {
-        "20_p_tipo_producto_id_usuario_mod_10_m_usuario_id_usuario_fk": {
-          "name": "20_p_tipo_producto_id_usuario_mod_10_m_usuario_id_usuario_fk",
+        "tipo_pro_usu": {
+          "name": "tipo_pro_usu",
           "tableFrom": "20_p_tipo_producto",
           "tableTo": "10_m_usuario",
           "columnsFrom": [
@@ -1371,8 +1371,8 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "30_m_pedido_id_local_cliente_10_m_local_cliente_id_local_cliente_fk": {
-          "name": "30_m_pedido_id_local_cliente_10_m_local_cliente_id_local_cliente_fk",
+        "ped_loc_clie": {
+          "name": "ped_loc_clie",
           "tableFrom": "30_m_pedido",
           "tableTo": "10_m_local_cliente",
           "columnsFrom": [
@@ -1384,8 +1384,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "30_m_pedido_id_usuario_10_m_usuario_id_usuario_fk": {
-          "name": "30_m_pedido_id_usuario_10_m_usuario_id_usuario_fk",
+        "ped_usu": {
+          "name": "ped_usu",
           "tableFrom": "30_m_pedido",
           "tableTo": "10_m_usuario",
           "columnsFrom": [
@@ -1397,8 +1397,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "30_m_pedido_id_lista_precio_40_m_lista_precio_id_lista_precio_fk": {
-          "name": "30_m_pedido_id_lista_precio_40_m_lista_precio_id_lista_precio_fk",
+        "ped_lis_prec": {
+          "name": "ped_lis_prec",
           "tableFrom": "30_m_pedido",
           "tableTo": "40_m_lista_precio",
           "columnsFrom": [
@@ -1410,8 +1410,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "30_m_pedido_id_estado_99_p_estado_id_estado_fk": {
-          "name": "30_m_pedido_id_estado_99_p_estado_id_estado_fk",
+        "ped_est": {
+          "name": "ped_est",
           "tableFrom": "30_m_pedido",
           "tableTo": "99_p_estado",
           "columnsFrom": [
@@ -1484,8 +1484,8 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "30_m_producto_pedido_id_pedido_30_m_pedido_id_pedido_fk": {
-          "name": "30_m_producto_pedido_id_pedido_30_m_pedido_id_pedido_fk",
+        "prod_ped_ped": {
+          "name": "prod_ped_ped",
           "tableFrom": "30_m_producto_pedido",
           "tableTo": "30_m_pedido",
           "columnsFrom": [
@@ -1497,8 +1497,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "30_m_producto_pedido_id_producto_20_m_producto_id_producto_fk": {
-          "name": "30_m_producto_pedido_id_producto_20_m_producto_id_producto_fk",
+        "prod_ped_prod": {
+          "name": "prod_ped_prod",
           "tableFrom": "30_m_producto_pedido",
           "tableTo": "20_m_producto",
           "columnsFrom": [
@@ -1773,8 +1773,8 @@
         }
       },
       "foreignKeys": {
-        "40_m_nota_credito_id_venta_40_m_venta_id_venta_fk": {
-          "name": "40_m_nota_credito_id_venta_40_m_venta_id_venta_fk",
+        "fk_nota_cred_venta": {
+          "name": "fk_nota_cred_venta",
           "tableFrom": "40_m_nota_credito",
           "tableTo": "40_m_venta",
           "columnsFrom": [
@@ -1786,8 +1786,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "40_m_nota_credito_id_usuario_10_m_usuario_id_usuario_fk": {
-          "name": "40_m_nota_credito_id_usuario_10_m_usuario_id_usuario_fk",
+        "nota_cred_usu": {
+          "name": "nota_cred_usu",
           "tableFrom": "40_m_nota_credito",
           "tableTo": "10_m_usuario",
           "columnsFrom": [
@@ -1799,8 +1799,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "40_m_nota_credito_id_estado_99_p_estado_id_estado_fk": {
-          "name": "40_m_nota_credito_id_estado_99_p_estado_id_estado_fk",
+        "nota_cred_est": {
+          "name": "nota_cred_est",
           "tableFrom": "40_m_nota_credito",
           "tableTo": "99_p_estado",
           "columnsFrom": [
@@ -2160,8 +2160,8 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "40_m_precio_producto_id_lista_precio_40_m_lista_precio_id_lista_precio_fk": {
-          "name": "40_m_precio_producto_id_lista_precio_40_m_lista_precio_id_lista_precio_fk",
+        "prec_prod_list_prec": {
+          "name": "prec_prod_list_prec",
           "tableFrom": "40_m_precio_producto",
           "tableTo": "40_m_lista_precio",
           "columnsFrom": [
@@ -2173,8 +2173,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "40_m_precio_producto_id_producto_20_m_producto_id_producto_fk": {
-          "name": "40_m_precio_producto_id_producto_20_m_producto_id_producto_fk",
+        "prec_prod_prod": {
+          "name": "prec_prod_prod",
           "tableFrom": "40_m_precio_producto",
           "tableTo": "20_m_producto",
           "columnsFrom": [
@@ -2242,8 +2242,8 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "40_m_prod_nota_credito_id_nota_credito_40_m_nota_credito_id_nota_credito_fk": {
-          "name": "40_m_prod_nota_credito_id_nota_credito_40_m_nota_credito_id_nota_credito_fk",
+        "prod_nota_nota_cred": {
+          "name": "prod_nota_nota_cred",
           "tableFrom": "40_m_prod_nota_credito",
           "tableTo": "40_m_nota_credito",
           "columnsFrom": [
@@ -2255,8 +2255,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "40_m_prod_nota_credito_id_producto_20_m_producto_id_producto_fk": {
-          "name": "40_m_prod_nota_credito_id_producto_20_m_producto_id_producto_fk",
+        "prod_nota_prod": {
+          "name": "prod_nota_prod",
           "tableFrom": "40_m_prod_nota_credito",
           "tableTo": "20_m_producto",
           "columnsFrom": [
@@ -2430,8 +2430,8 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "40_m_producto_venta_id_venta_40_m_venta_id_venta_fk": {
-          "name": "40_m_producto_venta_id_venta_40_m_venta_id_venta_fk",
+        "fk_prod_venta_venta": {
+          "name": "fk_prod_venta_venta",
           "tableFrom": "40_m_producto_venta",
           "tableTo": "40_m_venta",
           "columnsFrom": [
@@ -2443,8 +2443,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "40_m_producto_venta_id_producto_20_m_producto_id_producto_fk": {
-          "name": "40_m_producto_venta_id_producto_20_m_producto_id_producto_fk",
+        "prod_venta_prod": {
+          "name": "prod_venta_prod",
           "tableFrom": "40_m_producto_venta",
           "tableTo": "20_m_producto",
           "columnsFrom": [
@@ -2526,8 +2526,8 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "40_m_ruta_id_usuario_10_m_usuario_id_usuario_fk": {
-          "name": "40_m_ruta_id_usuario_10_m_usuario_id_usuario_fk",
+        "ruta_usu": {
+          "name": "ruta_usu",
           "tableFrom": "40_m_ruta",
           "tableTo": "10_m_usuario",
           "columnsFrom": [
@@ -2539,8 +2539,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "40_m_ruta_id_estado_99_p_estado_id_estado_fk": {
-          "name": "40_m_ruta_id_estado_99_p_estado_id_estado_fk",
+        "ruta_est": {
+          "name": "ruta_est",
           "tableFrom": "40_m_ruta",
           "tableTo": "99_p_estado",
           "columnsFrom": [
@@ -2821,8 +2821,8 @@
         }
       },
       "foreignKeys": {
-        "40_m_venta_id_lista_precio_40_m_lista_precio_id_lista_precio_fk": {
-          "name": "40_m_venta_id_lista_precio_40_m_lista_precio_id_lista_precio_fk",
+        "venta_lis_prec": {
+          "name": "venta_lis_prec",
           "tableFrom": "40_m_venta",
           "tableTo": "40_m_lista_precio",
           "columnsFrom": [
@@ -2834,8 +2834,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "40_m_venta_id_usuario_venta_10_m_usuario_id_usuario_fk": {
-          "name": "40_m_venta_id_usuario_venta_10_m_usuario_id_usuario_fk",
+        "venta_usu": {
+          "name": "venta_usu",
           "tableFrom": "40_m_venta",
           "tableTo": "10_m_usuario",
           "columnsFrom": [
@@ -2847,8 +2847,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "40_m_venta_id_tipo_docto_emitido_10_p_tipo_docto_id_tipo_docto_fk": {
-          "name": "40_m_venta_id_tipo_docto_emitido_10_p_tipo_docto_id_tipo_docto_fk",
+        "venta_tipo_docto": {
+          "name": "venta_tipo_docto",
           "tableFrom": "40_m_venta",
           "tableTo": "10_p_tipo_docto",
           "columnsFrom": [
@@ -2860,8 +2860,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "40_m_venta_rut_empresa_10_m_empresa_rut_empresa_fk": {
-          "name": "40_m_venta_rut_empresa_10_m_empresa_rut_empresa_fk",
+        "venta_emp": {
+          "name": "venta_emp",
           "tableFrom": "40_m_venta",
           "tableTo": "10_m_empresa",
           "columnsFrom": [
@@ -2873,8 +2873,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "40_m_venta_rut_cliente_10_m_cliente_rut_cliente_fk": {
-          "name": "40_m_venta_rut_cliente_10_m_cliente_rut_cliente_fk",
+        "venta_clie": {
+          "name": "venta_clie",
           "tableFrom": "40_m_venta",
           "tableTo": "10_m_cliente",
           "columnsFrom": [
@@ -2886,8 +2886,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "40_m_venta_id_estado_99_p_estado_id_estado_fk": {
-          "name": "40_m_venta_id_estado_99_p_estado_id_estado_fk",
+        "venta_est": {
+          "name": "venta_est",
           "tableFrom": "40_m_venta",
           "tableTo": "99_p_estado",
           "columnsFrom": [
@@ -3004,8 +3004,8 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "50_m_bodega_id_tipo_bodega_50_p_tipo_bodega_id_tipo_bodega_fk": {
-          "name": "50_m_bodega_id_tipo_bodega_50_p_tipo_bodega_id_tipo_bodega_fk",
+        "bod_tipo_bod": {
+          "name": "bod_tipo_bod",
           "tableFrom": "50_m_bodega",
           "tableTo": "50_p_tipo_bodega",
           "columnsFrom": [
@@ -3017,8 +3017,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "50_m_bodega_id_usuario_mod_10_m_usuario_id_usuario_fk": {
-          "name": "50_m_bodega_id_usuario_mod_10_m_usuario_id_usuario_fk",
+        "bod_usu_mod": {
+          "name": "bod_usu_mod",
           "tableFrom": "50_m_bodega",
           "tableTo": "10_m_usuario",
           "columnsFrom": [
@@ -3030,8 +3030,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "50_m_bodega_id_estado_99_p_estado_id_estado_fk": {
-          "name": "50_m_bodega_id_estado_99_p_estado_id_estado_fk",
+        "bod_est": {
+          "name": "bod_est",
           "tableFrom": "50_m_bodega",
           "tableTo": "99_p_estado",
           "columnsFrom": [
@@ -3111,8 +3111,8 @@
         }
       },
       "foreignKeys": {
-        "50_m_cierre_mensual_bodega_id_bodega_50_m_bodega_id_bodega_fk": {
-          "name": "50_m_cierre_mensual_bodega_id_bodega_50_m_bodega_id_bodega_fk",
+        "cierre_bod_bod": {
+          "name": "cierre_bod_bod",
           "tableFrom": "50_m_cierre_mensual_bodega",
           "tableTo": "50_m_bodega",
           "columnsFrom": [
@@ -3124,8 +3124,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "50_m_cierre_mensual_bodega_id_usuario_cierre_10_m_usuario_id_usuario_fk": {
-          "name": "50_m_cierre_mensual_bodega_id_usuario_cierre_10_m_usuario_id_usuario_fk",
+        "cierre_bod_usu": {
+          "name": "cierre_bod_usu",
           "tableFrom": "50_m_cierre_mensual_bodega",
           "tableTo": "10_m_usuario",
           "columnsFrom": [
@@ -3207,19 +3207,6 @@
         }
       },
       "foreignKeys": {
-        "50_m_cierre_mensual_bodega_producto_id_producto_20_m_producto_id_producto_fk": {
-          "name": "50_m_cierre_mensual_bodega_producto_id_producto_20_m_producto_id_producto_fk",
-          "tableFrom": "50_m_cierre_mensual_bodega_producto",
-          "tableTo": "20_m_producto",
-          "columnsFrom": [
-            "id_producto"
-          ],
-          "columnsTo": [
-            "id_producto"
-          ],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        },
         "año_cierre_bod_prod": {
           "name": "año_cierre_bod_prod",
           "tableFrom": "50_m_cierre_mensual_bodega_producto",
@@ -3233,6 +3220,19 @@
             "año",
             "mes",
             "id_bodega"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "prod_cierre_bod_prod": {
+          "name": "prod_cierre_bod_prod",
+          "tableFrom": "50_m_cierre_mensual_bodega_producto",
+          "tableTo": "20_m_producto",
+          "columnsFrom": [
+            "id_producto"
+          ],
+          "columnsTo": [
+            "id_producto"
           ],
           "onDelete": "restrict",
           "onUpdate": "restrict"
@@ -3322,8 +3322,8 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "50_m_mermas_id_bodega_50_m_bodega_id_bodega_fk": {
-          "name": "50_m_mermas_id_bodega_50_m_bodega_id_bodega_fk",
+        "merma_bod": {
+          "name": "merma_bod",
           "tableFrom": "50_m_mermas",
           "tableTo": "50_m_bodega",
           "columnsFrom": [
@@ -3335,8 +3335,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "50_m_mermas_id_producto_20_m_producto_id_producto_fk": {
-          "name": "50_m_mermas_id_producto_20_m_producto_id_producto_fk",
+        "merma_prod": {
+          "name": "merma_prod",
           "tableFrom": "50_m_mermas",
           "tableTo": "20_m_producto",
           "columnsFrom": [
@@ -3425,8 +3425,8 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "50_m_nivel_producto_bodega_id_bodega_50_m_bodega_id_bodega_fk": {
-          "name": "50_m_nivel_producto_bodega_id_bodega_50_m_bodega_id_bodega_fk",
+        "niv_bod": {
+          "name": "niv_bod",
           "tableFrom": "50_m_nivel_producto_bodega",
           "tableTo": "50_m_bodega",
           "columnsFrom": [
@@ -3438,8 +3438,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "50_m_nivel_producto_bodega_id_producto_20_m_producto_id_producto_fk": {
-          "name": "50_m_nivel_producto_bodega_id_producto_20_m_producto_id_producto_fk",
+        "niv_prod": {
+          "name": "niv_prod",
           "tableFrom": "50_m_nivel_producto_bodega",
           "tableTo": "20_m_producto",
           "columnsFrom": [
@@ -3498,8 +3498,8 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "50_m_producto_recepcion_id_recepcion_50_m_recepcion_compra_id_recepcion_fk": {
-          "name": "50_m_producto_recepcion_id_recepcion_50_m_recepcion_compra_id_recepcion_fk",
+        "prod_recep_recep": {
+          "name": "prod_recep_recep",
           "tableFrom": "50_m_producto_recepcion",
           "tableTo": "50_m_recepcion_compra",
           "columnsFrom": [
@@ -3511,8 +3511,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "50_m_producto_recepcion_id_producto_20_m_producto_id_producto_fk": {
-          "name": "50_m_producto_recepcion_id_producto_20_m_producto_id_producto_fk",
+        "prod_recep_prod": {
+          "name": "prod_recep_prod",
           "tableFrom": "50_m_producto_recepcion",
           "tableTo": "20_m_producto",
           "columnsFrom": [
@@ -3652,8 +3652,8 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "50_m_recepcion_compra_rut_proveedor_70_m_proveedor_rut_proveedor_fk": {
-          "name": "50_m_recepcion_compra_rut_proveedor_70_m_proveedor_rut_proveedor_fk",
+        "recep_prov": {
+          "name": "recep_prov",
           "tableFrom": "50_m_recepcion_compra",
           "tableTo": "70_m_proveedor",
           "columnsFrom": [
@@ -3665,8 +3665,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "50_m_recepcion_compra_id_tipo_docto_10_p_tipo_docto_id_tipo_docto_fk": {
-          "name": "50_m_recepcion_compra_id_tipo_docto_10_p_tipo_docto_id_tipo_docto_fk",
+        "recep_tipo_docto": {
+          "name": "recep_tipo_docto",
           "tableFrom": "50_m_recepcion_compra",
           "tableTo": "10_p_tipo_docto",
           "columnsFrom": [
@@ -3678,8 +3678,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "50_m_recepcion_compra_id_bodega_50_m_bodega_id_bodega_fk": {
-          "name": "50_m_recepcion_compra_id_bodega_50_m_bodega_id_bodega_fk",
+        "recep_bod": {
+          "name": "recep_bod",
           "tableFrom": "50_m_recepcion_compra",
           "tableTo": "50_m_bodega",
           "columnsFrom": [
@@ -3691,8 +3691,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "50_m_recepcion_compra_id_usuario_recepcion_10_m_usuario_id_usuario_fk": {
-          "name": "50_m_recepcion_compra_id_usuario_recepcion_10_m_usuario_id_usuario_fk",
+        "recep_usu": {
+          "name": "recep_usu",
           "tableFrom": "50_m_recepcion_compra",
           "tableTo": "10_m_usuario",
           "columnsFrom": [
@@ -3704,8 +3704,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "50_m_recepcion_compra_id_estado_99_p_estado_id_estado_fk": {
-          "name": "50_m_recepcion_compra_id_estado_99_p_estado_id_estado_fk",
+        "recep_est": {
+          "name": "recep_est",
           "tableFrom": "50_m_recepcion_compra",
           "tableTo": "99_p_estado",
           "columnsFrom": [
@@ -3756,8 +3756,8 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "50_m_stock_id_bodega_50_m_bodega_id_bodega_fk": {
-          "name": "50_m_stock_id_bodega_50_m_bodega_id_bodega_fk",
+        "stock_bod": {
+          "name": "stock_bod",
           "tableFrom": "50_m_stock",
           "tableTo": "50_m_bodega",
           "columnsFrom": [
@@ -3769,8 +3769,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "50_m_stock_id_producto_20_m_producto_id_producto_fk": {
-          "name": "50_m_stock_id_producto_20_m_producto_id_producto_fk",
+        "stock_prod": {
+          "name": "stock_prod",
           "tableFrom": "50_m_stock",
           "tableTo": "20_m_producto",
           "columnsFrom": [
@@ -3890,8 +3890,8 @@
         }
       },
       "foreignKeys": {
-        "60_m_pago_id_forma_pago_10_p_tipo_docto_id_tipo_docto_fk": {
-          "name": "60_m_pago_id_forma_pago_10_p_tipo_docto_id_tipo_docto_fk",
+        "fk_pago_tipo_docto": {
+          "name": "fk_pago_tipo_docto",
           "tableFrom": "60_m_pago",
           "tableTo": "10_p_tipo_docto",
           "columnsFrom": [
@@ -4048,8 +4048,8 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "70_m_proveedor_id_usuario_mod_10_m_usuario_id_usuario_fk": {
-          "name": "70_m_proveedor_id_usuario_mod_10_m_usuario_id_usuario_fk",
+        "prov_usu": {
+          "name": "prov_usu",
           "tableFrom": "70_m_proveedor",
           "tableTo": "10_m_usuario",
           "columnsFrom": [
@@ -4061,8 +4061,8 @@
           "onDelete": "restrict",
           "onUpdate": "restrict"
         },
-        "70_m_proveedor_id_estado_99_p_estado_id_estado_fk": {
-          "name": "70_m_proveedor_id_estado_99_p_estado_id_estado_fk",
+        "prov_est": {
+          "name": "prov_est",
           "tableFrom": "70_m_proveedor",
           "tableTo": "99_p_estado",
           "columnsFrom": [
