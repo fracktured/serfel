@@ -41,10 +41,10 @@ describe("createDb", () => {
     const { db, pool } = createDb(creds, { ssl: false });
     await migrate(db, { migrationsFolder: "migrations" });
     const result = await db.execute(
-      sql`SELECT COUNT(*) AS c FROM information_schema.tables WHERE table_schema = ${TEST_DB}`
+      sql`SELECT COUNT(*) AS c FROM information_schema.tables WHERE table_schema = ${TEST_DB} AND TABLE_NAME != '__drizzle_migrations'`
     );
     const count = Number((result as unknown as [{ c: unknown }[], unknown])[0][0].c);
-    expect(count).toBeGreaterThan(0);
+    expect(count).toBe(42);
     await pool.end();
   }, 60_000);
 });

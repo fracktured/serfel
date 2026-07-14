@@ -31,7 +31,7 @@ export function createDb(
     password: creds.password,
     database: creds.dbname,
     connectionLimit: 1,
-    ...(opts.ssl === false ? {} : { ssl: opts.ssl }),
+    ...(opts.ssl !== undefined && opts.ssl !== false ? { ssl: opts.ssl } : {}),
   });
   const db = drizzle(pool, { schema, mode: "default" });
   return { db, pool };
