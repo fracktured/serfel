@@ -23,5 +23,6 @@ export default $config({
   async run() {
     await import("./infra/oidc");
     await import("./infra/vpc");
+    await import("./infra/database");
   },
 });
