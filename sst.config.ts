@@ -25,5 +25,6 @@ export default $config({
     await import("./infra/vpc");
     await import("./infra/database");
     await import("./infra/bastion");
+    await import("./infra/migrate");
   },
 });
