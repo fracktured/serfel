@@ -37,3 +37,17 @@ jobs:
 
       - name: Deploy
         run: npx sst deploy --stage dev
+
+      - name: Run DB migrations (skips if DB is stopped)
+        run: |
+          STATUS=$(aws rds describe-db-instances \
+            --db-instance-identifier serfel-dev-db --region us-east-1 \
+            --query 'DBInstances[0].DBInstanceStatus' --output text 2>/dev/null || echo "missing")
+          if [ "$STATUS" = "available" ]; then
+            aws lambda invoke --region us-east-1 --function-name serfel-dev-migrate \
+              --cli-read-timeout 120 response.json
+            cat response.json
+            grep -q '"ok":true' response.json
+          else
+            echo "::warning::serfel-dev-db is '$STATUS' — migrations skipped. Run 'pnpm db:migrate' after starting the DB."
+          fi
