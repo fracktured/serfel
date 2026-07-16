@@ -1,0 +1,4239 @@
+{
+  "version": "5",
+  "dialect": "mysql",
+  "id": "a9b91c50-2432-43f3-a871-c3b2e53b2250",
+  "prevId": "569e3f80-b39b-448c-bcc5-06d9cbde3c22",
+  "tables": {
+    "10_m_cliente": {
+      "name": "10_m_cliente",
+      "columns": {
+        "rut_cliente": {
+          "name": "rut_cliente",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "dv_cliente": {
+          "name": "dv_cliente",
+          "type": "varchar(1)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "razon_social": {
+          "name": "razon_social",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nom_fantasia": {
+          "name": "nom_fantasia",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "telefono_cliente": {
+          "name": "telefono_cliente",
+          "type": "varchar(15)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "direccion_cliente": {
+          "name": "direccion_cliente",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "comuna": {
+          "name": "comuna",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "ciudad": {
+          "name": "ciudad",
+          "type": "varchar(25)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "email_cliente": {
+          "name": "email_cliente",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "id_lista_precio": {
+          "name": "id_lista_precio",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "id_usuario_mod": {
+          "name": "id_usuario_mod",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ult_fecha_mod": {
+          "name": "ult_fecha_mod",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_estado": {
+          "name": "id_estado",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "permite_venta_deuda": {
+          "name": "permite_venta_deuda",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "clie_list_prec": {
+          "name": "clie_list_prec",
+          "tableFrom": "10_m_cliente",
+          "tableTo": "40_m_lista_precio",
+          "columnsFrom": [
+            "id_lista_precio"
+          ],
+          "columnsTo": [
+            "id_lista_precio"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "clie_est": {
+          "name": "clie_est",
+          "tableFrom": "10_m_cliente",
+          "tableTo": "99_p_estado",
+          "columnsFrom": [
+            "id_estado"
+          ],
+          "columnsTo": [
+            "id_estado"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        }
+      },
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "rut_cliente"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "10_m_empresa": {
+      "name": "10_m_empresa",
+      "columns": {
+        "rut_empresa": {
+          "name": "rut_empresa",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "dv_empresa": {
+          "name": "dv_empresa",
+          "type": "varchar(1)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "razon_social": {
+          "name": "razon_social",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nom_fantasia": {
+          "name": "nom_fantasia",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "direccion_empresa": {
+          "name": "direccion_empresa",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "acceso_rapido": {
+          "name": "acceso_rapido",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "id_usuario_mod": {
+          "name": "id_usuario_mod",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ult_fecha_mod": {
+          "name": "ult_fecha_mod",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_estado": {
+          "name": "id_estado",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "giro": {
+          "name": "giro",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "cod_actividad_economica": {
+          "name": "cod_actividad_economica",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "comuna": {
+          "name": "comuna",
+          "type": "varchar(25)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ciudad": {
+          "name": "ciudad",
+          "type": "varchar(25)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "rut_representante_legal": {
+          "name": "rut_representante_legal",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "dv_representante_legal": {
+          "name": "dv_representante_legal",
+          "type": "varchar(1)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "fecha_aprobacion_SII": {
+          "name": "fecha_aprobacion_SII",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "num_aprobacion_SII": {
+          "name": "num_aprobacion_SII",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "rut_empresa": {
+          "name": "rut_empresa",
+          "columns": [
+            "rut_empresa"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "emp_usu": {
+          "name": "emp_usu",
+          "tableFrom": "10_m_empresa",
+          "tableTo": "10_m_usuario",
+          "columnsFrom": [
+            "id_usuario_mod"
+          ],
+          "columnsTo": [
+            "id_usuario"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "emp_est": {
+          "name": "emp_est",
+          "tableFrom": "10_m_empresa",
+          "tableTo": "99_p_estado",
+          "columnsFrom": [
+            "id_estado"
+          ],
+          "columnsTo": [
+            "id_estado"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        }
+      },
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "rut_empresa",
+            "ult_fecha_mod"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "10_m_local_cliente": {
+      "name": "10_m_local_cliente",
+      "columns": {
+        "id_local_cliente": {
+          "name": "id_local_cliente",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "rut_cliente": {
+          "name": "rut_cliente",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nom_local_cliente": {
+          "name": "nom_local_cliente",
+          "type": "varchar(30)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "telefono_local_cliente": {
+          "name": "telefono_local_cliente",
+          "type": "varchar(15)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "direccion_local_cliente": {
+          "name": "direccion_local_cliente",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "comuna_local_cliente": {
+          "name": "comuna_local_cliente",
+          "type": "varchar(30)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "email_local_cliente": {
+          "name": "email_local_cliente",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "giro": {
+          "name": "giro",
+          "type": "varchar(30)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "nom_contacto": {
+          "name": "nom_contacto",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "apell_pat_contacto": {
+          "name": "apell_pat_contacto",
+          "type": "varchar(30)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "apell_mat_contacto": {
+          "name": "apell_mat_contacto",
+          "type": "varchar(30)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "telefono_contacto": {
+          "name": "telefono_contacto",
+          "type": "varchar(15)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "email_contacto": {
+          "name": "email_contacto",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "tope_venta": {
+          "name": "tope_venta",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "tope_credito": {
+          "name": "tope_credito",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "id_vendedor": {
+          "name": "id_vendedor",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 5
+        },
+        "id_forma_pago": {
+          "name": "id_forma_pago",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 7
+        },
+        "comuna": {
+          "name": "comuna",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "observaciones": {
+          "name": "observaciones",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "id_usuario_mod": {
+          "name": "id_usuario_mod",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ult_fecha_mod": {
+          "name": "ult_fecha_mod",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_estado": {
+          "name": "id_estado",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "permite_venta_tope_mensual": {
+          "name": "permite_venta_tope_mensual",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "loc_clie_clie": {
+          "name": "loc_clie_clie",
+          "tableFrom": "10_m_local_cliente",
+          "tableTo": "10_m_cliente",
+          "columnsFrom": [
+            "rut_cliente"
+          ],
+          "columnsTo": [
+            "rut_cliente"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "loc_clie_est": {
+          "name": "loc_clie_est",
+          "tableFrom": "10_m_local_cliente",
+          "tableTo": "99_p_estado",
+          "columnsFrom": [
+            "id_estado"
+          ],
+          "columnsTo": [
+            "id_estado"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        }
+      },
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_local_cliente"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "10_m_usuario": {
+      "name": "10_m_usuario",
+      "columns": {
+        "id_usuario": {
+          "name": "id_usuario",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "rut_usuario": {
+          "name": "rut_usuario",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "dv_usuario": {
+          "name": "dv_usuario",
+          "type": "varchar(1)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nom_usuario": {
+          "name": "nom_usuario",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "apell_pat_usuario": {
+          "name": "apell_pat_usuario",
+          "type": "varchar(30)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "apell_mat_usuario": {
+          "name": "apell_mat_usuario",
+          "type": "varchar(30)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "password": {
+          "name": "password",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_tipo_usuario": {
+          "name": "id_tipo_usuario",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "telefono_usuario": {
+          "name": "telefono_usuario",
+          "type": "varchar(15)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "direccion_usuario": {
+          "name": "direccion_usuario",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "email_usuario": {
+          "name": "email_usuario",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "num_usuario": {
+          "name": "num_usuario",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "id_usuario_mod": {
+          "name": "id_usuario_mod",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ult_fecha_mod": {
+          "name": "ult_fecha_mod",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_estado": {
+          "name": "id_estado",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "fecha_act_productos": {
+          "name": "fecha_act_productos",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "usu_tipo_usu": {
+          "name": "usu_tipo_usu",
+          "tableFrom": "10_m_usuario",
+          "tableTo": "10_p_tipo_usuario",
+          "columnsFrom": [
+            "id_tipo_usuario"
+          ],
+          "columnsTo": [
+            "id_tipo_usuario"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "usu_est": {
+          "name": "usu_est",
+          "tableFrom": "10_m_usuario",
+          "tableTo": "99_p_estado",
+          "columnsFrom": [
+            "id_estado"
+          ],
+          "columnsTo": [
+            "id_estado"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        }
+      },
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_usuario"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "10_p_tipo_docto": {
+      "name": "10_p_tipo_docto",
+      "columns": {
+        "id_tipo_docto": {
+          "name": "id_tipo_docto",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nom_tipo_docto": {
+          "name": "nom_tipo_docto",
+          "type": "varchar(35)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "desc_tipo_docto": {
+          "name": "desc_tipo_docto",
+          "type": "varchar(150)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_tipo_docto"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "10_p_tipo_usuario": {
+      "name": "10_p_tipo_usuario",
+      "columns": {
+        "id_tipo_usuario": {
+          "name": "id_tipo_usuario",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nom_tipo_usuario": {
+          "name": "nom_tipo_usuario",
+          "type": "varchar(15)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "desc_tipo_usuario": {
+          "name": "desc_tipo_usuario",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_tipo_usuario"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "20_m_porcion": {
+      "name": "20_m_porcion",
+      "columns": {
+        "id_porcion": {
+          "name": "id_porcion",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "id_producto": {
+          "name": "id_producto",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "fecha": {
+          "name": "fecha",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "grupo": {
+          "name": "grupo",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "numero": {
+          "name": "numero",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "cantidad": {
+          "name": "cantidad",
+          "type": "decimal(18,3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_venta": {
+          "name": "id_venta",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "id_usuario": {
+          "name": "id_usuario",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_estado": {
+          "name": "id_estado",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "fk_porcion_venta": {
+          "name": "fk_porcion_venta",
+          "columns": [
+            "id_venta"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "fk_porcion_producto": {
+          "name": "fk_porcion_producto",
+          "tableFrom": "20_m_porcion",
+          "tableTo": "20_m_producto",
+          "columnsFrom": [
+            "id_producto"
+          ],
+          "columnsTo": [
+            "id_producto"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "restrict"
+        },
+        "fk_porcion_usuario": {
+          "name": "fk_porcion_usuario",
+          "tableFrom": "20_m_porcion",
+          "tableTo": "10_m_usuario",
+          "columnsFrom": [
+            "id_usuario"
+          ],
+          "columnsTo": [
+            "id_usuario"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "restrict"
+        },
+        "fk_porcion_estado": {
+          "name": "fk_porcion_estado",
+          "tableFrom": "20_m_porcion",
+          "tableTo": "99_p_estado",
+          "columnsFrom": [
+            "id_estado"
+          ],
+          "columnsTo": [
+            "id_estado"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "restrict"
+        }
+      },
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_porcion"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "20_m_producto": {
+      "name": "20_m_producto",
+      "columns": {
+        "id_producto": {
+          "name": "id_producto",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "nom_producto": {
+          "name": "nom_producto",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "desc_producto": {
+          "name": "desc_producto",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "cod_barra_producto": {
+          "name": "cod_barra_producto",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_tipo_producto": {
+          "name": "id_tipo_producto",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_marca": {
+          "name": "id_marca",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_UM": {
+          "name": "id_UM",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_usuario_mod": {
+          "name": "id_usuario_mod",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ult_fecha_mod": {
+          "name": "ult_fecha_mod",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_estado": {
+          "name": "id_estado",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "costo_prom": {
+          "name": "costo_prom",
+          "type": "decimal(18,2)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'0.00'"
+        },
+        "ult_fecha_compra": {
+          "name": "ult_fecha_compra",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "cod_serfel": {
+          "name": "cod_serfel",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "impuesto": {
+          "name": "impuesto",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "usa_porciones": {
+          "name": "usa_porciones",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "ind_serfel": {
+          "name": "ind_serfel",
+          "columns": [
+            "cod_serfel"
+          ],
+          "isUnique": false
+        },
+        "ind_nombre": {
+          "name": "ind_nombre",
+          "columns": [
+            "nom_producto"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "prod_tipo_prod": {
+          "name": "prod_tipo_prod",
+          "tableFrom": "20_m_producto",
+          "tableTo": "20_p_tipo_producto",
+          "columnsFrom": [
+            "id_tipo_producto"
+          ],
+          "columnsTo": [
+            "id_tipo_producto"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "prod_marca": {
+          "name": "prod_marca",
+          "tableFrom": "20_m_producto",
+          "tableTo": "20_p_marca",
+          "columnsFrom": [
+            "id_marca"
+          ],
+          "columnsTo": [
+            "id_marca"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "prod_UM": {
+          "name": "prod_UM",
+          "tableFrom": "20_m_producto",
+          "tableTo": "20_p_unidad_medida",
+          "columnsFrom": [
+            "id_UM"
+          ],
+          "columnsTo": [
+            "id_UM"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "prod_usu": {
+          "name": "prod_usu",
+          "tableFrom": "20_m_producto",
+          "tableTo": "10_m_usuario",
+          "columnsFrom": [
+            "id_usuario_mod"
+          ],
+          "columnsTo": [
+            "id_usuario"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "prod_est": {
+          "name": "prod_est",
+          "tableFrom": "20_m_producto",
+          "tableTo": "99_p_estado",
+          "columnsFrom": [
+            "id_estado"
+          ],
+          "columnsTo": [
+            "id_estado"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        }
+      },
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_producto"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "20_p_marca": {
+      "name": "20_p_marca",
+      "columns": {
+        "id_marca": {
+          "name": "id_marca",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nom_marca": {
+          "name": "nom_marca",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "desc_marca": {
+          "name": "desc_marca",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_marca"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "20_p_tipo_producto": {
+      "name": "20_p_tipo_producto",
+      "columns": {
+        "id_tipo_producto": {
+          "name": "id_tipo_producto",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nom_tipo_producto": {
+          "name": "nom_tipo_producto",
+          "type": "varchar(15)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "desc_tipo_producto": {
+          "name": "desc_tipo_producto",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "nivel_1": {
+          "name": "nivel_1",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "nivel_2": {
+          "name": "nivel_2",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "id_usuario_mod": {
+          "name": "id_usuario_mod",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ult_fecha_mod": {
+          "name": "ult_fecha_mod",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_estado": {
+          "name": "id_estado",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "niv1_tipo_pro": {
+          "name": "niv1_tipo_pro",
+          "columns": [
+            "nivel_1"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "tipo_pro_usu": {
+          "name": "tipo_pro_usu",
+          "tableFrom": "20_p_tipo_producto",
+          "tableTo": "10_m_usuario",
+          "columnsFrom": [
+            "id_usuario_mod"
+          ],
+          "columnsTo": [
+            "id_usuario"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        }
+      },
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_tipo_producto"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "20_p_unidad_medida": {
+      "name": "20_p_unidad_medida",
+      "columns": {
+        "id_UM": {
+          "name": "id_UM",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nom_UM": {
+          "name": "nom_UM",
+          "type": "varchar(15)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "desc_UM": {
+          "name": "desc_UM",
+          "type": "varchar(150)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_UM"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "30_m_pedido": {
+      "name": "30_m_pedido",
+      "columns": {
+        "id_pedido": {
+          "name": "id_pedido",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "fecha_pedido": {
+          "name": "fecha_pedido",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_local_cliente": {
+          "name": "id_local_cliente",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "dia_ruta": {
+          "name": "dia_ruta",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "id_forma_pago": {
+          "name": "id_forma_pago",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "tiempo": {
+          "name": "tiempo",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "precio_total": {
+          "name": "precio_total",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_usuario": {
+          "name": "id_usuario",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 5
+        },
+        "id_lista_precio": {
+          "name": "id_lista_precio",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_estado": {
+          "name": "id_estado",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "ped_loc_clie": {
+          "name": "ped_loc_clie",
+          "tableFrom": "30_m_pedido",
+          "tableTo": "10_m_local_cliente",
+          "columnsFrom": [
+            "id_local_cliente"
+          ],
+          "columnsTo": [
+            "id_local_cliente"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "ped_usu": {
+          "name": "ped_usu",
+          "tableFrom": "30_m_pedido",
+          "tableTo": "10_m_usuario",
+          "columnsFrom": [
+            "id_usuario"
+          ],
+          "columnsTo": [
+            "id_usuario"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "ped_lis_prec": {
+          "name": "ped_lis_prec",
+          "tableFrom": "30_m_pedido",
+          "tableTo": "40_m_lista_precio",
+          "columnsFrom": [
+            "id_lista_precio"
+          ],
+          "columnsTo": [
+            "id_lista_precio"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "ped_est": {
+          "name": "ped_est",
+          "tableFrom": "30_m_pedido",
+          "tableTo": "99_p_estado",
+          "columnsFrom": [
+            "id_estado"
+          ],
+          "columnsTo": [
+            "id_estado"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        }
+      },
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_pedido"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "30_m_producto_pedido": {
+      "name": "30_m_producto_pedido",
+      "columns": {
+        "id_pedido": {
+          "name": "id_pedido",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_producto": {
+          "name": "id_producto",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "cantidad": {
+          "name": "cantidad",
+          "type": "decimal(18,3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "precio": {
+          "name": "precio",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "porcen_desc": {
+          "name": "porcen_desc",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "precio_neto": {
+          "name": "precio_neto",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "prod_ped_ped": {
+          "name": "prod_ped_ped",
+          "tableFrom": "30_m_producto_pedido",
+          "tableTo": "30_m_pedido",
+          "columnsFrom": [
+            "id_pedido"
+          ],
+          "columnsTo": [
+            "id_pedido"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "prod_ped_prod": {
+          "name": "prod_ped_prod",
+          "tableFrom": "30_m_producto_pedido",
+          "tableTo": "20_m_producto",
+          "columnsFrom": [
+            "id_producto"
+          ],
+          "columnsTo": [
+            "id_producto"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        }
+      },
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_pedido",
+            "id_producto"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "40_m_lista_precio": {
+      "name": "40_m_lista_precio",
+      "columns": {
+        "id_lista_precio": {
+          "name": "id_lista_precio",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nom_lista_precio": {
+          "name": "nom_lista_precio",
+          "type": "varchar(15)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_usuario_mod": {
+          "name": "id_usuario_mod",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ult_fecha_mod": {
+          "name": "ult_fecha_mod",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_estado": {
+          "name": "id_estado",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_lista_precio"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "40_m_motivo_nota_credito": {
+      "name": "40_m_motivo_nota_credito",
+      "columns": {
+        "id_motivo": {
+          "name": "id_motivo",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nom_motivo": {
+          "name": "nom_motivo",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_motivo"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "40_m_nota_credito": {
+      "name": "40_m_nota_credito",
+      "columns": {
+        "id_nota_credito": {
+          "name": "id_nota_credito",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_venta": {
+          "name": "id_venta",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "num_nota_credito": {
+          "name": "num_nota_credito",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "id_tipo_docto_emitido": {
+          "name": "id_tipo_docto_emitido",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "rut_empresa": {
+          "name": "rut_empresa",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "iva": {
+          "name": "iva",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "iaba": {
+          "name": "iaba",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "espec": {
+          "name": "espec",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "sub_total": {
+          "name": "sub_total",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "id_motivo": {
+          "name": "id_motivo",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "id_usuario": {
+          "name": "id_usuario",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "fecha_nota_credito": {
+          "name": "fecha_nota_credito",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "precio_total": {
+          "name": "precio_total",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "id_estado": {
+          "name": "id_estado",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "es_nota_cred_electronica": {
+          "name": "es_nota_cred_electronica",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "url_PDF_original": {
+          "name": "url_PDF_original",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "url_PDF_cedible": {
+          "name": "url_PDF_cedible",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "id_usuario_mod": {
+          "name": "id_usuario_mod",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "ult_fecha_mod": {
+          "name": "ult_fecha_mod",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "id_folio": {
+          "name": "id_folio",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "nota_cred_venta": {
+          "name": "nota_cred_venta",
+          "columns": [
+            "id_venta"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "fk_nota_cred_venta": {
+          "name": "fk_nota_cred_venta",
+          "tableFrom": "40_m_nota_credito",
+          "tableTo": "40_m_venta",
+          "columnsFrom": [
+            "id_venta"
+          ],
+          "columnsTo": [
+            "id_venta"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "nota_cred_usu": {
+          "name": "nota_cred_usu",
+          "tableFrom": "40_m_nota_credito",
+          "tableTo": "10_m_usuario",
+          "columnsFrom": [
+            "id_usuario"
+          ],
+          "columnsTo": [
+            "id_usuario"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "nota_cred_est": {
+          "name": "nota_cred_est",
+          "tableFrom": "40_m_nota_credito",
+          "tableTo": "99_p_estado",
+          "columnsFrom": [
+            "id_estado"
+          ],
+          "columnsTo": [
+            "id_estado"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        }
+      },
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_nota_credito"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "40_m_nota_credito_compra": {
+      "name": "40_m_nota_credito_compra",
+      "columns": {
+        "id_nc_compra": {
+          "name": "id_nc_compra",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "id_recepcion": {
+          "name": "id_recepcion",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "num_nc_compra": {
+          "name": "num_nc_compra",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "fecha_nc_compra": {
+          "name": "fecha_nc_compra",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_tipo_docto": {
+          "name": "id_tipo_docto",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "iva": {
+          "name": "iva",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "iaba": {
+          "name": "iaba",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "espec": {
+          "name": "espec",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "subtotal": {
+          "name": "subtotal",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "precio_total": {
+          "name": "precio_total",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_usuario": {
+          "name": "id_usuario",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_estado": {
+          "name": "id_estado",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "url_PDF": {
+          "name": "url_PDF",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "cod_ref_nde": {
+          "name": "cod_ref_nde",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_nc_compra"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "40_m_nota_debito": {
+      "name": "40_m_nota_debito",
+      "columns": {
+        "id_nota_debito": {
+          "name": "id_nota_debito",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "id_nota_credito": {
+          "name": "id_nota_credito",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "num_nota_debito_elect": {
+          "name": "num_nota_debito_elect",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "rut_empresa": {
+          "name": "rut_empresa",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "iva": {
+          "name": "iva",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "iaba": {
+          "name": "iaba",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "espec": {
+          "name": "espec",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "subtotal": {
+          "name": "subtotal",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_usuario": {
+          "name": "id_usuario",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "fecha_nota_debito": {
+          "name": "fecha_nota_debito",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "precio_total": {
+          "name": "precio_total",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_estado": {
+          "name": "id_estado",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "url_PDF": {
+          "name": "url_PDF",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "cod_ref_nde": {
+          "name": "cod_ref_nde",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_folio": {
+          "name": "id_folio",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_nota_debito"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "40_m_precio_producto": {
+      "name": "40_m_precio_producto",
+      "columns": {
+        "id_lista_precio": {
+          "name": "id_lista_precio",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_producto": {
+          "name": "id_producto",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "precio_neto": {
+          "name": "precio_neto",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "precio": {
+          "name": "precio",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "porcen_desc": {
+          "name": "porcen_desc",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "max_porcen_desc": {
+          "name": "max_porcen_desc",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "cant_tramo1": {
+          "name": "cant_tramo1",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "max_porcen_tramo1": {
+          "name": "max_porcen_tramo1",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "cant_tramo2": {
+          "name": "cant_tramo2",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "max_porcen_tramo2": {
+          "name": "max_porcen_tramo2",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "cant_tramo3": {
+          "name": "cant_tramo3",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "max_porcen_tramo3": {
+          "name": "max_porcen_tramo3",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "prec_prod_list_prec": {
+          "name": "prec_prod_list_prec",
+          "tableFrom": "40_m_precio_producto",
+          "tableTo": "40_m_lista_precio",
+          "columnsFrom": [
+            "id_lista_precio"
+          ],
+          "columnsTo": [
+            "id_lista_precio"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "prec_prod_prod": {
+          "name": "prec_prod_prod",
+          "tableFrom": "40_m_precio_producto",
+          "tableTo": "20_m_producto",
+          "columnsFrom": [
+            "id_producto"
+          ],
+          "columnsTo": [
+            "id_producto"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        }
+      },
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_lista_precio",
+            "id_producto"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "40_m_prod_nota_credito": {
+      "name": "40_m_prod_nota_credito",
+      "columns": {
+        "id_nota_credito": {
+          "name": "id_nota_credito",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_producto": {
+          "name": "id_producto",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "cantidad": {
+          "name": "cantidad",
+          "type": "decimal(18,3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "precio": {
+          "name": "precio",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "porcen_desc": {
+          "name": "porcen_desc",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "prod_nota_nota_cred": {
+          "name": "prod_nota_nota_cred",
+          "tableFrom": "40_m_prod_nota_credito",
+          "tableTo": "40_m_nota_credito",
+          "columnsFrom": [
+            "id_nota_credito"
+          ],
+          "columnsTo": [
+            "id_nota_credito"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "prod_nota_prod": {
+          "name": "prod_nota_prod",
+          "tableFrom": "40_m_prod_nota_credito",
+          "tableTo": "20_m_producto",
+          "columnsFrom": [
+            "id_producto"
+          ],
+          "columnsTo": [
+            "id_producto"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        }
+      },
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_nota_credito",
+            "id_producto"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "40_m_prod_nota_credito_compra": {
+      "name": "40_m_prod_nota_credito_compra",
+      "columns": {
+        "id_nc_compra": {
+          "name": "id_nc_compra",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "id_producto": {
+          "name": "id_producto",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "cantidad": {
+          "name": "cantidad",
+          "type": "decimal(18,3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "precio": {
+          "name": "precio",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "prod_nota_prod": {
+          "name": "prod_nota_prod",
+          "columns": [
+            "id_producto"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_nc_compra",
+            "id_producto"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "40_m_producto_devolucion": {
+      "name": "40_m_producto_devolucion",
+      "columns": {
+        "id_venta": {
+          "name": "id_venta",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_producto": {
+          "name": "id_producto",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "cantidad": {
+          "name": "cantidad",
+          "type": "decimal(18,3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_usuario": {
+          "name": "id_usuario",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_venta",
+            "id_producto"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "40_m_producto_venta": {
+      "name": "40_m_producto_venta",
+      "columns": {
+        "id_venta": {
+          "name": "id_venta",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_producto": {
+          "name": "id_producto",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "cantidad": {
+          "name": "cantidad",
+          "type": "decimal(18,3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "precio": {
+          "name": "precio",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "porcen_desc": {
+          "name": "porcen_desc",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "precio_neto": {
+          "name": "precio_neto",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "fk_prod_venta_venta": {
+          "name": "fk_prod_venta_venta",
+          "tableFrom": "40_m_producto_venta",
+          "tableTo": "40_m_venta",
+          "columnsFrom": [
+            "id_venta"
+          ],
+          "columnsTo": [
+            "id_venta"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "prod_venta_prod": {
+          "name": "prod_venta_prod",
+          "tableFrom": "40_m_producto_venta",
+          "tableTo": "20_m_producto",
+          "columnsFrom": [
+            "id_producto"
+          ],
+          "columnsTo": [
+            "id_producto"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        }
+      },
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_venta",
+            "id_producto"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "40_m_ruta": {
+      "name": "40_m_ruta",
+      "columns": {
+        "id_ruta": {
+          "name": "id_ruta",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nom_ruta": {
+          "name": "nom_ruta",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "id_usuario": {
+          "name": "id_usuario",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "num_dia": {
+          "name": "num_dia",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_usuario_mod": {
+          "name": "id_usuario_mod",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ult_fecha_mod": {
+          "name": "ult_fecha_mod",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_estado": {
+          "name": "id_estado",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "ruta_usu": {
+          "name": "ruta_usu",
+          "tableFrom": "40_m_ruta",
+          "tableTo": "10_m_usuario",
+          "columnsFrom": [
+            "id_usuario"
+          ],
+          "columnsTo": [
+            "id_usuario"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "ruta_est": {
+          "name": "ruta_est",
+          "tableFrom": "40_m_ruta",
+          "tableTo": "99_p_estado",
+          "columnsFrom": [
+            "id_estado"
+          ],
+          "columnsTo": [
+            "id_estado"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        }
+      },
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_ruta"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "40_m_ruta_local_cliente": {
+      "name": "40_m_ruta_local_cliente",
+      "columns": {
+        "id_ruta": {
+          "name": "id_ruta",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_local_cliente": {
+          "name": "id_local_cliente",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_ruta",
+            "id_local_cliente"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "40_m_venta": {
+      "name": "40_m_venta",
+      "columns": {
+        "id_venta": {
+          "name": "id_venta",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "id_lista_precio": {
+          "name": "id_lista_precio",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_usuario_venta": {
+          "name": "id_usuario_venta",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "iva": {
+          "name": "iva",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "iaba": {
+          "name": "iaba",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "espec": {
+          "name": "espec",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "sub_total": {
+          "name": "sub_total",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "precio_total": {
+          "name": "precio_total",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "num_docto_emitido": {
+          "name": "num_docto_emitido",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_tipo_docto_emitido": {
+          "name": "id_tipo_docto_emitido",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "rut_empresa": {
+          "name": "rut_empresa",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "rut_cliente": {
+          "name": "rut_cliente",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_local_cliente": {
+          "name": "id_local_cliente",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_forma_pago": {
+          "name": "id_forma_pago",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "id_pedido": {
+          "name": "id_pedido",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "fecha_venta": {
+          "name": "fecha_venta",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "entregado": {
+          "name": "entregado",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "id_usuario_mod": {
+          "name": "id_usuario_mod",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ult_fecha_mod": {
+          "name": "ult_fecha_mod",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_estado": {
+          "name": "id_estado",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_folio": {
+          "name": "id_folio",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "url_PDF": {
+          "name": "url_PDF",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "url_PDF_original": {
+          "name": "url_PDF_original",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "url_PDF_cedible": {
+          "name": "url_PDF_cedible",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "observaciones": {
+          "name": "observaciones",
+          "type": "varchar(150)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "periodo_libro": {
+          "name": "periodo_libro",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "id_estado_pago": {
+          "name": "id_estado_pago",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        }
+      },
+      "indexes": {
+        "venta_ped": {
+          "name": "venta_ped",
+          "columns": [
+            "id_pedido"
+          ],
+          "isUnique": false
+        },
+        "IDX_idLocalClienteFechaVenta": {
+          "name": "IDX_idLocalClienteFechaVenta",
+          "columns": [
+            "id_local_cliente",
+            "fecha_venta"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "venta_lis_prec": {
+          "name": "venta_lis_prec",
+          "tableFrom": "40_m_venta",
+          "tableTo": "40_m_lista_precio",
+          "columnsFrom": [
+            "id_lista_precio"
+          ],
+          "columnsTo": [
+            "id_lista_precio"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "venta_usu": {
+          "name": "venta_usu",
+          "tableFrom": "40_m_venta",
+          "tableTo": "10_m_usuario",
+          "columnsFrom": [
+            "id_usuario_venta"
+          ],
+          "columnsTo": [
+            "id_usuario"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "venta_tipo_docto": {
+          "name": "venta_tipo_docto",
+          "tableFrom": "40_m_venta",
+          "tableTo": "10_p_tipo_docto",
+          "columnsFrom": [
+            "id_tipo_docto_emitido"
+          ],
+          "columnsTo": [
+            "id_tipo_docto"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "venta_emp": {
+          "name": "venta_emp",
+          "tableFrom": "40_m_venta",
+          "tableTo": "10_m_empresa",
+          "columnsFrom": [
+            "rut_empresa"
+          ],
+          "columnsTo": [
+            "rut_empresa"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "venta_clie": {
+          "name": "venta_clie",
+          "tableFrom": "40_m_venta",
+          "tableTo": "10_m_cliente",
+          "columnsFrom": [
+            "rut_cliente"
+          ],
+          "columnsTo": [
+            "rut_cliente"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "venta_est": {
+          "name": "venta_est",
+          "tableFrom": "40_m_venta",
+          "tableTo": "99_p_estado",
+          "columnsFrom": [
+            "id_estado"
+          ],
+          "columnsTo": [
+            "id_estado"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        }
+      },
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_venta"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "40_p_forma_pago": {
+      "name": "40_p_forma_pago",
+      "columns": {
+        "id_forma_pago": {
+          "name": "id_forma_pago",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nom_forma_pago": {
+          "name": "nom_forma_pago",
+          "type": "varchar(15)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "desc_forma_pago": {
+          "name": "desc_forma_pago",
+          "type": "varchar(150)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_forma_pago"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "50_m_bodega": {
+      "name": "50_m_bodega",
+      "columns": {
+        "id_bodega": {
+          "name": "id_bodega",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nom_bodega": {
+          "name": "nom_bodega",
+          "type": "varchar(30)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "desc_bodega": {
+          "name": "desc_bodega",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_tipo_bodega": {
+          "name": "id_tipo_bodega",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_usuario_mod": {
+          "name": "id_usuario_mod",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ult_fecha_mod": {
+          "name": "ult_fecha_mod",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_estado": {
+          "name": "id_estado",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "bod_tipo_bod": {
+          "name": "bod_tipo_bod",
+          "tableFrom": "50_m_bodega",
+          "tableTo": "50_p_tipo_bodega",
+          "columnsFrom": [
+            "id_tipo_bodega"
+          ],
+          "columnsTo": [
+            "id_tipo_bodega"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "bod_usu_mod": {
+          "name": "bod_usu_mod",
+          "tableFrom": "50_m_bodega",
+          "tableTo": "10_m_usuario",
+          "columnsFrom": [
+            "id_usuario_mod"
+          ],
+          "columnsTo": [
+            "id_usuario"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "bod_est": {
+          "name": "bod_est",
+          "tableFrom": "50_m_bodega",
+          "tableTo": "99_p_estado",
+          "columnsFrom": [
+            "id_estado"
+          ],
+          "columnsTo": [
+            "id_estado"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        }
+      },
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_bodega"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "50_m_cierre_mensual_bodega": {
+      "name": "50_m_cierre_mensual_bodega",
+      "columns": {
+        "año": {
+          "name": "año",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "mes": {
+          "name": "mes",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_bodega": {
+          "name": "id_bodega",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_usuario_cierre": {
+          "name": "id_usuario_cierre",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "fecha_cierre_bodega": {
+          "name": "fecha_cierre_bodega",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "observaciones": {
+          "name": "observaciones",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "mes": {
+          "name": "mes",
+          "columns": [
+            "mes"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "cierre_bod_bod": {
+          "name": "cierre_bod_bod",
+          "tableFrom": "50_m_cierre_mensual_bodega",
+          "tableTo": "50_m_bodega",
+          "columnsFrom": [
+            "id_bodega"
+          ],
+          "columnsTo": [
+            "id_bodega"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "cierre_bod_usu": {
+          "name": "cierre_bod_usu",
+          "tableFrom": "50_m_cierre_mensual_bodega",
+          "tableTo": "10_m_usuario",
+          "columnsFrom": [
+            "id_usuario_cierre"
+          ],
+          "columnsTo": [
+            "id_usuario"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        }
+      },
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "año",
+            "mes",
+            "id_bodega"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "50_m_cierre_mensual_bodega_producto": {
+      "name": "50_m_cierre_mensual_bodega_producto",
+      "columns": {
+        "año": {
+          "name": "año",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "mes": {
+          "name": "mes",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_bodega": {
+          "name": "id_bodega",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_producto": {
+          "name": "id_producto",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "cantidad": {
+          "name": "cantidad",
+          "type": "decimal(18,3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "bod_cierre_bod_prod": {
+          "name": "bod_cierre_bod_prod",
+          "columns": [
+            "id_bodega"
+          ],
+          "isUnique": false
+        },
+        "mes_cierre_bod_prod": {
+          "name": "mes_cierre_bod_prod",
+          "columns": [
+            "mes"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "año_cierre_bod_prod": {
+          "name": "año_cierre_bod_prod",
+          "tableFrom": "50_m_cierre_mensual_bodega_producto",
+          "tableTo": "50_m_cierre_mensual_bodega",
+          "columnsFrom": [
+            "año",
+            "mes",
+            "id_bodega"
+          ],
+          "columnsTo": [
+            "año",
+            "mes",
+            "id_bodega"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "prod_cierre_bod_prod": {
+          "name": "prod_cierre_bod_prod",
+          "tableFrom": "50_m_cierre_mensual_bodega_producto",
+          "tableTo": "20_m_producto",
+          "columnsFrom": [
+            "id_producto"
+          ],
+          "columnsTo": [
+            "id_producto"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        }
+      },
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "año",
+            "mes",
+            "id_bodega",
+            "id_producto"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "50_m_mermas": {
+      "name": "50_m_mermas",
+      "columns": {
+        "id_bodega": {
+          "name": "id_bodega",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "fecha_merma": {
+          "name": "fecha_merma",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_producto": {
+          "name": "id_producto",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "cantidad": {
+          "name": "cantidad",
+          "type": "decimal(18,3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "motivo_merma": {
+          "name": "motivo_merma",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_usuario_merma": {
+          "name": "id_usuario_merma",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_usuario_mod": {
+          "name": "id_usuario_mod",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ult_fecha_mod": {
+          "name": "ult_fecha_mod",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_estado": {
+          "name": "id_estado",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "merma_bod": {
+          "name": "merma_bod",
+          "tableFrom": "50_m_mermas",
+          "tableTo": "50_m_bodega",
+          "columnsFrom": [
+            "id_bodega"
+          ],
+          "columnsTo": [
+            "id_bodega"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "merma_prod": {
+          "name": "merma_prod",
+          "tableFrom": "50_m_mermas",
+          "tableTo": "20_m_producto",
+          "columnsFrom": [
+            "id_producto"
+          ],
+          "columnsTo": [
+            "id_producto"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        }
+      },
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_bodega",
+            "fecha_merma",
+            "id_producto"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "50_m_nivel_producto_bodega": {
+      "name": "50_m_nivel_producto_bodega",
+      "columns": {
+        "id_bodega": {
+          "name": "id_bodega",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_producto": {
+          "name": "id_producto",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "minimo": {
+          "name": "minimo",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "meses": {
+          "name": "meses",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "punto_orden": {
+          "name": "punto_orden",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_usuario_mod": {
+          "name": "id_usuario_mod",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ult_fecha_mod": {
+          "name": "ult_fecha_mod",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_estado": {
+          "name": "id_estado",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "niv_bod": {
+          "name": "niv_bod",
+          "tableFrom": "50_m_nivel_producto_bodega",
+          "tableTo": "50_m_bodega",
+          "columnsFrom": [
+            "id_bodega"
+          ],
+          "columnsTo": [
+            "id_bodega"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "niv_prod": {
+          "name": "niv_prod",
+          "tableFrom": "50_m_nivel_producto_bodega",
+          "tableTo": "20_m_producto",
+          "columnsFrom": [
+            "id_producto"
+          ],
+          "columnsTo": [
+            "id_producto"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        }
+      },
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_bodega",
+            "id_producto"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "50_m_producto_recepcion": {
+      "name": "50_m_producto_recepcion",
+      "columns": {
+        "id_recepcion": {
+          "name": "id_recepcion",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_producto": {
+          "name": "id_producto",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "cantidad": {
+          "name": "cantidad",
+          "type": "decimal(18,3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "valor": {
+          "name": "valor",
+          "type": "decimal(18,3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "prod_recep_recep": {
+          "name": "prod_recep_recep",
+          "tableFrom": "50_m_producto_recepcion",
+          "tableTo": "50_m_recepcion_compra",
+          "columnsFrom": [
+            "id_recepcion"
+          ],
+          "columnsTo": [
+            "id_recepcion"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "prod_recep_prod": {
+          "name": "prod_recep_prod",
+          "tableFrom": "50_m_producto_recepcion",
+          "tableTo": "20_m_producto",
+          "columnsFrom": [
+            "id_producto"
+          ],
+          "columnsTo": [
+            "id_producto"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        }
+      },
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_recepcion",
+            "id_producto"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "50_m_recepcion_compra": {
+      "name": "50_m_recepcion_compra",
+      "columns": {
+        "id_recepcion": {
+          "name": "id_recepcion",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "rut_proveedor": {
+          "name": "rut_proveedor",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "rut_empresa": {
+          "name": "rut_empresa",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_tipo_docto": {
+          "name": "id_tipo_docto",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "num_docto": {
+          "name": "num_docto",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "fecha_emision_docto": {
+          "name": "fecha_emision_docto",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_bodega": {
+          "name": "id_bodega",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_usuario_recepcion": {
+          "name": "id_usuario_recepcion",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_estado": {
+          "name": "id_estado",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_tipo_pago": {
+          "name": "id_tipo_pago",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "observacion": {
+          "name": "observacion",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "total_neto": {
+          "name": "total_neto",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "iva": {
+          "name": "iva",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "monto_total": {
+          "name": "monto_total",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "periodo_libro": {
+          "name": "periodo_libro",
+          "type": "varchar(7)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'0'"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "recep_prov": {
+          "name": "recep_prov",
+          "tableFrom": "50_m_recepcion_compra",
+          "tableTo": "70_m_proveedor",
+          "columnsFrom": [
+            "rut_proveedor"
+          ],
+          "columnsTo": [
+            "rut_proveedor"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "recep_tipo_docto": {
+          "name": "recep_tipo_docto",
+          "tableFrom": "50_m_recepcion_compra",
+          "tableTo": "10_p_tipo_docto",
+          "columnsFrom": [
+            "id_tipo_docto"
+          ],
+          "columnsTo": [
+            "id_tipo_docto"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "recep_bod": {
+          "name": "recep_bod",
+          "tableFrom": "50_m_recepcion_compra",
+          "tableTo": "50_m_bodega",
+          "columnsFrom": [
+            "id_bodega"
+          ],
+          "columnsTo": [
+            "id_bodega"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "recep_usu": {
+          "name": "recep_usu",
+          "tableFrom": "50_m_recepcion_compra",
+          "tableTo": "10_m_usuario",
+          "columnsFrom": [
+            "id_usuario_recepcion"
+          ],
+          "columnsTo": [
+            "id_usuario"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "recep_est": {
+          "name": "recep_est",
+          "tableFrom": "50_m_recepcion_compra",
+          "tableTo": "99_p_estado",
+          "columnsFrom": [
+            "id_estado"
+          ],
+          "columnsTo": [
+            "id_estado"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        }
+      },
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_recepcion"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "50_m_stock": {
+      "name": "50_m_stock",
+      "columns": {
+        "id_bodega": {
+          "name": "id_bodega",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_producto": {
+          "name": "id_producto",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "cantidad": {
+          "name": "cantidad",
+          "type": "decimal(18,3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "stock_bod": {
+          "name": "stock_bod",
+          "tableFrom": "50_m_stock",
+          "tableTo": "50_m_bodega",
+          "columnsFrom": [
+            "id_bodega"
+          ],
+          "columnsTo": [
+            "id_bodega"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "stock_prod": {
+          "name": "stock_prod",
+          "tableFrom": "50_m_stock",
+          "tableTo": "20_m_producto",
+          "columnsFrom": [
+            "id_producto"
+          ],
+          "columnsTo": [
+            "id_producto"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        }
+      },
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_bodega",
+            "id_producto"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "50_p_tipo_bodega": {
+      "name": "50_p_tipo_bodega",
+      "columns": {
+        "id_tipo_bodega": {
+          "name": "id_tipo_bodega",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nom_tipo_bodega": {
+          "name": "nom_tipo_bodega",
+          "type": "varchar(15)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_estado": {
+          "name": "id_estado",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_tipo_bodega"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "60_m_pago": {
+      "name": "60_m_pago",
+      "columns": {
+        "id_pago": {
+          "name": "id_pago",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "id_venta": {
+          "name": "id_venta",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "fecha": {
+          "name": "fecha",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "monto": {
+          "name": "monto",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_forma_pago": {
+          "name": "id_forma_pago",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "observaciones": {
+          "name": "observaciones",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "fk_pago_venta": {
+          "name": "fk_pago_venta",
+          "columns": [
+            "id_venta"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "fk_pago_tipo_docto": {
+          "name": "fk_pago_tipo_docto",
+          "tableFrom": "60_m_pago",
+          "tableTo": "10_p_tipo_docto",
+          "columnsFrom": [
+            "id_forma_pago"
+          ],
+          "columnsTo": [
+            "id_tipo_docto"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "restrict"
+        }
+      },
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_pago"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "70_m_proveedor": {
+      "name": "70_m_proveedor",
+      "columns": {
+        "rut_proveedor": {
+          "name": "rut_proveedor",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "dv_proveedor": {
+          "name": "dv_proveedor",
+          "type": "varchar(1)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "razon_social": {
+          "name": "razon_social",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nom_fantasia": {
+          "name": "nom_fantasia",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "direccion_proveedor": {
+          "name": "direccion_proveedor",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "giro": {
+          "name": "giro",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "fono_1": {
+          "name": "fono_1",
+          "type": "varchar(15)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "fono_2": {
+          "name": "fono_2",
+          "type": "varchar(15)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "cond_pago": {
+          "name": "cond_pago",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "glosa_pago": {
+          "name": "glosa_pago",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "nom_vendedor": {
+          "name": "nom_vendedor",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "fono_vendedor": {
+          "name": "fono_vendedor",
+          "type": "varchar(15)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "email_vendedor": {
+          "name": "email_vendedor",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "observaciones": {
+          "name": "observaciones",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "id_usuario_mod": {
+          "name": "id_usuario_mod",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ult_fecha_mod": {
+          "name": "ult_fecha_mod",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_estado": {
+          "name": "id_estado",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "prov_usu": {
+          "name": "prov_usu",
+          "tableFrom": "70_m_proveedor",
+          "tableTo": "10_m_usuario",
+          "columnsFrom": [
+            "id_usuario_mod"
+          ],
+          "columnsTo": [
+            "id_usuario"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        },
+        "prov_est": {
+          "name": "prov_est",
+          "tableFrom": "70_m_proveedor",
+          "tableTo": "99_p_estado",
+          "columnsFrom": [
+            "id_estado"
+          ],
+          "columnsTo": [
+            "id_estado"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "restrict"
+        }
+      },
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "rut_proveedor"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "99_p_estado": {
+      "name": "99_p_estado",
+      "columns": {
+        "id_estado": {
+          "name": "id_estado",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nom_estado": {
+          "name": "nom_estado",
+          "type": "varchar(15)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "desc_estado": {
+          "name": "desc_estado",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_estado"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "99_p_estado_pago": {
+      "name": "99_p_estado_pago",
+      "columns": {
+        "id_estado_pago": {
+          "name": "id_estado_pago",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nom_estado_pago": {
+          "name": "nom_estado_pago",
+          "type": "varchar(15)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_estado_pago"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "99_p_impuesto": {
+      "name": "99_p_impuesto",
+      "columns": {
+        "id_impuesto": {
+          "name": "id_impuesto",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nom_impuesto": {
+          "name": "nom_impuesto",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "valor": {
+          "name": "valor",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_imp_iss": {
+          "name": "id_imp_iss",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "id_impuesto"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "99_p_iva": {
+      "name": "99_p_iva",
+      "columns": {
+        "iva": {
+          "name": "iva",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "PRIMARY": {
+          "name": "PRIMARY",
+          "columns": [
+            "iva"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    }
+  },
+  "views": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "tables": {},
+    "indexes": {}
+  }
+}

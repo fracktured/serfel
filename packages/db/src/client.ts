@@ -1,6 +1,10 @@
 import mysql, { type Pool, type SslOptions } from "mysql2/promise";
 import { drizzle, type MySql2Database } from "drizzle-orm/mysql2";
 import * as schema from "./schema";
+import * as relations from "./relations";
+
+const fullSchema = { ...schema, ...relations };
+export type Db = MySql2Database<typeof fullSchema>;
 
 export interface DbCredentials {
   host: string;
@@ -19,11 +23,12 @@ export interface CreateDbOptions {
  * Connection factory for Lambda use: instantiate at module level (outside the
  * handler) so warm invocations reuse the pool. connectionLimit is 1 by design
  * (see master plan §2.5 — no RDS Proxy, low per-function concurrency).
+ * connectTimeout is short so a stopped dev DB fails fast (mapped to HTTP 503).
  */
 export function createDb(
   creds: DbCredentials,
   opts: CreateDbOptions = {}
-): { db: MySql2Database<typeof schema>; pool: Pool } {
+): { db: Db; pool: Pool } {
   const pool = mysql.createPool({
     host: creds.host,
     port: creds.port,
@@ -31,8 +36,9 @@ export function createDb(
     password: creds.password,
     database: creds.dbname,
     connectionLimit: 1,
+    connectTimeout: 5000,
     ...(opts.ssl !== undefined && opts.ssl !== false ? { ssl: opts.ssl } : {}),
   });
-  const db = drizzle(pool, { schema, mode: "default" });
+  const db = drizzle(pool, { schema: fullSchema, mode: "default" });
   return { db, pool };
 }

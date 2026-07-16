@@ -456,7 +456,7 @@ export const t40MVenta = mysqlTable("40_m_venta", {
 ]);
 
 export const t20MProducto = mysqlTable("20_m_producto", {
-	idProducto: int("id_producto").notNull(),
+	idProducto: int("id_producto").autoincrement().notNull(),
 	nomProducto: varchar("nom_producto", { length: 200 }).notNull(),
 	descProducto: varchar("desc_producto", { length: 200 }).notNull(),
 	codBarraProducto: varchar("cod_barra_producto", { length: 200 }).notNull(),

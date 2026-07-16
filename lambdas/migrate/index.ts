@@ -16,7 +16,10 @@ export const handler = async (): Promise<{
   const secret = await sm.send(
     new GetSecretValueCommand({ SecretId: process.env.DB_SECRET_ARN })
   );
-  const creds = JSON.parse(secret.SecretString!) as DbCredentials;
+  if (!secret.SecretString) {
+    throw new Error("DB secret has no SecretString");
+  }
+  const creds = JSON.parse(secret.SecretString) as DbCredentials;
 
   const { db, pool } = createDb(creds, {
     ssl: { ca: readFileSync("rds-global-bundle.pem", "utf8") },

@@ -1,0 +1,1 @@
+ALTER TABLE `20_m_producto` MODIFY COLUMN `id_producto` int AUTO_INCREMENT NOT NULL;
