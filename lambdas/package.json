@@ -2,11 +2,19 @@
   "name": "@serfel/lambdas",
   "version": "0.0.1",
   "private": true,
+  "scripts": {
+    "test": "vitest run"
+  },
   "dependencies": {
     "@aws-sdk/client-rds": "^3.600.0",
     "@aws-sdk/client-secrets-manager": "^3.600.0",
     "@serfel/db": "workspace:*",
+    "@serfel/shared": "workspace:*",
     "drizzle-orm": "^0.44.0",
+    "hono": "^4.6.0",
     "mysql2": "^3.14.0"
+  },
+  "devDependencies": {
+    "vitest": "^3.0.0"
   }
 }
