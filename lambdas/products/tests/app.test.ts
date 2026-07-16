@@ -39,10 +39,13 @@ describe("products app", () => {
   it("403s when there is no id_usuario claim", async () => {
     const app = await appPromise;
     currentUser = null;
-    const res = await app.request("/api/products");
-    expect(res.status).toBe(403);
-    expect((await res.json()).error.code).toBe("NO_AUTORIZADO");
-    currentUser = SEED.idUsuario;
+    try {
+      const res = await app.request("/api/products");
+      expect(res.status).toBe(403);
+      expect((await res.json()).error.code).toBe("NO_AUTORIZADO");
+    } finally {
+      currentUser = SEED.idUsuario;
+    }
   });
 
   it("GET /api/lookups returns the three lists", async () => {
