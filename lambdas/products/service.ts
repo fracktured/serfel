@@ -175,3 +175,69 @@ export async function createProduct(
     return getProductDto(tx, header.insertId);
   });
 }
+
+export async function updateProduct(
+  db: Db,
+  idProducto: number,
+  input: ProductoInput,
+  idUsuario: number
+): Promise<ProductoDto> {
+  return db.transaction(async (tx) => {
+    await getProductDto(tx, idProducto); // 404 if missing
+    await assertUnique(tx, input.codSerfel, input.nomProducto, idProducto);
+    await tx
+      .update(t20MProducto)
+      .set({
+        codSerfel: input.codSerfel,
+        nomProducto: input.nomProducto,
+        idMarca: input.idMarca,
+        idUm: input.idUm,
+        idTipoProducto: input.idTipoProducto,
+        idUsuarioMod: idUsuario,
+        ultFechaMod: nowDateTime(),
+      })
+      .where(eq(t20MProducto.idProducto, idProducto));
+    return getProductDto(tx, idProducto);
+  });
+}
+
+export async function deactivateProduct(
+  db: Db,
+  idProducto: number,
+  idUsuario: number
+): Promise<ProductoDto> {
+  return db.transaction(async (tx) => {
+    const current = await getProductDto(tx, idProducto);
+    if (current.idEstado === ESTADO_INACTIVO) return current;
+    await tx
+      .update(t20MProducto)
+      .set({
+        idEstado: ESTADO_INACTIVO,
+        idUsuarioMod: idUsuario,
+        ultFechaMod: nowDateTime(),
+      })
+      .where(eq(t20MProducto.idProducto, idProducto));
+    return getProductDto(tx, idProducto);
+  });
+}
+
+export async function restoreProduct(
+  db: Db,
+  idProducto: number,
+  idUsuario: number
+): Promise<ProductoDto> {
+  return db.transaction(async (tx) => {
+    const current = await getProductDto(tx, idProducto);
+    if (current.idEstado === ESTADO_ACTIVO) return current;
+    await assertUnique(tx, current.codSerfel, current.nomProducto, idProducto);
+    await tx
+      .update(t20MProducto)
+      .set({
+        idEstado: ESTADO_ACTIVO,
+        idUsuarioMod: idUsuario,
+        ultFechaMod: nowDateTime(),
+      })
+      .where(eq(t20MProducto.idProducto, idProducto));
+    return getProductDto(tx, idProducto);
+  });
+}

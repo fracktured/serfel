@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import type { Pool } from "mysql2/promise";
 import { t20MProducto, type Db } from "@serfel/db";
 import { setupTestDb, SEED } from "./helpers";
-import { getLookups, listProducts, createProduct } from "../service";
+import { getLookups, listProducts, createProduct, updateProduct, deactivateProduct, restoreProduct } from "../service";
 
 let db: Db;
 let pool: Pool;
@@ -116,5 +116,84 @@ describe("createProduct", () => {
       SEED.idUsuario
     );
     expect(dto.idEstado).toBe(1);
+  });
+});
+
+describe("update / deactivate / restore", () => {
+  const input = {
+    codSerfel: 700,
+    nomProducto: "CICLO DE VIDA",
+    idMarca: SEED.marcaSoprole,
+    idUm: SEED.umUni,
+    idTipoProducto: SEED.tipoYogurt,
+  };
+  let id: number;
+
+  beforeAll(async () => {
+    id = (await createProduct(db, input, SEED.idUsuario)).idProducto;
+  });
+
+  it("updates fields, keeping its own codSerfel without a false conflict", async () => {
+    const dto = await updateProduct(
+      db,
+      id,
+      { ...input, nomProducto: "CICLO RENOMBRADO", idMarca: SEED.marcaNestle },
+      SEED.idUsuario
+    );
+    expect(dto).toMatchObject({
+      idProducto: id,
+      codSerfel: 700,
+      nomProducto: "CICLO RENOMBRADO",
+      nomMarca: "NESTLE",
+    });
+  });
+
+  it("rejects update that takes another active product's codigo", async () => {
+    // codSerfel 500 belongs to "CREADO X" from the previous suite
+    await expect(
+      updateProduct(db, id, { ...input, codSerfel: 500 }, SEED.idUsuario)
+    ).rejects.toMatchObject({ code: "COD_SERFEL_EN_USO", status: 409 });
+  });
+
+  it("404s for a nonexistent product", async () => {
+    await expect(
+      updateProduct(db, 999999, input, SEED.idUsuario)
+    ).rejects.toMatchObject({ code: "PRODUCTO_NO_ENCONTRADO", status: 404 });
+    await expect(deactivateProduct(db, 999999, SEED.idUsuario)).rejects.toMatchObject({
+      code: "PRODUCTO_NO_ENCONTRADO",
+    });
+    await expect(restoreProduct(db, 999999, SEED.idUsuario)).rejects.toMatchObject({
+      code: "PRODUCTO_NO_ENCONTRADO",
+    });
+  });
+
+  it("soft-deletes (idEstado 0) and is idempotent", async () => {
+    expect((await deactivateProduct(db, id, SEED.idUsuario)).idEstado).toBe(0);
+    expect((await deactivateProduct(db, id, SEED.idUsuario)).idEstado).toBe(0);
+    const activos = await listProducts(db, "activos");
+    expect(activos.find((p) => p.idProducto === id)).toBeUndefined();
+  });
+
+  it("blocks restore when another active product took the codigo meanwhile", async () => {
+    await createProduct(
+      db,
+      { ...input, nomProducto: "USURPADOR" }, // same codSerfel 700, now free
+      SEED.idUsuario
+    );
+    await expect(restoreProduct(db, id, SEED.idUsuario)).rejects.toMatchObject({
+      code: "COD_SERFEL_EN_USO",
+      status: 409,
+    });
+  });
+
+  it("restores when there is no conflict", async () => {
+    const fresh = await createProduct(
+      db,
+      { ...input, codSerfel: 800, nomProducto: "RESTAURABLE" },
+      SEED.idUsuario
+    );
+    await deactivateProduct(db, fresh.idProducto, SEED.idUsuario);
+    const restored = await restoreProduct(db, fresh.idProducto, SEED.idUsuario);
+    expect(restored.idEstado).toBe(1);
   });
 });
