@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import type { Pool } from "mysql2/promise";
 import { t20MProducto, type Db } from "@serfel/db";
 import { setupTestDb, SEED } from "./helpers";
-import { getLookups, listProducts } from "../service";
+import { getLookups, listProducts, createProduct } from "../service";
 
 let db: Db;
 let pool: Pool;
@@ -69,5 +69,52 @@ describe("listProducts", () => {
     expect(inactive.map((r) => r.nomProducto)).toEqual(["INACTIVO C"]);
     const all = await listProducts(db, "todos");
     expect(all).toHaveLength(3);
+  });
+});
+
+describe("createProduct", () => {
+  const input = {
+    codSerfel: 500,
+    nomProducto: "CREADO X",
+    idMarca: SEED.marcaSoprole,
+    idUm: SEED.umUni,
+    idTipoProducto: SEED.tipoYogurt,
+  };
+
+  it("creates and returns the joined DTO with a DB-assigned id", async () => {
+    const dto = await createProduct(db, input, SEED.idUsuario);
+    expect(dto.idProducto).toBeGreaterThan(0);
+    expect(dto).toMatchObject({
+      codSerfel: 500,
+      nomProducto: "CREADO X",
+      nomMarca: "SOPROLE",
+      nomUm: "UNI",
+      nomTipoProducto: "YOGURT",
+      idEstado: 1,
+    });
+  });
+
+  it("rejects a codSerfel used by an active product", async () => {
+    await expect(
+      createProduct(db, { ...input, nomProducto: "OTRO NOMBRE" }, SEED.idUsuario)
+    ).rejects.toMatchObject({ code: "COD_SERFEL_EN_USO", status: 409 });
+  });
+
+  it("rejects a nomProducto used by an active product (case-insensitive)", async () => {
+    await expect(
+      createProduct(db, { ...input, codSerfel: 501, nomProducto: "creado x" }, SEED.idUsuario)
+    ).rejects.toMatchObject({ code: "NOMBRE_EN_USO", status: 409 });
+  });
+
+  it("allows reusing codSerfel and nombre of an INACTIVE product", async () => {
+    await db.insert(t20MProducto).values(
+      productRow({ nomProducto: "MUERTO", codSerfel: 600, idEstado: 0 })
+    );
+    const dto = await createProduct(
+      db,
+      { ...input, codSerfel: 600, nomProducto: "MUERTO" },
+      SEED.idUsuario
+    );
+    expect(dto.idEstado).toBe(1);
   });
 });

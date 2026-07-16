@@ -1,4 +1,4 @@
-import { asc, eq } from "drizzle-orm";
+import { asc, eq, and, ne, or } from "drizzle-orm";
 import {
   t20MProducto,
   t20PMarca,
@@ -12,7 +12,9 @@ import {
   type EstadoFilter,
   type LookupsDto,
   type ProductoDto,
+  type ProductoInput,
 } from "@serfel/shared";
+import { AppError } from "./errors";
 
 /** drizzle transaction object — same query API as Db for our purposes. */
 export type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
@@ -79,4 +81,97 @@ export async function listProducts(
           )
         );
   return filtered.orderBy(asc(t20MProducto.codSerfel));
+}
+
+function nowDateTime(): string {
+  return new Date().toISOString().slice(0, 19).replace("T", " ");
+}
+
+async function getProductDto(
+  db: DbOrTx,
+  idProducto: number
+): Promise<ProductoDto> {
+  const rows = await productQuery(db).where(
+    eq(t20MProducto.idProducto, idProducto)
+  );
+  if (rows.length === 0) {
+    throw new AppError(
+      "PRODUCTO_NO_ENCONTRADO",
+      404,
+      `Producto ${idProducto} no existe`
+    );
+  }
+  return rows[0];
+}
+
+/**
+ * Business rule: codSerfel and nomProducto must be unique among ACTIVE
+ * products (id_estado = 1). MariaDB's default collation makes the name
+ * comparison case-insensitive.
+ */
+async function assertUnique(
+  tx: DbOrTx,
+  codSerfel: number,
+  nomProducto: string,
+  excludeIdProducto: number | null
+): Promise<void> {
+  const conditions = [
+    eq(t20MProducto.idEstado, ESTADO_ACTIVO),
+    or(
+      eq(t20MProducto.codSerfel, codSerfel),
+      eq(t20MProducto.nomProducto, nomProducto)
+    ),
+  ];
+  if (excludeIdProducto !== null) {
+    conditions.push(ne(t20MProducto.idProducto, excludeIdProducto));
+  }
+  const clashes = await (tx as Db)
+    .select({
+      codSerfel: t20MProducto.codSerfel,
+      nomProducto: t20MProducto.nomProducto,
+    })
+    .from(t20MProducto)
+    .where(and(...conditions));
+
+  if (clashes.some((c) => c.codSerfel === codSerfel)) {
+    throw new AppError(
+      "COD_SERFEL_EN_USO",
+      409,
+      `El código ${codSerfel} ya está en uso por otro producto activo`
+    );
+  }
+  if (clashes.length > 0) {
+    throw new AppError(
+      "NOMBRE_EN_USO",
+      409,
+      `El nombre "${nomProducto}" ya está en uso por otro producto activo`
+    );
+  }
+}
+
+export async function createProduct(
+  db: Db,
+  input: ProductoInput,
+  idUsuario: number
+): Promise<ProductoDto> {
+  return db.transaction(async (tx) => {
+    await assertUnique(tx, input.codSerfel, input.nomProducto, null);
+    // $returningId() does not work with this schema's table-level PK style —
+    // read the DB-assigned id from mysql2's ResultSetHeader.
+    const [header] = await tx.insert(t20MProducto).values({
+      codSerfel: input.codSerfel,
+      nomProducto: input.nomProducto,
+      descProducto: "",
+      codBarraProducto: "",
+      idMarca: input.idMarca,
+      idUm: input.idUm,
+      idTipoProducto: input.idTipoProducto,
+      idUsuarioMod: idUsuario,
+      ultFechaMod: nowDateTime(),
+      idEstado: ESTADO_ACTIVO,
+      impuesto: 0,
+      usaPorciones: 0,
+    });
+    return getProductDto(tx, header.insertId);
+  });
 }
