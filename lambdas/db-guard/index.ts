@@ -1,17 +1,33 @@
-import { RDSClient, StopDBInstanceCommand } from "@aws-sdk/client-rds";
+import {
+  DescribeDBInstancesCommand,
+  RDSClient,
+  StopDBInstanceCommand,
+} from "@aws-sdk/client-rds";
 
 const rds = new RDSClient({});
+const POLL_MS = 30_000;
 
-// Fired only for RDS-EVENT-0154: "DB instance is being started due to it
-// exceeding the maximum allowed time being stopped." We stop it right back.
+// Fired only for RDS-EVENT-0154 ("started because it exceeded the maximum
+// allowed time being stopped"). The event arrives while the instance is
+// still 'starting', so wait for 'available' before stopping.
 export const handler = async (): Promise<void> => {
-  const id = process.env.DB_INSTANCE_ID!;
-  try {
-    await rds.send(new StopDBInstanceCommand({ DBInstanceIdentifier: id }));
-    console.log(`Re-stopped ${id} after forced auto-restart`);
-  } catch (err) {
-    // Instance may still be 'starting'; EventBridge retries the invocation.
-    console.error(`Failed to stop ${id}, will retry`, err);
-    throw err;
+  const id = process.env.DB_INSTANCE_ID;
+  if (!id) throw new Error("DB_INSTANCE_ID not set");
+
+  for (;;) {
+    const out = await rds.send(
+      new DescribeDBInstancesCommand({ DBInstanceIdentifier: id })
+    );
+    const status = out.DBInstances?.[0]?.DBInstanceStatus;
+    if (status === "available") break;
+    if (status === "stopped" || status === "stopping") {
+      console.log(`${id} already ${status}; nothing to do`);
+      return;
+    }
+    console.log(`${id} is ${status}; waiting to become stoppable`);
+    await new Promise((r) => setTimeout(r, POLL_MS));
   }
+
+  await rds.send(new StopDBInstanceCommand({ DBInstanceIdentifier: id }));
+  console.log(`Re-stopped ${id} after forced auto-restart`);
 };

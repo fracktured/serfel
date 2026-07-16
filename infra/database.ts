@@ -23,6 +23,8 @@ const dbParams = new aws.rds.ParameterGroup("db-params", {
   tags: { Name: "serfel-dev-mariadb114" },
 });
 
+// ignoreChanges on engineVersion: autoMinorVersionUpgrade:true means RDS may
+// patch the minor version; ignore drift here and bump the pin deliberately.
 const db = new aws.rds.Instance("db", {
   identifier: DB_IDENTIFIER,
   engine: "mariadb",
@@ -47,7 +49,7 @@ const db = new aws.rds.Instance("db", {
   skipFinalSnapshot: true,
   applyImmediately: true,
   tags: { Name: DB_IDENTIFIER },
-});
+}, { ignoreChanges: ["engineVersion"] });
 
 const dbSecret = new aws.secretsmanager.Secret("db-secret", {
   name: "serfel-dev-db-credentials",

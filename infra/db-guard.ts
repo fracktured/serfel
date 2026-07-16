@@ -5,17 +5,21 @@ const guardFn = new sst.aws.Function("DbGuard", {
   handler: "lambdas/db-guard/index.handler",
   runtime: "nodejs22.x",
   architecture: "arm64",
-  timeout: "30 seconds",
+  timeout: "15 minutes",
   // NOT in the VPC on purpose: it calls the public RDS API, and the VPC has
   // no NAT and no RDS API endpoint.
   environment: {
     DB_INSTANCE_ID: dbInstanceIdentifier,
   },
   permissions: [
+    // DescribeDBInstances requires '*' resource scope — scoping to the
+    // instance ARN is rejected at runtime by the RDS API for describe calls.
+    { actions: ["rds:DescribeDBInstances"], resources: ["*"] },
     { actions: ["rds:StopDBInstance"], resources: [dbInstanceArn] },
   ],
   transform: {
     function: { name: "serfel-dev-db-guard" },
+    logGroup: { name: "/aws/lambda/serfel-dev-db-guard" },
   },
 });
 
