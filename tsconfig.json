@@ -7,5 +7,5 @@
     "skipLibCheck": true,
     "noEmit": true
   },
-  "exclude": ["node_modules", ".sst", "dist"]
+  "exclude": ["node_modules", ".sst", "dist", "apps"]
 }
