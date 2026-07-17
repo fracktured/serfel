@@ -29,6 +29,15 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Start MariaDB for tests
+        run: docker compose -f packages/db/docker-compose.yml up -d --wait
+
+      - name: Run workspace tests
+        run: pnpm -r test
+
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
