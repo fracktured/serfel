@@ -44,8 +44,15 @@ const jwtAuthorizer = api.addAuthorizer({
   },
 });
 
-api.route("ANY /api/{proxy+}", productsFn.arn, {
-  auth: { jwt: { authorizer: jwtAuthorizer.id } },
-});
+// Register the data methods explicitly rather than ANY, so OPTIONS is left
+// unrouted: API Gateway then answers CORS preflight itself (204 + headers,
+// no authorizer). An ANY route matches OPTIONS too, sending the preflight
+// through the JWT authorizer — which 401s the browser's credential-less
+// preflight and blocks every cross-origin call from CloudFront.
+for (const method of ["GET", "POST", "PUT", "DELETE"] as const) {
+  api.route(`${method} /api/{proxy+}`, productsFn.arn, {
+    auth: { jwt: { authorizer: jwtAuthorizer.id } },
+  });
+}
 
 export const apiUrl = api.url;
