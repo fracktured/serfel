@@ -1,15 +1,18 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import type { EstadoFilter, ProductoDto } from '@serfel/shared';
+import type { EstadoFilter, ProductoDto, ProductoInput } from '@serfel/shared';
 import { AuthService } from '../../core/auth.service';
-import { ProductosStore } from './productos-store';
+import { ProductosStore, apiError } from './productos-store';
+import { ProductModalComponent } from './product-modal.component';
+import { ToastComponent } from '../../core/toast.component';
+import { ToastService } from '../../core/toast.service';
 import { brandBadgeStyle, toCsv, type SortKey } from './productos-logic';
 
 @Component({
   selector: 'app-productos-page',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, ProductModalComponent, ToastComponent],
   template: `
     <header class="header">
       <div class="header-inner">
@@ -233,12 +236,24 @@ import { brandBadgeStyle, toCsv, type SortKey } from './productos-logic';
         </div>
       }
     </div>
+    @if (modalOpen()) {
+      <app-product-modal
+        [product]="editing()"
+        [lookups]="store.lookups()!"
+        (save)="onSave($event)"
+        (cancel)="modalOpen.set(false)" />
+    }
+    <app-toast />
   `,
 })
 export class ProductosPageComponent implements OnInit {
   readonly store = inject(ProductosStore);
   private auth = inject(AuthService);
   private router = inject(Router);
+  private toasts = inject(ToastService);
+  readonly modalOpen = signal(false);
+  readonly editing = signal<ProductoDto | null>(null);
+  private modal = viewChild(ProductModalComponent);
 
   ngOnInit(): void {
     void this.store.load();
@@ -268,8 +283,13 @@ export class ProductosPageComponent implements OnInit {
     void this.store.setEstado(estado);
   }
 
-  restore(p: ProductoDto): void {
-    void this.store.restore(p.idProducto);
+  async restore(p: ProductoDto): Promise<void> {
+    try {
+      await this.store.restore(p.idProducto);
+      this.toasts.show('Producto restaurado');
+    } catch (err) {
+      this.toasts.show(apiError(err)?.message ?? 'No se pudo restaurar', 'error');
+    }
   }
 
   exportCsv(): void {
@@ -288,11 +308,41 @@ export class ProductosPageComponent implements OnInit {
     await this.router.navigate(['/login']);
   }
 
-  // Wired to the real modal/confirm flow in the next task (product-modal component).
   openModal(product: ProductoDto | null): void {
-    console.log('modal placeholder', product);
+    if (!this.store.lookups()) return; // still loading
+    this.editing.set(product);
+    this.modalOpen.set(true);
   }
-  confirmDelete(product: ProductoDto): void {
-    console.log('delete placeholder', product);
+
+  async onSave(input: ProductoInput): Promise<void> {
+    const current = this.editing();
+    try {
+      if (current) {
+        await this.store.update(current.idProducto, input);
+        this.toasts.show('Producto actualizado exitosamente');
+      } else {
+        await this.store.create(input);
+        this.toasts.show('Producto creado exitosamente');
+      }
+      this.modalOpen.set(false);
+    } catch (err) {
+      const known = apiError(err);
+      if (known && (known.code === 'COD_SERFEL_EN_USO' || known.code === 'NOMBRE_EN_USO')) {
+        this.modal()?.setServerError(known.code, known.message);
+      } else {
+        this.modalOpen.set(false);
+        this.toasts.show(known?.message ?? 'Error al guardar el producto', 'error');
+      }
+    }
+  }
+
+  async confirmDelete(product: ProductoDto): Promise<void> {
+    if (!confirm(`¿Eliminar "${product.nomProducto}" del catálogo? Podrás restaurarlo desde el filtro Inactivos.`)) return;
+    try {
+      await this.store.deactivate(product.idProducto);
+      this.toasts.show('Producto eliminado', 'error');
+    } catch (err) {
+      this.toasts.show(apiError(err)?.message ?? 'Error al eliminar', 'error');
+    }
   }
 }
