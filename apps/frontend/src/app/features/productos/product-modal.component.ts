@@ -68,6 +68,21 @@ interface FieldErrors {
               }
             </select>
           </div>
+          <div class="form-field">
+            <label for="m-impuesto">Impuesto *</label>
+            <select id="m-impuesto" [(ngModel)]="impuesto">
+              @for (i of lookups.impuestos; track i.id) {
+                <option [ngValue]="i.id">{{ i.nombre }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="m-porcionado">Es porcionado</label>
+            <label class="checkbox-row">
+              <input id="m-porcionado" type="checkbox" [(ngModel)]="esPorcionado" />
+              <span>{{ esPorcionado ? 'Sí' : 'No' }}</span>
+            </label>
+          </div>
         </div>
         <div class="modal-footer">
           <button class="btn-cancel" (click)="cancel.emit()">Cancelar</button>
@@ -90,6 +105,8 @@ export class ProductModalComponent implements OnInit {
   idMarca: number | null = null;
   idUm: number | null = null;
   idTipoProducto: number | null = null;
+  impuesto: number | null = null;
+  esPorcionado = false;
 
   readonly errors = signal<FieldErrors>({});
   readonly busy = signal(false);
@@ -101,10 +118,18 @@ export class ProductModalComponent implements OnInit {
       this.idMarca = this.product.idMarca;
       this.idUm = this.product.idUm;
       this.idTipoProducto = this.product.idTipoProducto;
+      this.impuesto = this.product.impuesto;
+      this.esPorcionado = this.product.usaPorciones === 1;
     } else {
       this.idMarca = this.lookups.marcas[0]?.id ?? null;
       this.idUm = this.lookups.unidadesMedida[0]?.id ?? null;
       this.idTipoProducto = this.lookups.tiposProducto[0]?.id ?? null;
+      // default to "Sin Imp. Adicional" (id 0) when present, else first option
+      this.impuesto =
+        this.lookups.impuestos.find((i) => i.id === 0)?.id ??
+        this.lookups.impuestos[0]?.id ??
+        null;
+      this.esPorcionado = false;
     }
   }
 
@@ -115,6 +140,8 @@ export class ProductModalComponent implements OnInit {
       idMarca: this.idMarca,
       idUm: this.idUm,
       idTipoProducto: this.idTipoProducto,
+      impuesto: this.impuesto,
+      usaPorciones: this.esPorcionado ? 1 : 0,
     });
     if (!parsed.success) {
       const errs: FieldErrors = {};

@@ -33,6 +33,8 @@ describe("ProductoInputSchema", () => {
     idMarca: 1,
     idUm: 1,
     idTipoProducto: 1,
+    impuesto: 0,
+    usaPorciones: 0,
   };
 
   it("accepts a valid input", () => {
@@ -53,6 +55,14 @@ describe("ProductoInputSchema", () => {
   });
   it("accepts idTipoProducto 0 (legacy 'SIN TIPO' row)", () => {
     expect(ProductoInputSchema.safeParse({ ...valid, idTipoProducto: 0 }).success).toBe(true);
+  });
+  it("accepts impuesto 0 (Sin Imp. Adicional) and rejects negative", () => {
+    expect(ProductoInputSchema.safeParse({ ...valid, impuesto: 0 }).success).toBe(true);
+    expect(ProductoInputSchema.safeParse({ ...valid, impuesto: -1 }).success).toBe(false);
+  });
+  it("accepts usaPorciones 0 or 1, rejects anything else", () => {
+    expect(ProductoInputSchema.safeParse({ ...valid, usaPorciones: 1 }).success).toBe(true);
+    expect(ProductoInputSchema.safeParse({ ...valid, usaPorciones: 2 }).success).toBe(false);
   });
   it("rejects names longer than 200 chars", () => {
     expect(

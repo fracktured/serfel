@@ -10,6 +10,7 @@ import {
   t20PMarca,
   t20PTipoProducto,
   t20PUnidadMedida,
+  t99PImpuesto,
 } from "@serfel/db";
 
 const ROOT = { host: "127.0.0.1", port: 3307, user: "root", password: "serfel" };
@@ -25,6 +26,8 @@ export const SEED = {
   tipoYogurt: 1,
   umUni: 1,
   umLt: 2,
+  impSinAdicional: 0,
+  impIva: 3,
 } as const;
 
 export async function setupTestDb(
@@ -71,6 +74,11 @@ export async function setupTestDb(
   await db.insert(t20PUnidadMedida).values([
     { idUm: SEED.umUni, nomUm: "UNI" },
     { idUm: SEED.umLt, nomUm: "LT" },
+  ]);
+  // id 0 "Sin Imp. Adicional" is seeded by migration 0002 (applied above);
+  // only add the extra IVA row the tests exercise.
+  await db.insert(t99PImpuesto).values([
+    { idImpuesto: SEED.impIva, nomImpuesto: "IVA", valor: 19, idImpIss: 14 },
   ]);
 
   const teardown = async () => {

@@ -17,6 +17,10 @@ export const ProductoInputSchema = z.object({
   // nonnegative, not positive: the legacy catalog's only tipo row is
   // id 0 "SIN TIPO" — rejecting 0 would make product creation impossible
   idTipoProducto: z.number().int().nonnegative(),
+  // impuesto id from 99_p_impuesto; 0 = "Sin Imp. Adicional"
+  impuesto: z.number().int().nonnegative(),
+  // usa_porciones: "Es porcionado" — only 0 or 1
+  usaPorciones: z.union([z.literal(0), z.literal(1)]),
 });
 export type ProductoInput = z.infer<typeof ProductoInputSchema>;
 
@@ -30,6 +34,8 @@ export interface ProductoDto {
   nomUm: string;
   idTipoProducto: number;
   nomTipoProducto: string;
+  impuesto: number;
+  usaPorciones: number;
   idEstado: number;
 }
 
@@ -42,6 +48,7 @@ export interface LookupsDto {
   marcas: LookupItem[];
   tiposProducto: LookupItem[];
   unidadesMedida: LookupItem[];
+  impuestos: LookupItem[];
 }
 
 export type ApiErrorCode =

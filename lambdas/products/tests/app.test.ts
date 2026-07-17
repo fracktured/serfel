@@ -25,6 +25,8 @@ const validBody = {
   idMarca: SEED.marcaSoprole,
   idUm: SEED.umUni,
   idTipoProducto: SEED.tipoYogurt,
+  impuesto: SEED.impSinAdicional,
+  usaPorciones: 0,
 };
 
 function json(body: unknown) {

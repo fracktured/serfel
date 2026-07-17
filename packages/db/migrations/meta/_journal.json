@@ -15,6 +15,13 @@
       "when": 1784236746752,
       "tag": "0001_nervous_blue_marvel",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1784331157554,
+      "tag": "0002_seed_sin_impuesto_adicional",
+      "breakpoints": true
     }
   ]
 }

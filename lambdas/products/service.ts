@@ -4,6 +4,7 @@ import {
   t20PMarca,
   t20PTipoProducto,
   t20PUnidadMedida,
+  t99PImpuesto,
   type Db,
 } from "@serfel/db";
 import {
@@ -30,6 +31,8 @@ const productoDtoColumns = {
   nomUm: t20PUnidadMedida.nomUm,
   idTipoProducto: t20MProducto.idTipoProducto,
   nomTipoProducto: t20PTipoProducto.nomTipoProducto,
+  impuesto: t20MProducto.impuesto,
+  usaPorciones: t20MProducto.usaPorciones,
   idEstado: t20MProducto.idEstado,
 };
 
@@ -46,7 +49,7 @@ function productQuery(db: DbOrTx) {
 }
 
 export async function getLookups(db: Db): Promise<LookupsDto> {
-  const [marcas, tiposProducto, unidadesMedida] = await Promise.all([
+  const [marcas, tiposProducto, unidadesMedida, impuestos] = await Promise.all([
     db
       .select({ id: t20PMarca.idMarca, nombre: t20PMarca.nomMarca })
       .from(t20PMarca)
@@ -62,8 +65,12 @@ export async function getLookups(db: Db): Promise<LookupsDto> {
       .select({ id: t20PUnidadMedida.idUm, nombre: t20PUnidadMedida.nomUm })
       .from(t20PUnidadMedida)
       .orderBy(asc(t20PUnidadMedida.nomUm)),
+    db
+      .select({ id: t99PImpuesto.idImpuesto, nombre: t99PImpuesto.nomImpuesto })
+      .from(t99PImpuesto)
+      .orderBy(asc(t99PImpuesto.nomImpuesto)),
   ]);
-  return { marcas, tiposProducto, unidadesMedida };
+  return { marcas, tiposProducto, unidadesMedida, impuestos };
 }
 
 export async function listProducts(
@@ -169,8 +176,8 @@ export async function createProduct(
       idUsuarioMod: idUsuario,
       ultFechaMod: nowDateTime(),
       idEstado: ESTADO_ACTIVO,
-      impuesto: 0,
-      usaPorciones: 0,
+      impuesto: input.impuesto,
+      usaPorciones: input.usaPorciones,
     });
     return getProductDto(tx, header.insertId);
   });
@@ -193,6 +200,8 @@ export async function updateProduct(
         idMarca: input.idMarca,
         idUm: input.idUm,
         idTipoProducto: input.idTipoProducto,
+        impuesto: input.impuesto,
+        usaPorciones: input.usaPorciones,
         idUsuarioMod: idUsuario,
         ultFechaMod: nowDateTime(),
       })

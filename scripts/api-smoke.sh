@@ -42,7 +42,8 @@ check "GET lookups" 200 "$(curl -s -o /dev/null -w '%{http_code}' "${AUTH[@]}" "
 MARCA=$(curl -s "${AUTH[@]}" "$API_URL/api/lookups" | json_field "['marcas'][0]['id']")
 UM=$(curl -s "${AUTH[@]}" "$API_URL/api/lookups" | json_field "['unidadesMedida'][0]['id']")
 TIPO=$(curl -s "${AUTH[@]}" "$API_URL/api/lookups" | json_field "['tiposProducto'][0]['id']")
-BODY="{\"codSerfel\":$COD,\"nomProducto\":\"$NAME\",\"idMarca\":$MARCA,\"idUm\":$UM,\"idTipoProducto\":$TIPO}"
+# impuesto 0 = "Sin Imp. Adicional" (seeded by migration 0002); usaPorciones 0 = not portioned
+BODY="{\"codSerfel\":$COD,\"nomProducto\":\"$NAME\",\"idMarca\":$MARCA,\"idUm\":$UM,\"idTipoProducto\":$TIPO,\"impuesto\":0,\"usaPorciones\":0}"
 
 # 3. create
 CREATED=$(curl -s "${AUTH[@]}" -X POST -d "$BODY" "$API_URL/api/products")
@@ -57,7 +58,7 @@ check "duplicate cod_serfel rejected" "COD_SERFEL_EN_USO" "$DUP_CODE"
 # Build the body in a variable first: inlining the JSON literal inside a nested
 # "$(curl ... -d "{...}" ...)" breaks the quoting and bash brace-expands the {..}
 # on its commas, mangling the request. A plain variable expands intact.
-PUT_BODY="{\"codSerfel\":$COD,\"nomProducto\":\"$NAME v2\",\"idMarca\":$MARCA,\"idUm\":$UM,\"idTipoProducto\":$TIPO}"
+PUT_BODY="{\"codSerfel\":$COD,\"nomProducto\":\"$NAME v2\",\"idMarca\":$MARCA,\"idUm\":$UM,\"idTipoProducto\":$TIPO,\"impuesto\":0,\"usaPorciones\":1}"
 PUT_CODE=$(curl -s -o /dev/null -w '%{http_code}' "${AUTH[@]}" -X PUT -d "$PUT_BODY" "$API_URL/api/products/$ID")
 check "PUT updates" 200 "$PUT_CODE"
 

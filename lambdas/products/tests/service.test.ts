@@ -38,6 +38,10 @@ describe("getLookups", () => {
       { id: SEED.umLt, nombre: "LT" },
       { id: SEED.umUni, nombre: "UNI" },
     ]);
+    expect(lookups.impuestos).toEqual([
+      { id: SEED.impIva, nombre: "IVA" },
+      { id: SEED.impSinAdicional, nombre: "Sin Imp. Adicional" },
+    ]);
   });
 });
 
@@ -80,9 +84,11 @@ describe("createProduct", () => {
     idMarca: SEED.marcaSoprole,
     idUm: SEED.umUni,
     idTipoProducto: SEED.tipoYogurt,
+    impuesto: SEED.impIva,
+    usaPorciones: 1 as const,
   };
 
-  it("creates and returns the joined DTO with a DB-assigned id", async () => {
+  it("creates and returns the joined DTO with a DB-assigned id, persisting impuesto and usaPorciones", async () => {
     const dto = await createProduct(db, input, SEED.idUsuario);
     expect(dto.idProducto).toBeGreaterThan(0);
     expect(dto).toMatchObject({
@@ -91,6 +97,8 @@ describe("createProduct", () => {
       nomMarca: "SOPROLE",
       nomUm: "UNI",
       nomTipoProducto: "YOGURT",
+      impuesto: SEED.impIva,
+      usaPorciones: 1,
       idEstado: 1,
     });
   });
@@ -127,6 +135,8 @@ describe("update / deactivate / restore", () => {
     idMarca: SEED.marcaSoprole,
     idUm: SEED.umUni,
     idTipoProducto: SEED.tipoYogurt,
+    impuesto: SEED.impSinAdicional,
+    usaPorciones: 0 as const,
   };
   let id: number;
 
