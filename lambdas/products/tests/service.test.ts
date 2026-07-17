@@ -26,16 +26,17 @@ const base = {
 };
 
 describe("getLookups", () => {
-  it("returns marcas, tiposProducto and unidadesMedida as {id, nombre}", async () => {
+  it("returns marcas, tiposProducto and unidadesMedida as {id, nombre} ordered by name", async () => {
     const lookups = await getLookups(db);
+    // ordered alphabetically by name, not by id
     expect(lookups.marcas).toEqual([
-      { id: SEED.marcaSoprole, nombre: "SOPROLE" },
       { id: SEED.marcaNestle, nombre: "NESTLE" },
+      { id: SEED.marcaSoprole, nombre: "SOPROLE" },
     ]);
     expect(lookups.tiposProducto).toEqual([{ id: SEED.tipoYogurt, nombre: "YOGURT" }]);
     expect(lookups.unidadesMedida).toEqual([
-      { id: SEED.umUni, nombre: "UNI" },
       { id: SEED.umLt, nombre: "LT" },
+      { id: SEED.umUni, nombre: "UNI" },
     ]);
   });
 });

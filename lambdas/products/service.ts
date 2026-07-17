@@ -50,18 +50,18 @@ export async function getLookups(db: Db): Promise<LookupsDto> {
     db
       .select({ id: t20PMarca.idMarca, nombre: t20PMarca.nomMarca })
       .from(t20PMarca)
-      .orderBy(asc(t20PMarca.idMarca)),
+      .orderBy(asc(t20PMarca.nomMarca)),
     db
       .select({
         id: t20PTipoProducto.idTipoProducto,
         nombre: t20PTipoProducto.nomTipoProducto,
       })
       .from(t20PTipoProducto)
-      .orderBy(asc(t20PTipoProducto.idTipoProducto)),
+      .orderBy(asc(t20PTipoProducto.nomTipoProducto)),
     db
       .select({ id: t20PUnidadMedida.idUm, nombre: t20PUnidadMedida.nomUm })
       .from(t20PUnidadMedida)
-      .orderBy(asc(t20PUnidadMedida.idUm)),
+      .orderBy(asc(t20PUnidadMedida.nomUm)),
   ]);
   return { marcas, tiposProducto, unidadesMedida };
 }
