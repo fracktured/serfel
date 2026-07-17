@@ -142,15 +142,6 @@ import { brandBadgeStyle, toCsv, type SortKey } from './productos-logic';
           {{ store.filtered().length }} producto{{ store.filtered().length === 1 ? '' : 's' }} encontrado{{ store.filtered().length === 1 ? '' : 's' }}
           @if (store.loading()) { · cargando… }
         </span>
-        <div class="toolbar-spacer"></div>
-        <button class="filter-pill" [class.active]="store.filters().idMarca === null"
-                (click)="store.setFilter({ idMarca: null })">
-          Todos <span class="count">{{ store.productos().length }}</span>
-        </button>
-        @for (m of store.lookups()?.marcas ?? []; track m.id) {
-          <button class="filter-pill" [class.active]="store.filters().idMarca === m.id"
-                  (click)="store.setFilter({ idMarca: m.id })">{{ m.nombre }}</button>
-        }
       </div>
 
       @if (store.filtered().length > 0) {
