@@ -49,6 +49,10 @@ describe("ProductoInputSchema", () => {
     expect(ProductoInputSchema.safeParse({ ...valid, codSerfel: 1.5 }).success).toBe(false);
     const { idMarca: _omit, ...missing } = valid;
     expect(ProductoInputSchema.safeParse(missing).success).toBe(false);
+    expect(ProductoInputSchema.safeParse({ ...valid, idTipoProducto: -1 }).success).toBe(false);
+  });
+  it("accepts idTipoProducto 0 (legacy 'SIN TIPO' row)", () => {
+    expect(ProductoInputSchema.safeParse({ ...valid, idTipoProducto: 0 }).success).toBe(true);
   });
   it("rejects names longer than 200 chars", () => {
     expect(

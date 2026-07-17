@@ -14,7 +14,9 @@ export const ProductoInputSchema = z.object({
   nomProducto: z.string().trim().min(1).max(200),
   idMarca: z.number().int().positive(),
   idUm: z.number().int().positive(),
-  idTipoProducto: z.number().int().positive(),
+  // nonnegative, not positive: the legacy catalog's only tipo row is
+  // id 0 "SIN TIPO" — rejecting 0 would make product creation impossible
+  idTipoProducto: z.number().int().nonnegative(),
 });
 export type ProductoInput = z.infer<typeof ProductoInputSchema>;
 
