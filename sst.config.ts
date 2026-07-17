@@ -29,5 +29,6 @@ export default $config({
     await import("./infra/db-guard");
     await import("./infra/auth");
     await import("./infra/api");
+    await import("./infra/frontend");
   },
 });
