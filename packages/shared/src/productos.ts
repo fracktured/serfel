@@ -57,6 +57,7 @@ export type ApiErrorCode =
   | "PRODUCTO_NO_ENCONTRADO"
   | "VALIDACION"
   | "NO_AUTORIZADO"
+  | "PROHIBIDO"
   | "DB_NO_DISPONIBLE"
   | "ERROR_INTERNO";
 
