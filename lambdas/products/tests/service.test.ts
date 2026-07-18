@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import type { Pool } from "mysql2/promise";
 import { t20MProducto, type Db } from "@serfel/db";
 import { setupTestDb, SEED } from "./helpers";
-import { getLookups, listProducts, createProduct, updateProduct, deactivateProduct, restoreProduct } from "../service";
+import { getLookups, listProducts, createProduct, updateProduct, deactivateProduct, restoreProduct, getUserTipo, getMe } from "../service";
 
 let db: Db;
 let pool: Pool;
@@ -207,5 +207,38 @@ describe("update / deactivate / restore", () => {
     await deactivateProduct(db, fresh.idProducto, SEED.idUsuario);
     const restored = await restoreProduct(db, fresh.idProducto, SEED.idUsuario);
     expect(restored.idEstado).toBe(1);
+  });
+});
+
+describe("getUserTipo", () => {
+  it("returns the id_tipo_usuario for an existing user", async () => {
+    expect(await getUserTipo(db, SEED.idUsuario)).toBe(SEED.tipoAdmin);
+    expect(await getUserTipo(db, SEED.idUsuarioVendedor)).toBe(SEED.tipoVendedor);
+  });
+  it("returns null for a missing user", async () => {
+    expect(await getUserTipo(db, 999999)).toBeNull();
+  });
+});
+
+describe("getMe", () => {
+  it("returns identity + accessible modules for an admin", async () => {
+    const me = await getMe(db, SEED.idUsuario);
+    expect(me).toEqual({
+      idUsuario: SEED.idUsuario,
+      idTipoUsuario: SEED.tipoAdmin,
+      nomUsuario: "Admin Test",
+      modulos: ["productos"],
+    });
+  });
+  it("returns an empty module list for a vendedor", async () => {
+    const me = await getMe(db, SEED.idUsuarioVendedor);
+    expect(me.idTipoUsuario).toBe(SEED.tipoVendedor);
+    expect(me.modulos).toEqual([]);
+  });
+  it("throws NO_AUTORIZADO for a missing user", async () => {
+    await expect(getMe(db, 999999)).rejects.toMatchObject({
+      code: "NO_AUTORIZADO",
+      status: 403,
+    });
   });
 });

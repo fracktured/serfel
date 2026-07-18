@@ -21,6 +21,9 @@ const MIGRATIONS = fileURLToPath(
 
 export const SEED = {
   idUsuario: 1,
+  idUsuarioVendedor: 2,
+  tipoAdmin: 1,
+  tipoVendedor: 2,
   marcaSoprole: 1,
   marcaNestle: 2,
   tipoYogurt: 1,
@@ -54,15 +57,24 @@ export async function setupTestDb(
     { idEstado: 0, nomEstado: "Inactivo", descEstado: "Inactivo" },
     { idEstado: 1, nomEstado: "Activo", descEstado: "Activo" },
   ]);
-  await db.insert(t10PTipoUsuario).values({
-    idTipoUsuario: 1, nomTipoUsuario: "Admin", descTipoUsuario: "Administrador",
-  });
-  await db.insert(t10MUsuario).values({
-    idUsuario: SEED.idUsuario, rutUsuario: 11111111, dvUsuario: "1",
-    nomUsuario: "Test", apellPatUsuario: "User", apellMatUsuario: "X",
-    password: "unused", idTipoUsuario: 1, direccionUsuario: "-",
-    idUsuarioMod: SEED.idUsuario, ultFechaMod: "2026-01-01 00:00:00", idEstado: 1,
-  });
+  await db.insert(t10PTipoUsuario).values([
+    { idTipoUsuario: SEED.tipoAdmin, nomTipoUsuario: "Admin", descTipoUsuario: "Administrador" },
+    { idTipoUsuario: SEED.tipoVendedor, nomTipoUsuario: "Vendedor", descTipoUsuario: "Vendedor" },
+  ]);
+  await db.insert(t10MUsuario).values([
+    {
+      idUsuario: SEED.idUsuario, rutUsuario: 11111111, dvUsuario: "1",
+      nomUsuario: "Admin Test", apellPatUsuario: "User", apellMatUsuario: "X",
+      password: "unused", idTipoUsuario: SEED.tipoAdmin, direccionUsuario: "-",
+      idUsuarioMod: SEED.idUsuario, ultFechaMod: "2026-01-01 00:00:00", idEstado: 1,
+    },
+    {
+      idUsuario: SEED.idUsuarioVendedor, rutUsuario: 22222222, dvUsuario: "2",
+      nomUsuario: "Vendedor Test", apellPatUsuario: "User", apellMatUsuario: "Y",
+      password: "unused", idTipoUsuario: SEED.tipoVendedor, direccionUsuario: "-",
+      idUsuarioMod: SEED.idUsuario, ultFechaMod: "2026-01-01 00:00:00", idEstado: 1,
+    },
+  ]);
   await db.insert(t20PMarca).values([
     { idMarca: SEED.marcaSoprole, nomMarca: "SOPROLE" },
     { idMarca: SEED.marcaNestle, nomMarca: "NESTLE" },

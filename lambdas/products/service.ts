@@ -5,13 +5,16 @@ import {
   t20PTipoProducto,
   t20PUnidadMedida,
   t99PImpuesto,
+  t10MUsuario,
   type Db,
 } from "@serfel/db";
 import {
   ESTADO_ACTIVO,
   ESTADO_INACTIVO,
+  modulesForTipo,
   type EstadoFilter,
   type LookupsDto,
+  type MeDto,
   type ProductoDto,
   type ProductoInput,
 } from "@serfel/shared";
@@ -259,4 +262,41 @@ export async function restoreProduct(
       .where(eq(t20MProducto.idProducto, idProducto));
     return getProductDto(tx, idProducto);
   });
+}
+
+export async function getUserTipo(
+  db: Db,
+  idUsuario: number
+): Promise<number | null> {
+  const rows = await db
+    .select({ idTipoUsuario: t10MUsuario.idTipoUsuario })
+    .from(t10MUsuario)
+    .where(eq(t10MUsuario.idUsuario, idUsuario))
+    .limit(1);
+  return rows.length > 0 ? rows[0].idTipoUsuario : null;
+}
+
+export async function getMe(db: Db, idUsuario: number): Promise<MeDto> {
+  const rows = await db
+    .select({
+      idTipoUsuario: t10MUsuario.idTipoUsuario,
+      nomUsuario: t10MUsuario.nomUsuario,
+    })
+    .from(t10MUsuario)
+    .where(eq(t10MUsuario.idUsuario, idUsuario))
+    .limit(1);
+  if (rows.length === 0) {
+    throw new AppError(
+      "NO_AUTORIZADO",
+      403,
+      "El usuario autenticado no existe en el sistema"
+    );
+  }
+  const { idTipoUsuario, nomUsuario } = rows[0];
+  return {
+    idUsuario,
+    idTipoUsuario,
+    nomUsuario,
+    modulos: modulesForTipo(idTipoUsuario),
+  };
 }
