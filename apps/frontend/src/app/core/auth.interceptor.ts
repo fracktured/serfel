@@ -23,8 +23,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       )
     ),
     catchError((err) => {
-      if (err instanceof HttpErrorResponse && err.status === 401) {
-        void router.navigate(['/login']);
+      if (err instanceof HttpErrorResponse) {
+        if (err.status === 401) {
+          void router.navigate(['/login']);
+        } else if (err.status === 403 && err.error?.error?.code === 'PROHIBIDO') {
+          void router.navigate(['/sin-acceso']);
+        }
       }
       return throwError(() => err);
     })

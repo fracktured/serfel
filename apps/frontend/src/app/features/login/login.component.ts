@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
+import { SessionService } from '../../core/session.service';
 
 @Component({
   selector: 'app-login',
@@ -50,6 +51,7 @@ import { AuthService } from '../../core/auth.service';
 export class LoginComponent {
   private auth = inject(AuthService);
   private router = inject(Router);
+  private session = inject(SessionService);
 
   email = '';
   password = '';
@@ -66,7 +68,7 @@ export class LoginComponent {
       if (result === 'new-password') {
         this.needsNewPassword.set(true);
       } else {
-        await this.router.navigate(['/productos']);
+        await this.goToLanding();
       }
     } catch {
       this.error.set('Email o contraseña incorrectos.');
@@ -80,11 +82,19 @@ export class LoginComponent {
     this.error.set(null);
     try {
       await this.auth.completeNewPassword(this.newPassword);
-      await this.router.navigate(['/productos']);
+      await this.goToLanding();
     } catch {
       this.error.set('La contraseña no cumple la política (mínimo 12, mayúsculas, minúsculas y números).');
     } finally {
       this.busy.set(false);
     }
+  }
+
+  private async goToLanding(): Promise<void> {
+    this.session.clear();
+    await this.session.load();
+    await this.router.navigate([
+      this.session.canAccess('productos') ? '/productos' : '/sin-acceso',
+    ]);
   }
 }

@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import type { EstadoFilter, ProductoDto, ProductoInput } from '@serfel/shared';
 import { AuthService } from '../../core/auth.service';
+import { SessionService } from '../../core/session.service';
 import { ProductosStore, apiError } from './productos-store';
 import { ProductModalComponent } from './product-modal.component';
 import { ToastComponent } from '../../core/toast.component';
@@ -23,7 +24,9 @@ import { brandBadgeStyle, toCsv, type SortKey } from './productos-logic';
           Serfel
         </div>
         <nav class="header-nav">
-          <div class="nav-item active">Productos</div>
+          @if (session.canAccess('productos')) {
+            <div class="nav-item active">Productos</div>
+          }
         </nav>
         <div class="header-spacer"></div>
         <div class="header-search">
@@ -32,7 +35,7 @@ import { brandBadgeStyle, toCsv, type SortKey } from './productos-logic';
                  [ngModel]="store.filters().quick"
                  (ngModelChange)="store.setFilter({ quick: $event })" />
         </div>
-        <div class="header-avatar" (click)="logout()" title="Cerrar sesión">⎋</div>
+        <div class="header-avatar" (click)="logout()" [title]="(session.me()?.nomUsuario ?? '') + ' — Cerrar sesión'">⎋</div>
       </div>
     </header>
 
@@ -241,6 +244,7 @@ export class ProductosPageComponent implements OnInit {
   readonly store = inject(ProductosStore);
   private auth = inject(AuthService);
   private router = inject(Router);
+  readonly session = inject(SessionService);
   private toasts = inject(ToastService);
   readonly modalOpen = signal(false);
   readonly editing = signal<ProductoDto | null>(null);
@@ -295,6 +299,7 @@ export class ProductosPageComponent implements OnInit {
   }
 
   async logout(): Promise<void> {
+    this.session.clear();
     await this.auth.logout();
     await this.router.navigate(['/login']);
   }
