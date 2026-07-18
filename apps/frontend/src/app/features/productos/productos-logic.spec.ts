@@ -36,6 +36,12 @@ describe("applyFilters", () => {
     expect(applyFilters(rows, { ...none, quick: "colun" })).toHaveLength(1);
     expect(applyFilters(rows, { ...none, quick: "610" })).toHaveLength(1);
   });
+  it("nombre matches loose multi-token queries ignoring punctuation and order", () => {
+    const soprole = [p({ nomProducto: "YOG.BATIDO SOPR 165grs" })];
+    expect(applyFilters(soprole, { ...none, nombre: "YOG BAT 165" })).toHaveLength(1);
+    expect(applyFilters(soprole, { ...none, nombre: "165 BATIDO" })).toHaveLength(1);
+    expect(applyFilters(soprole, { ...none, nombre: "leche" })).toHaveLength(0);
+  });
 });
 
 describe("sortRows", () => {

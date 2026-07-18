@@ -19,19 +19,42 @@ export interface Sort {
   asc: boolean;
 }
 
+/**
+ * Normaliza texto para búsqueda: minúsculas, sin tildes, puntuación → espacio.
+ * Así "YOG.BATIDO SOPR 165grs" se compara como "yog batido sopr 165grs".
+ */
+function normalizeSearch(text: string): string {
+  return text
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+/**
+ * true si cada palabra de la consulta aparece como substring en el texto,
+ * en cualquier orden (ej. "yog bat 165" matchea "YOG.BATIDO SOPR 165grs").
+ */
+function matchesAllTokens(text: string, query: string): boolean {
+  const haystack = normalizeSearch(text);
+  const tokens = normalizeSearch(query).split(" ").filter(Boolean);
+  return tokens.every((t) => haystack.includes(t));
+}
+
 export function applyFilters(rows: ProductoDto[], f: Filters): ProductoDto[] {
   const codigo = f.codigo.trim();
-  const nombre = f.nombre.trim().toLowerCase();
-  const quick = f.quick.trim().toLowerCase();
+  const nombre = f.nombre.trim();
+  const quick = f.quick.trim();
   return rows.filter((p) => {
     if (codigo && !String(p.codSerfel).includes(codigo)) return false;
-    if (nombre && !p.nomProducto.toLowerCase().includes(nombre)) return false;
+    if (nombre && !matchesAllTokens(p.nomProducto, nombre)) return false;
     if (f.idMarca !== null && p.idMarca !== f.idMarca) return false;
     if (
       quick &&
-      !p.nomProducto.toLowerCase().includes(quick) &&
+      !matchesAllTokens(p.nomProducto, quick) &&
       !String(p.codSerfel).includes(quick) &&
-      !p.nomMarca.toLowerCase().includes(quick)
+      !matchesAllTokens(p.nomMarca, quick)
     ) {
       return false;
     }
