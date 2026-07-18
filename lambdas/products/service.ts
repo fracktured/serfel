@@ -49,27 +49,37 @@ function productQuery(db: DbOrTx) {
 }
 
 export async function getLookups(db: Db): Promise<LookupsDto> {
-  const [marcas, tiposProducto, unidadesMedida, impuestos] = await Promise.all([
-    db
-      .select({ id: t20PMarca.idMarca, nombre: t20PMarca.nomMarca })
-      .from(t20PMarca)
-      .orderBy(asc(t20PMarca.nomMarca)),
-    db
-      .select({
-        id: t20PTipoProducto.idTipoProducto,
-        nombre: t20PTipoProducto.nomTipoProducto,
-      })
-      .from(t20PTipoProducto)
-      .orderBy(asc(t20PTipoProducto.nomTipoProducto)),
-    db
-      .select({ id: t20PUnidadMedida.idUm, nombre: t20PUnidadMedida.nomUm })
-      .from(t20PUnidadMedida)
-      .orderBy(asc(t20PUnidadMedida.nomUm)),
-    db
-      .select({ id: t99PImpuesto.idImpuesto, nombre: t99PImpuesto.nomImpuesto })
-      .from(t99PImpuesto)
-      .orderBy(asc(t99PImpuesto.nomImpuesto)),
-  ]);
+  const [marcas, tiposProducto, unidadesMedida, impuestoRows] =
+    await Promise.all([
+      db
+        .select({ id: t20PMarca.idMarca, nombre: t20PMarca.nomMarca })
+        .from(t20PMarca)
+        .orderBy(asc(t20PMarca.nomMarca)),
+      db
+        .select({
+          id: t20PTipoProducto.idTipoProducto,
+          nombre: t20PTipoProducto.nomTipoProducto,
+        })
+        .from(t20PTipoProducto)
+        .orderBy(asc(t20PTipoProducto.nomTipoProducto)),
+      db
+        .select({ id: t20PUnidadMedida.idUm, nombre: t20PUnidadMedida.nomUm })
+        .from(t20PUnidadMedida)
+        .orderBy(asc(t20PUnidadMedida.nomUm)),
+      db
+        .select({
+          id: t99PImpuesto.idImpuesto,
+          nombre: t99PImpuesto.nomImpuesto,
+          valor: t99PImpuesto.valor,
+        })
+        .from(t99PImpuesto)
+        .orderBy(asc(t99PImpuesto.nomImpuesto)),
+    ]);
+  // dropdown label shows the rate, e.g. "IABA 18%"
+  const impuestos = impuestoRows.map((r) => ({
+    id: r.id,
+    nombre: `${r.nombre} ${r.valor}%`,
+  }));
   return { marcas, tiposProducto, unidadesMedida, impuestos };
 }
 
