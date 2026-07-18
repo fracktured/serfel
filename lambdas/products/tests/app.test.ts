@@ -126,3 +126,49 @@ describe("products app", () => {
     expect(badId.status).toBe(400);
   });
 });
+
+describe("role-based access", () => {
+  it("GET /api/me works for any authenticated user (admin)", async () => {
+    const app = await appPromise;
+    currentUser = SEED.idUsuario;
+    const res = await app.request("/api/me");
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({
+      idUsuario: SEED.idUsuario,
+      idTipoUsuario: SEED.tipoAdmin,
+      modulos: ["productos"],
+    });
+  });
+
+  it("GET /api/me works for a vendedor and reports no modules", async () => {
+    const app = await appPromise;
+    currentUser = SEED.idUsuarioVendedor;
+    const res = await app.request("/api/me");
+    expect(res.status).toBe(200);
+    expect((await res.json()).modulos).toEqual([]);
+    currentUser = SEED.idUsuario;
+  });
+
+  it("403 PROHIBIDO when a vendedor hits products or lookups", async () => {
+    const app = await appPromise;
+    currentUser = SEED.idUsuarioVendedor;
+    try {
+      const prods = await app.request("/api/products");
+      expect(prods.status).toBe(403);
+      expect((await prods.json()).error.code).toBe("PROHIBIDO");
+
+      const looks = await app.request("/api/lookups");
+      expect(looks.status).toBe(403);
+      expect((await looks.json()).error.code).toBe("PROHIBIDO");
+    } finally {
+      currentUser = SEED.idUsuario;
+    }
+  });
+
+  it("admin still gets 200 on products and lookups", async () => {
+    const app = await appPromise;
+    currentUser = SEED.idUsuario;
+    expect((await app.request("/api/products")).status).toBe(200);
+    expect((await app.request("/api/lookups")).status).toBe(200);
+  });
+});

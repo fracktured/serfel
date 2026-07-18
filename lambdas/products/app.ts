@@ -4,24 +4,18 @@ import {
   ProductoInputSchema,
   type ApiErrorBody,
 } from "@serfel/shared";
-import type { Db } from "@serfel/db";
 import { AppError, isDbUnreachable } from "./errors";
 import {
   createProduct,
   deactivateProduct,
   getLookups,
+  getMe,
   listProducts,
   restoreProduct,
   updateProduct,
 } from "./service";
-
-export interface AppDeps {
-  getDb: () => Promise<Db>;
-  /** Extracts the legacy user id from the request (JWT claim in prod). */
-  getIdUsuario: (c: Context) => number | null;
-}
-
-type Env = { Variables: { idUsuario: number } };
+import { requireModule } from "./authz";
+import type { AppDeps, AppEnv } from "./types";
 
 function errorBody(code: ApiErrorBody["error"]["code"], message: string): ApiErrorBody {
   return { error: { code, message } };
@@ -50,7 +44,7 @@ async function parseInput(c: Context) {
 }
 
 export function createApp(deps: AppDeps) {
-  const app = new Hono<Env>().basePath("/api");
+  const app = new Hono<AppEnv>().basePath("/api");
 
   app.onError((err, c) => {
     if (err instanceof AppError) {
@@ -81,6 +75,15 @@ export function createApp(deps: AppDeps) {
     c.set("idUsuario", idUsuario);
     await next();
   });
+
+  const productos = requireModule("productos", deps);
+  app.use("/lookups", productos);
+  app.use("/products", productos);
+  app.use("/products/*", productos);
+
+  app.get("/me", async (c) =>
+    c.json(await getMe(await deps.getDb(), c.get("idUsuario")))
+  );
 
   app.get("/lookups", async (c) => c.json(await getLookups(await deps.getDb())));
 
