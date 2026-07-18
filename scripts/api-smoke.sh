@@ -45,6 +45,11 @@ TIPO=$(curl -s "${AUTH[@]}" "$API_URL/api/lookups" | json_field "['tiposProducto
 # impuesto 0 = "Sin Imp. Adicional" (seeded by migration 0002); usaPorciones 0 = not portioned
 BODY="{\"codSerfel\":$COD,\"nomProducto\":\"$NAME\",\"idMarca\":$MARCA,\"idUm\":$UM,\"idTipoProducto\":$TIPO,\"impuesto\":0,\"usaPorciones\":0}"
 
+# /me is reachable by any authenticated user; the smoke user is tipo 1 (admin)
+check "GET me" 200 "$(curl -s -o /dev/null -w '%{http_code}' "${AUTH[@]}" "$API_URL/api/me")"
+ME_MODS=$(curl -s "${AUTH[@]}" "$API_URL/api/me" | json_field "['modulos']")
+check "me lists productos" "['productos']" "$ME_MODS"
+
 # 3. create
 CREATED=$(curl -s "${AUTH[@]}" -X POST -d "$BODY" "$API_URL/api/products")
 ID=$(echo "$CREATED" | json_field "['idProducto']")
