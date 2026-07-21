@@ -1,0 +1,39 @@
+{
+  "name": "api-pedidos-node",
+  "version": "1.0.0",
+  "description": "Api pedidos",
+  "main": "server.ts",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "helmet": "^4.6.0",
+    "mysql2": "^2.2.5",
+    "sequelize": "^6.6.2",
+    "ts-base-error": "^1.0.5",
+    "winston": "^3.3.3"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.10",
+    "@types/express": "^4.17.11",
+    "@types/mysql": "^2.15.18",
+    "@types/node": "^15.6.1",
+    "@types/sequelize": "^4.28.9",
+    "sequelize-cli": "^6.2.0",
+    "ts-node-dev": "^1.1.6",
+    "typescript": "^4.2.4"
+  },
+  "scripts": {
+    "dev": "ts-node-dev --respawn --pretty --transpile-only src/server.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc --build",
+    "start": "tsc && node src/server.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://ccastro-admin@bitbucket.org/serfel/api-listado-carga-node.git"
+  },
+  "author": "Christian Castro",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/serfel/api-listado-carga-node#readme"
+}
