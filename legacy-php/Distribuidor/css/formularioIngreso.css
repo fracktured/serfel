@@ -1,0 +1,81 @@
+/* 
+    Document   : ingUsuario
+    Created on : 09-ago-2011, 16:27:39
+    Author     : C. Castro
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+p, form, button {
+    border : 0;
+    margin : 0;
+    padding: 0;
+    font-family: "Lucida Grande", "Lucida Sans Unicode", Verdana, Arial, Helvetica, sans-serif;
+    font-size:12px;
+}
+
+.espacio {
+    clear : both;
+    height: 1px;
+}
+
+/* ———– formulario ———– */
+.formulario {
+    margin : 0 auto;
+    width  : 400px;
+    padding: 14px;
+}
+
+/* ———– datosRegistro ———– */
+#datosRegistro {
+    border:solid 2px #b7ddf2;
+    background:#ebf4fb;
+}
+
+#datosRegistro h1 {
+    font-size    : 14px;
+    font-weight  : bold;
+    margin-bottom: 8px;
+    border-bottom : solid 1px #b7ddf2;
+    padding-bottom: 10px;
+}
+
+#datosRegistro p {
+    font-size     : 11px;
+    color         : #666666;
+    margin-bottom : 20px;
+    border-bottom : solid 1px #b7ddf2;
+    padding-bottom: 10px;
+}
+
+#datosRegistro label {
+    display    : block;
+    font-weight: bold;
+    text-align : right;
+    width      : 160px;
+    float      : left;
+}
+
+#datosRegistro .small {
+    color      : #666666;
+    display    : block;
+    font-size  : 11px;
+    font-weight: normal;
+    text-align : right;
+    width      : 160px;
+}
+
+#datosRegistro button {
+    margin-left: 150px;
+    text-align : center;
+}
+
+#datosRegistro .inputError {
+    font-size       : 12px;
+    padding         : 4px 2px;
+    border          : solid 1px #aacfe4;
+    width           : 200px;
+    margin          : 2px 0 20px 10px;
+    background-color: red;
+    font-weight     : bold;
+}

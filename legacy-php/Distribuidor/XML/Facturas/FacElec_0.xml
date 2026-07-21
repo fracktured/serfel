@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DTE version="1.0">
+  <Documento ID="R8030856-6T33F0">
+    <Encabezado>
+      <IdDoc>
+        <TipoDTE>33</TipoDTE>
+        <Folio>0</Folio>
+        <FchEmis>2015-03-31</FchEmis>
+      </IdDoc>
+      <Emisor>
+        <RUTEmisor>8030856-6</RUTEmisor>
+        <RznSoc>SERGIO OSVALDO ARANDA GARRIDO</RznSoc>
+        <GiroEmis></GiroEmis>
+        <Acteco>0</Acteco>
+        <DirOrigen>PSJ. LAS ROSAS N°48, POB. EXPRESOS VIÑA.</DirOrigen>
+        <CmnaOrigen></CmnaOrigen>
+        <CiudadOrigen></CiudadOrigen>
+        <CdgVendedor>8</CdgVendedor>
+      </Emisor>
+      <Receptor>
+        <RUTRecep>79945440-8</RUTRecep>
+        <RznSocRecep>LAKOIZQUETA LIMITADA</RznSocRecep>
+        <GiroRecep>PANADERIA</GiroRecep>
+        <CorreoRecep></CorreoRecep>
+        <DirRecep>TIERRAS ROJAS 697 BTO.SUR</DirRecep>
+        <CmnaRecep>QUILPUE</CmnaRecep>
+        <CiudadRecep></CiudadRecep>
+        <CondVenta>CONTADO</CondVenta>
+      </Receptor>
+      <Totales>
+        <MntNeto>41751</MntNeto>
+        <TasaIVA>19</TasaIVA>
+        <IVA>7933</IVA>
+        <MntTotal>49684</MntTotal>
+      </Totales>
+    </Encabezado>
+    <Detalle>
+      <NroLinDet>1</NroLinDet>
+      <CdgItem>
+        <TpoCodigo>SERFEL</TpoCodigo>
+        <VlrCodigo>311</VlrCodigo>
+      </CdgItem>
+      <NmbItem>BAT.SOPROLE 165grs</NmbItem>
+      <QtyItem>20.000</QtyItem>
+      <UnmdItem>UNI</UnmdItem>
+      <PrcItem>258</PrcItem>
+      <MontoItem>5160</MontoItem>
+    </Detalle>
+    <Detalle>
+      <NroLinDet>2</NroLinDet>
+      <CdgItem>
+        <TpoCodigo>SERFEL</TpoCodigo>
+        <VlrCodigo>3113</VlrCodigo>
+      </CdgItem>
+      <NmbItem>YOG.1+1 ZUCARITAS</NmbItem>
+      <QtyItem>10.000</QtyItem>
+      <UnmdItem>UNI</UnmdItem>
+      <PrcItem>298</PrcItem>
+      <MontoItem>2980</MontoItem>
+    </Detalle>
+    <Detalle>
+      <NroLinDet>3</NroLinDet>
+      <CdgItem>
+        <TpoCodigo>SERFEL</TpoCodigo>
+        <VlrCodigo>3114</VlrCodigo>
+      </CdgItem>
+      <NmbItem>YOG.1+1 CHOCOCRISPIS</NmbItem>
+      <QtyItem>6.000</QtyItem>
+      <UnmdItem>UNI</UnmdItem>
+      <PrcItem>298</PrcItem>
+      <MontoItem>1788</MontoItem>
+    </Detalle>
+    <Detalle>
+      <NroLinDet>4</NroLinDet>
+      <CdgItem>
+        <TpoCodigo>SERFEL</TpoCodigo>
+        <VlrCodigo>3119</VlrCodigo>
+      </CdgItem>
+      <NmbItem>LECHE CHOC SOPR 6x200cc</NmbItem>
+      <QtyItem>6.000</QtyItem>
+      <UnmdItem>DSP</UnmdItem>
+      <PrcItem>1270</PrcItem>
+      <MontoItem>7620</MontoItem>
+    </Detalle>
+    <Detalle>
+      <NroLinDet>5</NroLinDet>
+      <CdgItem>
+        <TpoCodigo>SERFEL</TpoCodigo>
+        <VlrCodigo>3121</VlrCodigo>
+      </CdgItem>
+      <NmbItem>MARG.SOPROLE PAN 125grs</NmbItem>
+      <QtyItem>5.000</QtyItem>
+      <UnmdItem>KGS</UnmdItem>
+      <PrcItem>1395</PrcItem>
+      <MontoItem>6975</MontoItem>
+    </Detalle>
+    <Detalle>
+      <NroLinDet>6</NroLinDet>
+      <CdgItem>
+        <TpoCodigo>SERFEL</TpoCodigo>
+        <VlrCodigo>3141</VlrCodigo>
+      </CdgItem>
+      <NmbItem>JALEA FRAMB SOPR</NmbItem>
+      <QtyItem>4.000</QtyItem>
+      <UnmdItem>UNI</UnmdItem>
+      <PrcItem>198</PrcItem>
+      <MontoItem>792</MontoItem>
+    </Detalle>
+    <Detalle>
+      <NroLinDet>7</NroLinDet>
+      <CdgItem>
+        <TpoCodigo>SERFEL</TpoCodigo>
+        <VlrCodigo>31171</VlrCodigo>
+      </CdgItem>
+      <NmbItem>TE CLUB ROJOx20BOLS</NmbItem>
+      <QtyItem>10.000</QtyItem>
+      <UnmdItem>UNI</UnmdItem>
+      <PrcItem>215</PrcItem>
+      <MontoItem>2150</MontoItem>
+    </Detalle>
+    <Detalle>
+      <NroLinDet>8</NroLinDet>
+      <CdgItem>
+        <TpoCodigo>SERFEL</TpoCodigo>
+        <VlrCodigo>31223</VlrCodigo>
+      </CdgItem>
+      <NmbItem>YOG.ALERCES FRUTILLA 125grs</NmbItem>
+      <QtyItem>4.000</QtyItem>
+      <UnmdItem>UNI</UnmdItem>
+      <PrcItem>101</PrcItem>
+      <MontoItem>404</MontoItem>
+    </Detalle>
+    <Detalle>
+      <NroLinDet>9</NroLinDet>
+      <CdgItem>
+        <TpoCodigo>SERFEL</TpoCodigo>
+        <VlrCodigo>31224</VlrCodigo>
+      </CdgItem>
+      <NmbItem>YOG.ALERCES DAMASCO 125grs</NmbItem>
+      <QtyItem>4.000</QtyItem>
+      <UnmdItem>UNI</UnmdItem>
+      <PrcItem>101</PrcItem>
+      <MontoItem>404</MontoItem>
+    </Detalle>
+    <Detalle>
+      <NroLinDet>10</NroLinDet>
+      <CdgItem>
+        <TpoCodigo>SERFEL</TpoCodigo>
+        <VlrCodigo>31226</VlrCodigo>
+      </CdgItem>
+      <NmbItem>YOG.ALERCES PIÑA 125grs</NmbItem>
+      <QtyItem>4.000</QtyItem>
+      <UnmdItem>UNI</UnmdItem>
+      <PrcItem>101</PrcItem>
+      <MontoItem>404</MontoItem>
+    </Detalle>
+    <Detalle>
+      <NroLinDet>11</NroLinDet>
+      <CdgItem>
+        <TpoCodigo>SERFEL</TpoCodigo>
+        <VlrCodigo>31227</VlrCodigo>
+      </CdgItem>
+      <NmbItem>YOG.ALERCES MORA 125grs</NmbItem>
+      <QtyItem>4.000</QtyItem>
+      <UnmdItem>UNI</UnmdItem>
+      <PrcItem>101</PrcItem>
+      <MontoItem>404</MontoItem>
+    </Detalle>
+    <Detalle>
+      <NroLinDet>12</NroLinDet>
+      <CdgItem>
+        <TpoCodigo>SERFEL</TpoCodigo>
+        <VlrCodigo>31228</VlrCodigo>
+      </CdgItem>
+      <NmbItem>YOG.ALERCES PLATANO 125grs</NmbItem>
+      <QtyItem>4.000</QtyItem>
+      <UnmdItem>UNI</UnmdItem>
+      <PrcItem>101</PrcItem>
+      <MontoItem>404</MontoItem>
+    </Detalle>
+    <Detalle>
+      <NroLinDet>13</NroLinDet>
+      <CdgItem>
+        <TpoCodigo>SERFEL</TpoCodigo>
+        <VlrCodigo>31670</VlrCodigo>
+      </CdgItem>
+      <NmbItem>OMO MATIC 200grs</NmbItem>
+      <QtyItem>12.000</QtyItem>
+      <UnmdItem>UNI</UnmdItem>
+      <PrcItem>433</PrcItem>
+      <MontoItem>5196</MontoItem>
+    </Detalle>
+    <Detalle>
+      <NroLinDet>14</NroLinDet>
+      <CdgItem>
+        <TpoCodigo>SERFEL</TpoCodigo>
+        <VlrCodigo>3322</VlrCodigo>
+      </CdgItem>
+      <NmbItem>ALKA ICE MENTOL 100x450grs</NmbItem>
+      <QtyItem>1.000</QtyItem>
+      <UnmdItem>BLS</UnmdItem>
+      <PrcItem>1040</PrcItem>
+      <MontoItem>1040</MontoItem>
+    </Detalle>
+    <Detalle>
+      <NroLinDet>15</NroLinDet>
+      <CdgItem>
+        <TpoCodigo>SERFEL</TpoCodigo>
+        <VlrCodigo>3379</VlrCodigo>
+      </CdgItem>
+      <NmbItem>CHOCMAN 32x33grs</NmbItem>
+      <QtyItem>1.000</QtyItem>
+      <UnmdItem>CJA</UnmdItem>
+      <PrcItem>2670</PrcItem>
+      <MontoItem>2670</MontoItem>
+    </Detalle>
+    <Detalle>
+      <NroLinDet>16</NroLinDet>
+      <CdgItem>
+        <TpoCodigo>SERFEL</TpoCodigo>
+        <VlrCodigo>31136</VlrCodigo>
+      </CdgItem>
+      <NmbItem>NECT COLUN NJA 6x200cc</NmbItem>
+      <QtyItem>2.000</QtyItem>
+      <UnmdItem>DSP</UnmdItem>
+      <PrcItem>840</PrcItem>
+      <MontoItem>1680</MontoItem>
+    </Detalle>
+    <Detalle>
+      <NroLinDet>17</NroLinDet>
+      <CdgItem>
+        <TpoCodigo>SERFEL</TpoCodigo>
+        <VlrCodigo>31138</VlrCodigo>
+      </CdgItem>
+      <NmbItem>NECT COLUN DURZ 6x200cc</NmbItem>
+      <QtyItem>2.000</QtyItem>
+      <UnmdItem>DSP</UnmdItem>
+      <PrcItem>840</PrcItem>
+      <MontoItem>1680</MontoItem>
+    </Detalle>
+  </Documento>
+</DTE>

@@ -1,0 +1,82 @@
+.titulo {
+    font-weight: bold;
+}
+
+.paddingLeft20 {
+    padding-left: 20px;
+}
+
+.tituloClick {
+    width: 60%;
+}
+
+.totalProductos {
+    font-weight: bold;
+    font-size  : 12px;
+    text-align : right;
+    width      : 20%;
+}
+
+.totalCosto {
+    font-weight: bold;
+    font-size  : 12px;
+    text-align : right;
+    width      : 20%;
+}
+
+.tituloFamilia {
+    font-weight     : bold;
+    font-size       : 12px;
+    color           : green;
+    background-color: gainsboro;
+    width           : 60%;
+}
+
+.totalProductosFamilia {
+    font-weight: bold;
+    font-size  : 11px;
+    text-align : right;
+    width      : 20%;
+    color      : green;
+    background-color: gainsboro;
+}
+
+.totalCostoFamilia {
+    font-weight: bold;
+    font-size  : 11px;
+    text-align : right;
+    width      : 20%;
+    color      : green;
+    background-color: gainsboro;
+}
+
+.tituloSubFamilia {
+    font-weight: bold;
+    font-size  : 12px;
+    color      : gray;
+    width      : 60%;
+}
+
+.totalProductosSubFamilia {
+    font-weight: bold;
+    font-size  : 11px;
+    text-align : right;
+    width      : 20%;
+    color      : gray;
+}
+
+.totalCostoSubFamilia {
+    font-weight: bold;
+    font-size  : 11px;
+    text-align : right;
+    width      : 20%;
+    color      : gray;
+}
+
+.ver {
+    background : url("../../images/iconos/insertarElementoOn.png") center no-repeat;
+    _background: url("../../images/iconos/insertarElementoOn.png") center no-repeat;
+    display    : block;
+    width      : 40px;
+    height     : 25px;
+}

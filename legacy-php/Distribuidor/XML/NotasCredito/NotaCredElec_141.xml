@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DTE version="1.0">
+  <Documento ID="R8030856-6T61F141">
+    <Encabezado>
+      <IdDoc>
+        <TipoDTE>61</TipoDTE>
+        <Folio>141</Folio>
+        <FchEmis>2016-04-30</FchEmis>
+      </IdDoc>
+      <Emisor>
+        <RUTEmisor>8030856-6</RUTEmisor>
+        <RznSoc>SERGIO OSVALDO ARANDA GARRIDO</RznSoc>
+        <GiroEmis></GiroEmis>
+        <Acteco>0</Acteco>
+        <DirOrigen>PSJ. LAS ROSAS N°48, POB. EXPRESOS VIÑA.</DirOrigen>
+        <CmnaOrigen></CmnaOrigen>
+        <CiudadOrigen>VI�A DEL MAR</CiudadOrigen>
+      </Emisor>
+      <Receptor>
+        <RUTRecep>14146781-6</RUTRecep>
+        <RznSocRecep>MARTINEZ DONOSO MARION DEL ROSARIO</RznSocRecep>
+        <GiroRecep>PROVISIONES </GiroRecep>
+        <CorreoRecep></CorreoRecep>
+        <DirRecep>LAS CRUCES C/PSJE.DEL MEDIO 10ºSECTOR BTO SUR </DirRecep>
+        <CmnaRecep>QUILPUE </CmnaRecep>
+        <CiudadRecep></CiudadRecep>
+      </Receptor>
+      <Totales>
+        <MntNeto>27410</MntNeto>
+        <TasaIVA>19</TasaIVA>
+        <IVA>5208</IVA>
+        <MntTotal>32776</MntTotal>
+      </Totales>
+    </Encabezado>
+    <Detalle>
+      <NroLinDet>1</NroLinDet>
+      <CdgItem>
+        <TpoCodigo>SERFEL</TpoCodigo>
+        <VlrCodigo>31512</VlrCodigo>
+      </CdgItem>
+      <NmbItem>COLGATE 6x50GRS</NmbItem>
+      <QtyItem>1.000</QtyItem>
+      <UnmdItem>DSP</UnmdItem>
+      <PrcItem>1350</PrcItem>
+      <MontoItem>1350</MontoItem>
+    </Detalle>
+    <Detalle>
+      <NroLinDet>2</NroLinDet>
+      <CdgItem>
+        <TpoCodigo>SERFEL</TpoCodigo>
+        <VlrCodigo>33215</VlrCodigo>
+      </CdgItem>
+      <NmbItem>MAX COMBI 100x4,76grs</NmbItem>
+      <QtyItem>1.000</QtyItem>
+      <UnmdItem>BLS</UnmdItem>
+      <PrcItem>775</PrcItem>
+      <MontoItem>775</MontoItem>
+    </Detalle>
+    <Detalle>
+      <NroLinDet>3</NroLinDet>
+      <CdgItem>
+        <TpoCodigo>SERFEL</TpoCodigo>
+        <VlrCodigo>31590</VlrCodigo>
+      </CdgItem>
+      <NmbItem>HIG.TREBOL 48x50mts</NmbItem>
+      <QtyItem>1.000</QtyItem>
+      <UnmdItem>DSP</UnmdItem>
+      <PrcItem>7740</PrcItem>
+      <MontoItem>7740</MontoItem>
+    </Detalle>
+    <Detalle>
+      <NroLinDet>4</NroLinDet>
+      <CdgItem>
+        <TpoCodigo>SERFEL</TpoCodigo>
+        <VlrCodigo>31807</VlrCodigo>
+      </CdgItem>
+      <NmbItem>P1 HIG.FAV.DH12X4+TOA.MAGI.3X8</NmbItem>
+      <QtyItem>1.000</QtyItem>
+      <UnmdItem>UNI</UnmdItem>
+      <PrcItem>12910</PrcItem>
+      <MontoItem>12910</MontoItem>
+    </Detalle>
+    <Detalle>
+      <NroLinDet>5</NroLinDet>
+      <CdgItem>
+        <TpoCodigo>SERFEL</TpoCodigo>
+        <VlrCodigo>31870</VlrCodigo>
+      </CdgItem>
+      <NmbItem>RINDE DOS REFR.NRJA/PLAT 14x24</NmbItem>
+      <QtyItem>1.000</QtyItem>
+      <UnmdItem>DSP</UnmdItem>
+      <PrcItem>1575</PrcItem>
+      <CodImpAdic>27</CodImpAdic>
+      <MontoItem>1575</MontoItem>
+    </Detalle>
+    <Detalle>
+      <NroLinDet>6</NroLinDet>
+      <CdgItem>
+        <TpoCodigo>SERFEL</TpoCodigo>
+        <VlrCodigo>3323</VlrCodigo>
+      </CdgItem>
+      <NmbItem>ALKA ICE CEREZA 390grs</NmbItem>
+      <QtyItem>1.000</QtyItem>
+      <UnmdItem>BLS</UnmdItem>
+      <PrcItem>1100</PrcItem>
+      <MontoItem>1100</MontoItem>
+    </Detalle>
+    <Detalle>
+      <NroLinDet>7</NroLinDet>
+      <CdgItem>
+        <TpoCodigo>SERFEL</TpoCodigo>
+        <VlrCodigo>3319</VlrCodigo>
+      </CdgItem>
+      <NmbItem>ALKA ICE MIEL 390grs</NmbItem>
+      <QtyItem>1.000</QtyItem>
+      <UnmdItem>BLS</UnmdItem>
+      <PrcItem>1100</PrcItem>
+      <MontoItem>1100</MontoItem>
+    </Detalle>
+    <Detalle>
+      <NroLinDet>8</NroLinDet>
+      <CdgItem>
+        <TpoCodigo>SERFEL</TpoCodigo>
+        <VlrCodigo>33216</VlrCodigo>
+      </CdgItem>
+      <NmbItem>BON BON BUM MEMES  24x20grs</NmbItem>
+      <QtyItem>1.000</QtyItem>
+      <UnmdItem>BLS</UnmdItem>
+      <PrcItem>860</PrcItem>
+      <MontoItem>860</MontoItem>
+    </Detalle>
+    <Referencia>
+      <NroLinRef>1</NroLinRef>
+      <TpoDocRef>33</TpoDocRef>
+      <FolioRef>3753</FolioRef>
+      <FchRef>2016-04-28</FchRef>
+      <CodRef>3</CodRef>
+      <RazonRef>PROD D</RazonRef>
+    </Referencia>
+    <Referencia>
+      <NroLinRef>2</NroLinRef>
+      <TpoDocRef>33</TpoDocRef>
+      <FolioRef>3753</FolioRef>
+      <FchRef>2016-04-28</FchRef>
+      <CodRef>3</CodRef>
+      <RazonRef>PROD D</RazonRef>
+    </Referencia>
+    <Referencia>
+      <NroLinRef>3</NroLinRef>
+      <TpoDocRef>33</TpoDocRef>
+      <FolioRef>3753</FolioRef>
+      <FchRef>2016-04-28</FchRef>
+      <CodRef>3</CodRef>
+      <RazonRef>PROD D</RazonRef>
+    </Referencia>
+    <Referencia>
+      <NroLinRef>4</NroLinRef>
+      <TpoDocRef>33</TpoDocRef>
+      <FolioRef>3753</FolioRef>
+      <FchRef>2016-04-28</FchRef>
+      <CodRef>3</CodRef>
+      <RazonRef>PROD D</RazonRef>
+    </Referencia>
+    <Referencia>
+      <NroLinRef>5</NroLinRef>
+      <TpoDocRef>33</TpoDocRef>
+      <FolioRef>3753</FolioRef>
+      <FchRef>2016-04-28</FchRef>
+      <CodRef>3</CodRef>
+      <RazonRef>PROD D</RazonRef>
+    </Referencia>
+    <Referencia>
+      <NroLinRef>6</NroLinRef>
+      <TpoDocRef>33</TpoDocRef>
+      <FolioRef>3753</FolioRef>
+      <FchRef>2016-04-28</FchRef>
+      <CodRef>3</CodRef>
+      <RazonRef>PROD D</RazonRef>
+    </Referencia>
+    <Referencia>
+      <NroLinRef>7</NroLinRef>
+      <TpoDocRef>33</TpoDocRef>
+      <FolioRef>3753</FolioRef>
+      <FchRef>2016-04-28</FchRef>
+      <CodRef>3</CodRef>
+      <RazonRef>PROD D</RazonRef>
+    </Referencia>
+    <Referencia>
+      <NroLinRef>8</NroLinRef>
+      <TpoDocRef>33</TpoDocRef>
+      <FolioRef>3753</FolioRef>
+      <FchRef>2016-04-28</FchRef>
+      <CodRef>3</CodRef>
+      <RazonRef>PROD D</RazonRef>
+    </Referencia>
+    <Adicional>
+      <NodosA>
+        <A1>94041</A1>
+        <A2>64941651</A2>
+        <A3></A3>
+        <A4>CONTADO</A4>
+        <A5>8</A5>
+        <A6></A6>
+      </NodosA>
+    </Adicional>
+  </Documento>
+</DTE>
