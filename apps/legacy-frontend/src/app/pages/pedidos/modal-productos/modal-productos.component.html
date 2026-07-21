@@ -1,0 +1,29 @@
+<div class="modal-header">
+    <h4 class="modal-title">Clientes Ruta</h4>
+    <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body">
+    <h4 id="tituloMensajeResultados">Resultado de busqueda para: {{ filtroBusqueda }}</h4>
+    <table class="table table-sm table-striped table-hover">
+        <thead>
+            <tr>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let producto of listaProductos; let i = index;" (click)=seleccionarProducto(producto)>
+                <td>{{ producto.codSerfel }} <br> {{ producto.nomProducto }}</td>
+                <td *ngIf="esSerfel">{{ producto.precio | moneda }} <br> {{ producto.maxPorcenDesc }}%</td>
+                <td *ngIf="esCoproad">{{ producto.precioNeto | moneda }} <br> {{ producto.maxPorcenDesc }}%</td>
+                <td>{{ producto.cantidadStock - producto.cantidadPedida | number }} <br> {{producto.nomMarca}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="activeModal.dismiss()">Close</button>
+</div>

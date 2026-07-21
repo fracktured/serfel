@@ -1,0 +1,86 @@
+<div class="form-inline">
+  <h3 *ngIf="producto" class="form-inline">
+    [{{ producto.codSerfel }}] {{ producto.nomProducto }}
+  </h3>
+  <div class="custom-control custom-switch ml-sm-3">
+    <input type="checkbox" class="custom-control-input" id="switchPorciones" [(ngModel)]="switchPorciones" (change)="onSwitchChange($event)">
+    <label class="custom-control-label" for="switchPorciones">(Activar / desactivar uso de porciones)</label>
+  </div>
+</div>
+<br>
+
+<form class="form-inline" [formGroup]="formCrear" (ngSubmit)="agregar()">
+  <div class="form-group mb-2">
+    <label class="mr-2">N°</label>
+    <input type="number" class="form-control" formControlName="numero" id="numero" max="100" />
+  </div>
+  <div class="form-group mx-sm-3 mb-2">
+    <label class="mr-2">Cantidad / Peso</label>
+    <input type="number" class="form-control" formControlName="cantidad" id="cantidad" placeholder="0" />
+  </div>
+  <button type="submit" class="btn btn-primary mb-2" [disabled]="!formCrear.valid">Agregar</button>
+</form>
+<br>
+
+<div *ngIf="error" class="alert alert-danger">{{ mensajeError }}</div>
+<br>
+
+<form class="form-inline" [formGroup]="formBuscar">
+  <div class="form-group mb-2">
+    <input class="form-check-input" type="radio" formControlName="opcionBuscar" id="opcion1" value="numero">
+    <label class="mr-2">N°</label>
+    <input type="number" class="form-control" formControlName="numero" id="numeroBuscar" placeholder="0" />
+  </div>
+  <div class="form-group ml-sm-3 mb-2">
+    <input class="form-check-input" type="radio" formControlName="opcionBuscar" id="opcion2" value="factura">
+    <label class="mr-2">Factura</label>
+    <input type="number" class="form-control" formControlName="factura" id="factura" placeholder="0" />
+  </div>
+  <div class="form-group ml-sm-3 mb-2">
+    <input class="form-check-input" type="radio" formControlName="opcionBuscar" id="opcion3" value="estado">
+    <label class="mr-2">Estado</label>
+    <select name="estado" class="form-control" formControlName="estado">
+      <option value="1">Disponible</option>
+      <option value="5">Asignado</option>
+    </select>
+  </div>
+  <button type="submit" class="btn btn-primary ml-sm-3 mb-2" [disabled]="isFormBuscarInvalid" (click)="buscar()">Buscar</button>
+  <button type="submit" class="btn btn-primary ml-sm-3 mb-2" (click)="buscarTodas()">Todos</button>
+</form>
+
+<div *ngIf="porciones?.length">
+  <table class="table table-striped">
+    <thead class="text-center">
+      <tr>
+        <th scope="col" sortable="fecha" (sort)="onSort($event)">Fecha</th>
+        <th scope="col" sortable="grupo" (sort)="onSort($event)">Grupo</th>
+        <th scope="col" sortable="numero" (sort)="onSort($event)">N°</th>
+        <th scope="col" sortable="cantidad" (sort)="onSort($event)">Cantidad</th>
+        <th scope="col" sortable="venta.numDoctoEmitido" (sort)="onSort($event)">Factura</th>
+        <th scope="col" sortable="venta.fechaVenta" (sort)="onSort($event)">Fecha Factura</th>
+        <th scope="col">M</th>
+        <th scope="col">E</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let porcion of porciones" class="text-center">
+        <th scope="row">{{ porcion.fecha | date : 'dd/MM/yyyy HH:mm' }}</th>
+        <td>{{ porcion.grupo }}</td>
+        <td>{{ porcion.numero }}</td>
+        <td>{{ porcion.cantidad }}</td>
+        <td>{{ porcion.venta?.numDoctoEmitido }}</td>
+        <td>{{ porcion.venta?.fechaVenta | date : 'dd/MM/yyyy' }}</td>
+        <td>
+          <button class="btn btn-primary" type="button" (click)="modificar(porcion)">
+            <i class="bi bi-pencil"></i>
+          </button>
+        </td>
+        <td>
+          <button class="btn btn-primary" type="button" (click)="eliminar(porcion.idPorcion)">
+            <i class="bi bi-trash"></i>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,40 @@
+<div class="modal-header">
+    <h4 class="modal-title">Detalle Producto</h4>
+    <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col">
+            <h4 id="tituloMensajeIngresarDetalle">Producto: <label>{{ producto.nomProducto }}</label></h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-5">
+            <div class="form-group">
+                <label for="lblUnidades">Unidades:</label>
+                <input type="text" [(ngModel)]="producto.cantidad" class="form-control">
+            </div>
+        </div>
+        <div class="col-5">
+            <div class="form-group">
+                <label for="lblUnidades">% Desc:</label>
+                <input type="text" [(ngModel)]="producto.porcenDesc" class="form-control">
+            </div>
+        </div>
+        <div class="col-2">
+            <div class="form-group">
+                <label for="lblUnidades">Eliminar</label><br>
+                <button name="delete" class="btn btn-danger btn-block" (click)="eliminarProductoPedido()"> 
+                    <span class="fa fa-trash" aria-hidden="true">
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="ingresarDetalleProducto()">Agregar</button>
+    <button type="button" class="btn btn-outline-dark" (click)="activeModal.dismiss()">Close</button>
+</div>

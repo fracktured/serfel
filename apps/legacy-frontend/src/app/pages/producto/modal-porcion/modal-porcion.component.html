@@ -1,0 +1,43 @@
+<div class="modal-header">
+  <h4 class="modal-title">Modificar Porcion</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+
+<div class="modal-body">
+  <div *ngIf="error" class="alert alert-danger">{{ mensajeError }}</div>
+  <br>
+
+  <form [formGroup]="formModificar" (ngSubmit)="modificar()">
+    <div class="form-group form-inline row">
+      <label class="col-sm-4">Fecha</label>
+      <label>{{ porcion.fecha | date : 'dd/MM/yyyy HH:mm' }}</label>
+    </div>
+    <div class="form-group form-inline row">
+      <label class="col-sm-4">Grupo</label>
+      <input type="number" class="form-control" formControlName="grupo" id="grupo" />
+    </div>
+    <div class="form-group form-inline row">
+      <label class="col-sm-4">N°</label>
+      <input type="number" class="form-control" formControlName="numero" id="numero" max="100" />
+    </div>
+    <div class="form-group form-inline row">
+      <label class="col-sm-4">Cantidad / Peso</label>
+      <input type="number" class="form-control" formControlName="cantidad" id="cantidad" placeholder="0" />
+    </div>
+    <div class="form-group form-inline row">
+      <label class="col-sm-4">Factura</label>
+      <input type="number" class="form-control" formControlName="factura" id="factura" (ngModelChange)="onFacturaChange($event)" />
+    </div>
+    <div class="form-group form-inline row">
+      <label class="col-sm-4">Estado</label>
+      <select name="estado" class="form-control" formControlName="estado">
+        <option value="1">Disponible</option>
+        <option value="5">Asignado</option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary mb-2 right" [disabled]="!formModificar.valid">Modificar</button>
+  </form>
+</div>

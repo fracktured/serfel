@@ -1,0 +1,136 @@
+@import "~bootstrap-icons/font/bootstrap-icons.css";
+
+/* sobre escritura bootstrap para el color y la letra de las tablas */
+
+table.table tbody {
+    color: #73879C !important;
+    font-family: "Helvetica Neue", Roboto, Arial, "Droid Sans", sans-serif !important;
+    font-size: 14px;
+}
+
+table.table tbody tr:hover {
+    color: #73879C !important;
+}
+
+
+/* fin - sobre escritura bootstrap */
+
+th[sortable] {
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+th[sortable].desc:before, th[sortable].asc:before {
+  content: '';
+  display: block;
+  background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAmxJREFUeAHtmksrRVEUx72fH8CIGQNJkpGUUmakDEiZSJRIZsRQmCkTJRmZmJgQE0kpX0D5DJKJgff7v+ru2u3O3vvc67TOvsdatdrnnP1Y///v7HvvubdbUiIhBISAEBACQkAICAEhIAQ4CXSh2DnyDfmCPEG2Iv9F9MPlM/LHyAecdyMzHYNwR3fdNK/OH9HXl1UCozD24TCvILxizEDWIEzA0FcM8woCgRrJCoS5PIwrANQSMAJX1LEI9bqpQo4JYNFFKRSvIgsxHDVnqZgIkPnNBM0rIGtYk9YOOsqgbgepRCfdbmFtqhFkVEDVPjJp0+Z6e6hRHhqBKgg6ZDCvYBygVmUoEGoh5JTRvIJwhJo1aUOoh4CLPMyvxxi7EWOMgnCGsXXI1GIXlZUYX7ucU+kbR8NW8lh3O7cue0Pk32MKndfUxQFAwxdirk3fHappAnc0oqDPzDfGTBrCfHP04dM4oTV8cxr0SVzH9FF07xD3ib6xCDE+M+aUcVygtWzzbtGX2rPBrEUYfecfQkaFzYi6HjVnGBdtL7epqAlc1+jRdAap74RrnPc4BCijttY2tRcdN0g17w7HqZrXhdJTYAuS3hd8z+vKgK3V1zWPae0mZDMykadBn1hTQBLnZNwVrJpSe/NwEeDsEwCctEOsJTsgxLvCqUl2ACftEGvJDgjxrnBqkh3ASTvEWrIDQrwrnJpkB3DSDrGW7IAQ7wqnJtkBnLRztejXXVu4+mxz/nQ9jR1w5VB86ejLTFcnnDwhzV+F6T+CHZlx6THSjn76eyyBIOPHyDakhBAQAkJACAgBISAEhIAQYCLwC8JxpAmsEGt6AAAAAElFTkSuQmCC') no-repeat;
+  background-size: 22px;
+  width: 22px;
+  height: 22px;
+  float: left;
+  margin-left: -22px;
+}
+
+th[sortable].desc:before {
+  transform: rotate(180deg);
+  -ms-transform: rotate(180deg);
+}
+
+html,
+body {
+    color: #73879C !important;
+    background: #F7F7F7 !important;
+    font-family: "Helvetica Neue", Roboto, Arial, "Droid Sans", sans-serif !important;
+    font-size: 14px;
+}
+
+.fa-bars:hover {
+    color: rgb(5, 63, 121);
+}
+
+.title_profile {
+    color: #515356 !important;
+    font-weight: 500;
+    font-size: 13px;
+}
+
+.bg-light-dark {
+    background: #2A3F54 !important;
+}
+
+.bg-navbar {
+    background: #EDEDED !important;
+}
+
+.f-s-10 {
+    font-size: 10px;
+}
+
+.f-s-11 {
+    font-size: 11px;
+}
+
+.f-s-12 {
+    font-size: 12px;
+}
+
+.f-s-13 {
+    font-size: 13px;
+}
+
+.f-s-13 {
+    font-size: 14px;
+}
+
+.x_panel {
+    position: relative !important;
+    width: 98% !important;
+    margin-bottom: 10px !important;
+    padding: 10px 17px !important;
+    display: inline-block !important;
+    background: #fff !important;
+    border: 1px solid #E6E9ED !important;
+    -webkit-column-break-inside: avoid !important;
+    -moz-column-break-inside: avoid !important;
+    opacity: 1 !important;
+    transition: all .2s ease !important;
+    text-align: left !important;
+    margin-top: 10px;
+}
+
+.x_panel_title {
+    font-size: 17px;
+    border-bottom: 2px solid #E6E9ED;
+    padding: 1px 5px 16px;
+    margin-bottom: 10px;
+}
+
+
+/* .x_panel_content {
+    font-size: 13px;
+} */
+
+.separator {
+    border-top: 1px solid #D8D8D8;
+    margin-top: 10px;
+    padding-top: 10px;
+}
+
+/* NgBootstrap Modal Fix - Ensure proper z-index stacking */
+.modal-backdrop {
+    z-index: 1050 !important;
+}
+
+.modal {
+    z-index: 1055 !important;
+}
+
+.modal-open {
+    overflow: hidden;
+}
+
+.modal-open .modal {
+    overflow-x: hidden;
+    overflow-y: auto;
+}

@@ -1,0 +1,33 @@
+<div class="text-center">
+    <div *ngIf="spinner" class="spinner-border" style="width: 3rem; height: 3rem;" role="status"></div>
+</div>
+
+<div *ngFor="let pedido of listaPedidos; let i = index;">
+    <!--style="display: flex;
+                flex-wrap: wrap;
+                padding: 10px 10px 10px 10px;" class="col-12 col-md-12 col-sm-12 col-xs-12 table-striped table-hover">-->
+    <div class="container">
+        <div class="row">
+            <div class="col-3">{{ pedido.id_pedido }}</div>
+            <div class="col-7">{{ pedido.fecha_pedido }}</div>
+            <div class="col-2" style="text-align: right;">{{ pedido.precio_total | moneda }}</div>
+        </div>
+        <div class="row">
+            <div class="col-12">{{ pedido.razon_social }}</div>
+            <div class="col-12">{{ pedido.nom_local_cliente }}</div>
+        </div>
+        <div class="row mt-3" style="text-align: center;">
+            <div class="col-6">
+                <button name="update" class="btn btn-info" (click)="modificarPedido(pedido)"> 
+                    <span class="fa fa-edit" aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="col-6">
+                <button name="delete" class="btn btn-danger" (click)="eliminarPedido(pedido)"> 
+                    <span class="fa fa-trash" aria-hidden="true"></span>
+                </button>
+            </div>
+        </div>
+        <!--<hr class="col-md-12 col-sm-12 col-xs-12">-->
+    </div>
+</div>

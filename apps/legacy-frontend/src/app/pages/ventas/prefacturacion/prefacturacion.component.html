@@ -1,0 +1,127 @@
+<ul class="list-group list-group-horizontal mb-3">
+   <li class="list-group-item d-flex justify-content-between lh-condensed">
+      <div class="col-md-3 order-md-2">
+         <h4 class="d-flex justify-content-between align-items-center">
+            <span class="text-muted mr-4">Seleccionados</span>
+            <span class="badge badge-secondary badge-pill" >
+               {{ cantSeleccionados }}
+            </span>
+         </h4>
+      </div>
+   </li>
+   <li class="list-group-item d-flex justify-content-between lh-condensed">
+      <div class="col-md-3 order-md-2">
+         <h4 class="d-flex justify-content-between align-items-center">
+            <span class="text-success mr-4">Prefacturados</span>
+            <span class="badge badge-secondary badge-pill badge-success">{{ cantPrefacturados }}</span>
+         </h4>
+      </div>
+   </li>
+   <li class="list-group-item d-flex justify-content-between lh-condensed">
+      <div class="col-md-3 order-md-2">
+         <h4 class="d-flex justify-content-between align-items-center">
+            <span class="text-danger mr-4">Errores</span>
+            <span class="badge badge-secondary badge-pill badge-danger">{{ cantErrores }}</span>
+         </h4>
+      </div>
+   </li>
+   <li class="list-group-item d-flex justify-content-between lh-condensed border-0">
+   </li>
+</ul>
+
+<div *ngIf="exitosDetalle.length > 0" class="alert alert-success mt-2">
+   <h5>Detalle de exitos:</h5>
+   <ul class="mb-0">
+      <li *ngFor="let exito of exitosDetalle">{{ exito }}</li>
+   </ul>
+</div>
+
+<div *ngIf="erroresDetalle.length > 0" class="alert alert-warning mt-2">
+   <h5>Detalle de errores:</h5>
+   <ul class="mb-0">
+      <li *ngFor="let error of erroresDetalle">{{ error }}</li>
+   </ul>
+</div>
+
+<br>
+
+<div class="row mb-3">
+   <div class="col-md-3">
+      <label class="form-label" style="font-size: 1.1rem; font-weight: 500;">Rut Empresa</label>
+      <ng-multiselect-dropdown
+         [settings]="dropdownSettings"
+         [placeholder]="'Seleccione una empresa'"
+         [data]="empresas"
+         [(ngModel)]="empresaSeleccionada"
+         style="font-size: 1.1rem;">
+      </ng-multiselect-dropdown>
+   </div>
+   <div class="col-md-3 d-flex align-items-end">
+      <button class="btn btn-primary" type="button" (click)="prefacturarSeleccionados()" name="btnPrefacturarSeleccionados" id="btnPrefacturarSeleccionados">
+         <span *ngIf="spinnerBuscar" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+         Prefacturar
+      </button>
+   </div>
+</div>
+
+<div *ngIf="error" class="alert alert-danger">{{ mensajeError }}</div>
+<div *ngIf="pedidos?.length">
+   <table class="table table-striped">
+      <thead>
+         <tr>
+            <th scope="col" (click)="ordenarPor('idPedido')" style="cursor:pointer">N°
+               <span *ngIf="columnaOrden === 'idPedido'">{{ direccionOrden === 'asc' ? '▲' : '▼' }}</span>
+            </th>
+            <th scope="col" (click)="ordenarPor('fecha')" style="cursor:pointer">Fecha Pedido
+               <span *ngIf="columnaOrden === 'fecha'">{{ direccionOrden === 'asc' ? '▲' : '▼' }}</span>
+            </th>
+            <th scope="col" (click)="ordenarPor('rut')" style="cursor:pointer">Rut Cliente
+               <span *ngIf="columnaOrden === 'rut'">{{ direccionOrden === 'asc' ? '▲' : '▼' }}</span>
+            </th>
+            <th scope="col" (click)="ordenarPor('nomFantasia')" style="cursor:pointer">Nombre Fantasia
+               <span *ngIf="columnaOrden === 'nomFantasia'">{{ direccionOrden === 'asc' ? '▲' : '▼' }}</span>
+            </th>
+            <th scope="col" (click)="ordenarPor('nomLocal')" style="cursor:pointer">Nombre Local
+               <span *ngIf="columnaOrden === 'nomLocal'">{{ direccionOrden === 'asc' ? '▲' : '▼' }}</span>
+            </th>
+            <th scope="col" (click)="ordenarPor('contacto')" style="cursor:pointer">Nombre Contacto
+               <span *ngIf="columnaOrden === 'contacto'">{{ direccionOrden === 'asc' ? '▲' : '▼' }}</span>
+            </th>
+            <th scope="col" (click)="ordenarPor('vendedor')" style="cursor:pointer">Nombre Vendedor
+               <span *ngIf="columnaOrden === 'vendedor'">{{ direccionOrden === 'asc' ? '▲' : '▼' }}</span>
+            </th>
+            <th scope="col" (click)="ordenarPor('precioTotal')" style="cursor:pointer">Precio Total
+               <span *ngIf="columnaOrden === 'precioTotal'">{{ direccionOrden === 'asc' ? '▲' : '▼' }}</span>
+            </th>
+            <!--<th scope="col" class="text-center">A</th>-->
+            <th scope="col" class="text-center">
+               <button class="btn btn-sm btn-outline-primary" (click)="toggleSelectAll()">
+                  {{ allSelected ? 'Ninguno' : 'Todos' }}
+               </button>
+            </th>
+         </tr>
+      </thead>
+      <tbody>
+         <tr *ngFor="let pedido of pedidos">
+            <th scope="row">{{ pedido.idPedido }}</th>
+            <td>{{ pedido.fecha | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ pedido.local.cliente | clientFullRut }}</td>
+            <td>{{ pedido.local.cliente.nomFantasia }}</td>
+            <td>{{ pedido.local.nomLocal }}</td>
+            <td>{{ pedido.local | contactFullName }}</td>
+            <td>{{ pedido.vendedor | fullName }}</td>
+            <td>{{ pedido.precioTotal | moneda }}</td>
+            <!--<td class="text-center">
+               <button class="btn btn-primary" type="button" (click)="anular(pedido.id)">
+                  <i class="bi bi-stack"></i>
+               </button>
+            </td>-->
+            <td class="text-center">
+               <div class="form-check">
+                  <input type="checkbox" class="form-check-input text-center" [(ngModel)]="pedido.seleccionado" (change)="seleccionar()">
+               </div>
+            </td>
+         </tr>
+      </tbody>
+   </table>
+</div>

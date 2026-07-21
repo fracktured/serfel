@@ -1,0 +1,54 @@
+<div class="input-group mb-3">
+    <input type="text" class="form-control" id="nombreProducto" [(ngModel)]="nombreProducto" placeholder="Nombre Producto" aria-label="Nombre Producto" aria-describedby="btnBuscarProducto">
+    <div class="input-group-append">
+        <button class="btn btn-outline-danger" type="button" (click)="limpiarNombre()" name="btnLimpiarNombre" id="btnLimpiarNombre">
+            <i class="bi bi-eraser"></i>
+        </button>
+        <button class="btn btn-primary" type="button" (click)="buscarProductosXNombre()" name="btnBuscarProducto" id="btnBuscarProducto">
+            <span *ngIf="spinnerBuscar" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            Buscar
+        </button>
+    </div>
+</div>
+<div class="input-group mb-3">
+    <input type="text" class="form-control" id="codigoProducto" [(ngModel)]="codigoProducto" placeholder="Codigo Producto" aria-label="Codigo Producto" aria-describedby="btnCodigoProducto">
+    <div class="input-group-append">
+        <button class="btn btn-outline-danger" type="button" (click)="limpiarCodigo()" name="btnLimpiarCodigo" id="btnLimpiarCodigo">
+            <i class="bi bi-eraser"></i>
+        </button>
+        <button class="btn btn-primary" type="button" (click)="buscarProductoXCodigo()" name="btnCodigoProducto" id="btnCodigoProducto">Buscar</button>
+    </div>
+</div>
+<br />
+
+<div *ngIf="error" class="alert alert-danger">{{ mensajeError }}</div>
+<div *ngIf="productos?.length">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">N°</th>
+                <th scope="col">Nombre</th>
+                <th scope="col">Marca</th>
+                <th scope="col">UM</th>
+                <th scope="col">Tipo</th>
+                <!--<th scope="col">Sub Familia</th>-->
+                <th scope="col" class="text-center">P</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let prod of productos">
+                <th scope="row">{{ prod.codSerfel }}</th>
+                <td>{{ prod.nomProducto }}</td>
+                <td>{{ prod.marca.nomMarca }}</td>
+                <td>{{ prod.um.nomUM }}</td>
+                <td>{{ prod.tipo.nomTipoProducto }}</td>
+                <!--<td>{{ prod.subFamilia }}</td>-->
+                <td class="text-center">
+                    <button class="btn btn-primary" type="button" (click)="porciones(prod.idProducto)">
+                        <i class="bi bi-stack"></i>
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
