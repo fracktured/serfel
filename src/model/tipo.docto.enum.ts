@@ -1,0 +1,7 @@
+export enum TipoDoctoEnum {
+    FACTURA = 1,
+    CONTADO = 7,
+    FACTURA_ELECTRONICA = 9,
+    NOTA_CREDITO = 10,
+    NOTA_CREDITO_ELECTRONICA = 11
+}
