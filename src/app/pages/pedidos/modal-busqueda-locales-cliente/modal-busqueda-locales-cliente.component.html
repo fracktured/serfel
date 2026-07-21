@@ -1,0 +1,46 @@
+<div class="modal-header">
+    <h4 class="modal-title">Buscar Cliente</h4>
+    <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div [formGroup]="formularioBuscarLocalCliente" class="col">
+            <div class="form-group">
+                <input type="text" id="rutCliente" name="rutCliente" formControlName="rutCliente" (focus)="nombreCliente.setValue('')" class="form-control" placeholder="Rut Cliente" [class.is-invalid]="rutNoValido">
+                <div *ngIf="rutNoValido">
+                    <small *ngIf="rutCliente.errors.minlength" class="text-danger">Ingrese al menos {{ rutCliente.errors.minlength.requiredLength }} caracteres</small>
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="text" id="nombreCliente" name="nombreCliente" formControlName="nombreCliente" (focus)="rutCliente.setValue('')" class="form-control" placeholder="Nombre Cliente" [class.is-invalid]="nombreNoValido">
+                <div *ngIf="nombreNoValido">
+                    <small *ngIf="nombreCliente.errors.minlength" class="text-danger">Ingrese al menos {{ nombreCliente.errors.minlength.requiredLength }} caracteres</small>
+                </div>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-primary mr-2" (click)="buscarLocalesPorCliente()" id="btnBuscarCliente">
+                    <span *ngIf="spinnerBuscar" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    Buscar
+                </button>
+                <button class="btn btn-primary" id="btnLimpiarCampos" (click)="limpiarFomulario()">Limpiar</button>
+            </div>
+            <div *ngIf="listaLocales">
+                <br/>
+                <h4>Clientes</h4>
+                <table class="table table-sm table-striped table-hover">
+                    <tbody>
+                        <tr *ngFor="let local of listaLocales" (click)="seleccionarLocal(local)">
+                            <td>{{ local.razonSocial }}</td>
+                            <td>{{ local.nomLocalCliente }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="activeModal.dismiss()">Close</button>
+</div>

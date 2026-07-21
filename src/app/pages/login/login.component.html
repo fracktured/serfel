@@ -1,0 +1,32 @@
+<div>
+
+    <div class="login_wrapper">
+        <div class="animate form login_form">
+            <section class="login_content">
+                <form [formGroup]="formularioLogin" (ngSubmit)="login()">
+                    <h1 *ngIf="esSerfel">Ingreso SerfelWeb</h1>
+                    <h1 *ngIf="esCoproad">Ingreso CoproadWeb</h1>
+                    <div class="form-group">
+                        <input type="text" class="form-control form-control" formControlName="cRut" placeholder="Usuario" [class.is-invalid]="esRutInvalido" />
+                    </div>
+                    <div class="form-group">
+                        <input type="password" class="form-control form-control" formControlName="cPassword" placeholder="Password" [class.is-invalid]="esPasswordInvalido" />
+                    </div>
+                    <div class="mt-4 mb-3">
+                        <button class="btn btn-secondary" type="submit">Ingresar</button>
+                        <a class="reset_pass" href="#">¿Olvidó su contraseña?</a>
+                    </div>
+
+                    <div class="clearfix"></div>
+
+                    <div class="separator">
+                        <div class="clearfix"></div>
+                        <br />
+                    </div>
+
+                    <div *ngIf="error" class="alert alert-danger">{{ cMensajeError }}</div>
+                </form>
+            </section>
+        </div>
+    </div>
+</div>

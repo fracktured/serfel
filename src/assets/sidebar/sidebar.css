@@ -1,0 +1,161 @@
+/*!
+ * Start Bootstrap - Simple Sidebar (https://startbootstrap.com/templates/simple-sidebar)
+ * Copyright 2013-2020 Start Bootstrap
+ * Licensed under MIT (https://github.com/StartBootstrap/startbootstrap-simple-sidebar/blob/master/LICENSE)
+ */
+
+#wrapper {
+    overflow-x: hidden;
+}
+
+#sidebar-wrapper {
+    min-height: 100vh;
+    margin-left: -20rem;
+    -webkit-transition: margin .25s ease-out;
+    -moz-transition: margin .25s ease-out;
+    -o-transition: margin .25s ease-out;
+    transition: margin .25s ease-out;
+    color: #ECF0F1;
+}
+
+#sidebar-wrapper .sidebar-heading {
+    padding: 0.875rem 1.25rem;
+    /* font-size: 1.2rem; */
+    font-size: 22px !important;
+    font-weight: 400 !important;
+}
+
+#sidebar-wrapper .sidebar-heading>i {
+    border: 1px solid #EAEAEA !important;
+    padding: 5px 6px !important;
+    border-radius: 50% !important;
+}
+
+#sidebar-wrapper .list-group {
+    width: 15rem;
+}
+
+#page-content-wrapper {
+    min-width: 10vw;
+    width: 100%;
+}
+
+#wrapper.toggled #sidebar-wrapper {
+    margin-left: 0;
+}
+
+
+/* Inicio - Grupo Links Menu*/
+
+#grupoLinksMenu>ul.list-group.list-group-flush li>a {
+    background: #2A3F54;
+    color: #ECF0F1;
+    display: table-cell;
+    vertical-align: middle;
+    padding: 10px;
+    width: 250px;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+}
+
+.menu-icon {
+    margin-right: 10px;
+    font-size: 18px;
+}
+
+#grupoLinksMenu>ul.list-group.list-group-flush>li.active>a,
+#grupoLinksMenu>ul.list-group.list-group-flush>li>a:hover {
+    text-shadow: rgba(0, 0, 0, 0.25) 0 -1px 0 !important;
+    background: linear-gradient(#334556, #2C4257), #2A3F54 !important;
+    box-shadow: rgba(0, 0, 0, 0.25) 0 1px 0, inset rgba(255, 255, 255, 0.16) 0 1px 0 !important;
+    text-decoration: none;
+    color: white;
+}
+
+#grupoLinksMenu>ul.list-group.list-group-flush li ul.child_menu>li>a:hover,
+#grupoLinksMenu>ul.list-group.list-group-flush li ul.child_menu>li.active>a {
+    background-color: rgba(255, 255, 255, 0.06);
+    text-decoration: none;
+}
+
+ul.child_menu>li>a {
+    border: 0px;
+}
+
+ul.child_menu>li {
+    position: relative;
+    display: block;
+}
+
+ul.child_menu li:before {
+    background: #425668;
+    bottom: auto;
+    content: "";
+    height: 8px;
+    left: 23px;
+    margin-top: 15px;
+    position: absolute;
+    right: auto;
+    width: 8px;
+    z-index: 1;
+    border-radius: 50%
+}
+
+ul.child_menu li:after {
+    border-left: 1px solid #425668;
+    bottom: 0;
+    content: "";
+    left: 27px;
+    position: absolute;
+    top: 0;
+}
+
+ul.child_menu li:after {
+    border-left: 1px solid #425668;
+    bottom: 0;
+    content: "";
+    left: 27px;
+    position: absolute;
+    top: 0;
+}
+
+ul.child_menu li:last-child::after {
+    bottom: 50%;
+}
+
+
+/* Fin - Grupo Links Menu*/
+
+
+/* 480 */
+
+
+/* @media (min-width: 480) {
+    #sidebar-wrapper {
+        margin-left: 0;
+    }
+    #page-content-wrapper {
+        min-width: 0;
+        width: 100%;
+    }
+    #wrapper.toggled #sidebar-wrapper {
+        margin-left: 0rem;
+    }
+} */
+
+@media (min-width: 991px) {
+    #sidebar-wrapper {
+        margin-left: 0;
+    }
+    #page-content-wrapper {
+        min-width: 0;
+        width: 100%;
+    }
+    /*juntar ambos para que se haga el toogle al achicar la pantalla automaticamente*/
+    #wrapper.toggled {
+        margin-left: 0rem;
+    }
+    #sidebar-wrapper {
+        margin-left: -20rem;
+    }
+}

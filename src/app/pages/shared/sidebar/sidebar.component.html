@@ -1,0 +1,69 @@
+<!-- #sidebar-wrapper -->
+<div id="sidebar-wrapper" class="bg-light-dark border-right">
+    <div *ngIf="esSerfel" id="grupo-nombre-sistema" class="sidebar-heading"><i class="fa fa-home"></i> Serfel</div>
+    <div *ngIf="esCoproad" id="grupo-nombre-sistema" class="sidebar-heading"><i class="fa fa-home"></i> Coproad</div>
+    <div id="grupoPerfil" class="ml-3 mb-4 mt-3">
+        <span style="font-size: 13px;">{{ nomTipoUsuario }}</span>
+        <h2 style="font-size: 14px;">{{ nomUsuario }}</h2>
+    </div>
+    <div id="grupoLinksMenu">
+        <ul class="list-group list-group-flush">
+            <li routerLinkActive="active">
+                <a href="#pedidoSubmenu" data-toggle="collapse" aria-expanded="false" class="list-group-item">
+                    <i class="menu-icon fa fa-pencil-square-o"></i> Pedidos
+                    <i class="fa fa-chevron-down pull-right"></i>
+                </a>
+                <ul class="collapse list-group list-group-flush child_menu" id="pedidoSubmenu">
+                    <li routerLinkActive="active">
+                        <a class="list-group-item pl-5" [routerLink]="['/pedidos/listar']">Listar Pedidos</a>
+                    </li>
+                    <li routerLinkActive="active">
+                        <a class="list-group-item pl-5" [routerLink]="['/pedidos/crear']">Crear Pedido</a>
+                    </li>
+                </ul>
+            </li>
+            <li routerLinkActive="active" *ngIf="isAdmin">
+                <a href="#mantenedoresSubmenu" data-toggle="collapse" aria-expanded="false" class="list-group-item list-group-item-action">
+                    <i class="menu-icon fa fa-pencil-square-o"></i> Mantenedores
+                    <i class="fa fa-chevron-down pull-right"></i>
+                </a>
+                <ul class="collapse list-group list-group-flush child_menu" id="mantenedoresSubmenu">
+                    <li routerLinkActive="active">
+                        <a class="list-group-item pl-5" [routerLink]="['/producto/listar']">Productos</a>
+                    </li>
+                </ul>
+            </li>
+            <li routerLinkActive="active" *ngIf="isAdminOrSecre">
+                <a href="#ventasSubmenu" data-toggle="collapse" aria-expanded="false" class="list-group-item list-group-item-action">
+                    <i class="menu-icon fa fa-pencil-square-o"></i> Ventas
+                    <i class="fa fa-chevron-down pull-right"></i>
+                </a>
+                <ul class="collapse list-group list-group-flush child_menu" id="ventasSubmenu">
+                    <li routerLinkActive="active">
+                        <a class="list-group-item pl-5" [routerLink]="['/rutas/listadoCarga']">Listado Carga</a>
+                    </li>
+                    <li routerLinkActive="active" *ngIf="isAdmin">
+                        <a class="list-group-item pl-5" [routerLink]="['/ventas/prefacturacion']">Prefacturación</a>
+                    </li>
+                </ul>
+            </li>
+            <!--
+            <li routerLinkActive="active">
+                <a href="#pagoSubmenu" data-toggle="collapse" aria-expanded="false" class="list-group-item list-group-item-action">
+                    <i class="menu-icon fa fa-pencil-square-o"></i> Pagos
+                    <i class="fa fa-chevron-down pull-right"></i>
+                </a>
+                <ul class="collapse list-group list-group-flush child_menu" id="pagoSubmenu">
+                    <li routerLinkActive="active">
+                        <a class="list-group-item pl-5" href="#">Pago1</a>
+                    </li>
+                    <li routerLinkActive="active">
+                        <a class="list-group-item pl-5" href="#">Pago2</a>
+                    </li>
+                </ul>
+            </li>
+            -->
+        </ul>
+    </div>
+</div>
+<!-- /#sidebar-wrapper -->

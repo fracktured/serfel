@@ -1,0 +1,72 @@
+<div class="modal-header">
+    <h4 class="modal-title">Clientes Ruta</h4>
+    <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col">
+            <div class="form-group">
+                <input type="text" id="txtFiltroCliente" name="txtFiltroCliente" [(ngModel)]="txtFiltroCliente" class="form-control" placeholder="Filtrar Clientes">
+            </div>
+            <table class="table table-sm table-striped table-hover">
+                <!-- <thead class="thead-dark">
+                    <tr>
+                        <th>razon social</th>
+                        <th>nombre</th>
+                    </tr>
+                </thead> -->
+                <tbody>
+                    <tr *ngFor="let local of listaLocales | filtrarPorTexto:txtFiltroCliente" (click)="seleccionarLocal(local)">
+                        <!-- <td>{{ local.id_local_cliente }}</td> -->
+                        <td>{{ local.razonSocial }}</td>
+                        <td>{{ local.nomLocalCliente }}</td>
+                        <!-- <td>{{ local.telefono_local_cliente }}</td> -->
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <h4>Clientes Entregados</h4>
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let localEntregado of listaLocalesEntregados" (click)="seleccionarLocal(localEntregado)">
+                        <td>{{localEntregado.razonSocial}} </td>
+                        <td>{{localEntregado.nomLocalCliente}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <h4>Clientes Bloqueados</h4>
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let localBloqueado of listaLocalesBloqueados" (click)="seleccionarLocal(localBloqueado)">
+                        <td>{{localBloqueado.razonSocial}} </td>
+                        <td>{{localBloqueado.nomLocalCliente}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="activeModal.close('Close click')">Close</button>
+</div>
