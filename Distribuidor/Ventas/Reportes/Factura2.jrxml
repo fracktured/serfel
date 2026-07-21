@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Factura" language="groovy" pageWidth="612" pageHeight="792" columnWidth="610" leftMargin="1" rightMargin="1" topMargin="1" bottomMargin="1">
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="720"/>
+	<parameter name="numFactura" class="java.lang.Integer"/>
+	<parameter name="fecha_dd" class="java.lang.String"/>
+	<parameter name="fecha_mes" class="java.lang.String"/>
+	<parameter name="fecha_yy" class="java.lang.String"/>
+	<parameter name="rutCliente" class="java.lang.String"/>
+	<parameter name="comuna" class="java.lang.String"/>
+	<parameter name="vendedor" class="java.lang.String"/>
+	<parameter name="condicionVenta" class="java.lang.String"/>
+	<parameter name="senores" class="java.lang.String"/>
+	<parameter name="direccion" class="java.lang.String"/>
+	<parameter name="subTotal" class="java.lang.String"/>
+	<parameter name="total" class="java.lang.String"/>
+	<parameter name="ivaPorcentaje" class="java.lang.String"/>
+	<parameter name="ivaTotal" class="java.lang.String"/>
+	<parameter name="giro" class="java.lang.String"/>
+	<parameter name="iabaTotal" class="java.lang.String"/>
+	<parameter name="iabaPorcentaje" class="java.lang.String"/>
+	<parameter name="especTotal" class="java.lang.String"/>
+	<parameter name="especPorcentaje" class="java.lang.String"/>
+	<parameter name="idVenta" class="java.lang.Integer"/>
+	<parameter name="nomFormaPago" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT CONVERT(pv.cantidad, DECIMAL(18,2)) AS cantidad,
+       u.nom_UM,
+       pr.nom_producto,
+       pv.precio,
+       CASE pv.porcen_desc
+           WHEN 0 THEN ''
+           ELSE CONCAT(pv.porcen_desc, '%')
+       END AS porcen_desc,
+       CONVERT(pv.cantidad * (pv.precio - (pv.precio * pv.porcen_desc / 100)), UNSIGNED) as subtotal
+FROM 40_m_venta v
+INNER JOIN 40_m_producto_venta pv ON pv.id_venta = v.id_venta
+INNER JOIN 20_m_producto pr ON pr.id_producto = pv.id_producto
+INNER JOIN 20_p_unidad_medida u ON u.id_UM = pr.id_UM
+WHERE v.id_venta = $P{idVenta}]]>
+	</queryString>
+	<field name="cantidad" class="java.math.BigDecimal"/>
+	<field name="nom_UM" class="java.lang.String"/>
+	<field name="nom_producto" class="java.lang.String"/>
+	<field name="precio" class="java.lang.Integer"/>
+	<field name="porcen_desc" class="java.lang.Integer"/>
+	<field name="subtotal" class="java.math.BigDecimal"/>
+	<title>
+		<band height="268" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement x="79" y="135" width="52" height="20"/>
+				<textElement>
+					<font fontName="Verdana" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{fecha_dd}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="133" y="135" width="100" height="20"/>
+				<textElement>
+					<font fontName="Verdana" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{fecha_mes}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="246" y="135" width="91" height="20"/>
+				<textElement>
+					<font fontName="Verdana" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{fecha_yy}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="451" y="85" width="121" height="15"/>
+				<textElement>
+					<font fontName="Verdana" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{numFactura}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="441" y="134" width="100" height="20"/>
+				<textElement>
+					<font fontName="Verdana" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{rutCliente}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="70" y="162" width="323" height="10"/>
+				<textElement>
+					<font fontName="Verdana" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{senores}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="70" y="174" width="323" height="10"/>
+				<textElement>
+					<font fontName="Verdana" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{direccion}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="441" y="162" width="135" height="10"/>
+				<textElement>
+					<font fontName="Verdana" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{comuna}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="273" y="183" width="108" height="20"/>
+				<textElement>
+					<font fontName="Verdana" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{nomFormaPago}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="441" y="174" width="135" height="10"/>
+				<textElement>
+					<font fontName="Verdana" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{vendedor}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="70" y="186" width="189" height="10"/>
+				<textElement>
+					<font fontName="Verdana" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{giro}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="229"/>
+	</columnHeader>
+	<detail>
+		<band height="7" splitType="Stretch">
+			<textField>
+				<reportElement x="78" y="0" width="41" height="7"/>
+				<textElement>
+					<font fontName="Verdana" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nom_UM}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="130" y="0" width="242" height="7"/>
+				<textElement>
+					<font fontName="Verdana" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nom_producto}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="373" y="0" width="71" height="7"/>
+				<textElement textAlignment="Right">
+					<font fontName="Verdana" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{precio}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="457" y="0" width="37" height="7"/>
+				<textElement textAlignment="Right">
+					<font fontName="Verdana" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{porcen_desc}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="504" y="0" width="69" height="7"/>
+				<textElement textAlignment="Right">
+					<font fontName="Verdana" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{subtotal}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="11" y="0" width="47" height="7"/>
+				<textElement textAlignment="Right">
+					<font fontName="Verdana" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cantidad}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<lastPageFooter>
+		<band height="215">
+			<textField isBlankWhenNull="true">
+				<reportElement x="501" y="161" width="69" height="10"/>
+				<textElement textAlignment="Right">
+					<font fontName="Verdana" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{total}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="501" y="121" width="69" height="10"/>
+				<textElement textAlignment="Right">
+					<font fontName="Verdana" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{subTotal}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="468" y="131" width="31" height="10"/>
+				<textElement>
+					<font fontName="Verdana" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{ivaPorcentaje}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="501" y="131" width="69" height="10"/>
+				<textElement textAlignment="Right">
+					<font fontName="Verdana" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{ivaTotal}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="468" y="141" width="31" height="10"/>
+				<textElement>
+					<font fontName="Verdana" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{iabaPorcentaje}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="501" y="141" width="69" height="10"/>
+				<textElement textAlignment="Right">
+					<font fontName="Verdana" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{iabaTotal}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="468" y="151" width="31" height="10"/>
+				<textElement>
+					<font fontName="Verdana" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{especPorcentaje}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="501" y="151" width="69" height="10"/>
+				<textElement textAlignment="Right">
+					<font fontName="Verdana" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{especTotal}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="425" y="153" width="44" height="10"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Verdana"/>
+				</textElement>
+				<text><![CDATA[ESPEC]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="425" y="143" width="44" height="10"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Verdana"/>
+				</textElement>
+				<text><![CDATA[IABA]]></text>
+			</staticText>
+		</band>
+	</lastPageFooter>
+</jasperReport>
