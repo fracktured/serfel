@@ -7,5 +7,5 @@
     "skipLibCheck": true,
     "noEmit": true
   },
-  "exclude": ["node_modules", ".sst", "dist", "apps", "infra", "sst.config.ts"]
+  "exclude": ["node_modules", ".sst", "dist", "apps", "infra", "sst.config.ts", "lambdas/node-app-1/_legacy", "lambdas/node-app-2/_legacy"]
 }
