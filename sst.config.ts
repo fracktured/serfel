@@ -30,5 +30,6 @@ export default $config({
     await import("./infra/auth");
     await import("./infra/api");
     await import("./infra/frontend");
+    await import("./infra/rehost/network");
   },
 });
