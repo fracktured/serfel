@@ -14,6 +14,12 @@ const sgAlb = new aws.ec2.SecurityGroup("rehost-alb", {
   tags: { Name: "serfel-dev-rehost-alb" },
 });
 
+// S3 managed prefix list — ECR image layers are served from S3, reached via the
+// S3 gateway endpoint. Gateway-endpoint traffic keeps S3's public IP as the
+// destination, so the Fargate SG must allow egress to the S3 prefix list (the
+// 10.0.0.0/16 rule only covers the ECR *interface* endpoints' private IPs).
+const s3PrefixList = aws.ec2.getPrefixListOutput({ name: "com.amazonaws.us-east-1.s3" });
+
 // Fargate task security group: HTTP in from the ALB; egress to RDS + endpoints.
 const sgFargate = new aws.ec2.SecurityGroup("rehost-fargate", {
   name: "serfel-dev-rehost-fargate",
@@ -21,6 +27,7 @@ const sgFargate = new aws.ec2.SecurityGroup("rehost-fargate", {
   description: "Rehost Fargate PHP tasks",
   egress: [
     { protocol: "tcp", fromPort: 443, toPort: 443, cidrBlocks: ["10.0.0.0/16"], description: "HTTPS to VPC endpoints/NAT" },
+    { protocol: "tcp", fromPort: 443, toPort: 443, prefixListIds: [s3PrefixList.id], description: "HTTPS to S3 (ECR image layers) via gateway endpoint" },
     { protocol: "tcp", fromPort: 3306, toPort: 3306, cidrBlocks: ["10.0.3.0/24", "10.0.4.0/24"], description: "MariaDB to private subnets" },
   ],
   tags: { Name: "serfel-dev-rehost-fargate" },

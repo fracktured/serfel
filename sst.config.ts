@@ -31,6 +31,9 @@ export default $config({
     await import("./infra/api");
     await import("./infra/frontend");
     await import("./infra/rehost/network");
+    await import("./infra/rehost/vpc-endpoints");
     await import("./infra/rehost/ecr");
+    await import("./infra/rehost/alb");
+    await import("./infra/rehost/fargate");
   },
 });
