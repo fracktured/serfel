@@ -35,5 +35,7 @@ export default $config({
     await import("./infra/rehost/ecr");
     await import("./infra/rehost/alb");
     await import("./infra/rehost/fargate");
+    await import("./infra/rehost/basic-auth");
+    await import("./infra/rehost/node-api");
   },
 });
