@@ -29,13 +29,17 @@ check "legacy site serves"          200 "$(code "$BASE/")"
 check "node health rejects anon"    401 "$(code "$BASE/api/node/health")"
 check "node health accepts basic"   200 "$(code -u "$BASIC_USER:$BASIC_PASS" "$BASE/api/node/health")"
 
-# 3. PHP via the locked-down ALB (proves CloudFront -> ALB -> Fargate container)
-check "php /Distribuidor/health.php" 200 "$(code "$BASE/Distribuidor/health.php")"
-
-# NOTE: /SerfelWeb health is not asserted here — the Fase 3.5 foundation image is
-# a health skeleton that only ships /Distribuidor/health.php. The /SerfelWeb*
-# behavior routes to the same ALB (verified: reaches the container), and the real
-# SerfelWeb app (Plan 2) will add its own smoke check.
+# 3. The real PHP apps via the locked-down ALB (both served from one container).
+#    Start the dev DB (pnpm db:start) so DB-backed pages work.
+check "php Distribuidor serves"     200 "$(code "$BASE/Distribuidor/")"
+check "php SerfelWeb serves"        200 "$(code "$BASE/SerfelWeb/")"
+# DB connectivity: LoginValidar runs a real users-table query. A working DB
+# returns the app's invalid-login view (200); a broken DB returns a CodeIgniter
+# "Database Error". Assert the query ran without a DB connection error.
+DBPROBE=$(curl -s --max-time 35 -X POST -d "username=probe&password=probe" "$BASE/SerfelWeb/LoginValidar")
+echo "$DBPROBE" | grep -qiE "Database Error|Unable to connect to your database" \
+  && { FAIL=$((FAIL+1)); echo "FAIL php DB connectivity (SerfelWeb reported a DB error)"; } \
+  || { PASS=$((PASS+1)); echo "ok   php DB connectivity (LoginValidar query ran against RDS)"; }
 
 echo "---- $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ]
