@@ -7,8 +7,15 @@ RUN docker-php-ext-install mysqli \
     && a2enmod rewrite
 
 COPY public/ /var/www/html/
-RUN mkdir -p /var/www/html/Distribuidor \
-    && cp /var/www/html/health.php /var/www/html/Distribuidor/health.php
+# Give each legacy-app path prefix a health.php AND an index.php, so both
+# `/Distribuidor/health.php` and the bare `/Distribuidor/` return 200 (Apache
+# serves index.php; without an index file a bare dir returns 403). The real
+# combined image (Plan 2) replaces these with the actual Distribuidor/SerfelWeb.
+RUN for d in Distribuidor SerfelWeb; do \
+      mkdir -p "/var/www/html/$d" && \
+      cp /var/www/html/health.php "/var/www/html/$d/health.php" && \
+      printf '<?php echo "rehost skeleton — %s slot (replaced by the real app in Plan 2)\\n";' "$d" > "/var/www/html/$d/index.php"; \
+    done
 
 # Apache already listens on 80 and serves /var/www/html.
 EXPOSE 80
