@@ -1,5 +1,6 @@
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
+import * as random from "@pulumi/random";
 import { privateSubnetIds } from "../vpc";
 import { dbSecretArn } from "../database";
 import { sgFargateId } from "./network";
@@ -36,6 +37,10 @@ const logGroup = new aws.cloudwatch.LogGroup("rehost-php1-logs", {
   retentionInDays: 14,
 });
 
+// CodeIgniter (SerfelWeb) encryption/session key, injected as a container env.
+// Dev-only random value; not a Secrets Manager secret.
+const ciKey = new random.RandomPassword("rehost-ci-key", { length: 40, special: false });
+
 const taskDef = new aws.ecs.TaskDefinition("rehost-php1-task", {
   family: "serfel-dev-rehost-php-app-1",
   cpu: "256",
@@ -49,11 +54,11 @@ const taskDef = new aws.ecs.TaskDefinition("rehost-php1-task", {
   runtimePlatform: { cpuArchitecture: "ARM64", operatingSystemFamily: "LINUX" },
   executionRoleArn: execRole.arn,
   containerDefinitions: pulumi
-    .all([phpApp1RepoUrl, dbSecretArn, logGroup.name])
-    .apply(([repoUrl, secretArn, lg]) =>
+    .all([phpApp1RepoUrl, dbSecretArn, logGroup.name, ciKey.result])
+    .apply(([repoUrl, secretArn, lg, ciKeyVal]) =>
       JSON.stringify([{
         name: "php-app-1",
-        image: `${repoUrl}:health`,
+        image: `${repoUrl}:v1`,
         essential: true,
         portMappings: [{ containerPort: 80, protocol: "tcp" }],
         // DB creds pulled from Secrets Manager JSON keys into env vars.
@@ -64,6 +69,7 @@ const taskDef = new aws.ecs.TaskDefinition("rehost-php1-task", {
           { name: "DB_PASS", valueFrom: `${secretArn}:password::` },
           { name: "DB_NAME", valueFrom: `${secretArn}:dbname::` },
         ],
+        environment: [{ name: "CI_ENCRYPTION_KEY", value: ciKeyVal }],
         logConfiguration: {
           logDriver: "awslogs",
           options: { "awslogs-group": lg, "awslogs-region": "us-east-1", "awslogs-stream-prefix": "php-app-1" },
