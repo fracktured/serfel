@@ -7,20 +7,27 @@
  */
 class Conexion {
     
-    private $dbname = "serfelcl_distribuidor";
-    private $usuario = "serfelcl_dist";
-    private $password = "sis2011dist";
+    private $dbname;
+    private $usuario;
+    private $password;
+    private $host;
     private $options = array(
         PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
     );
 
     public function __construct() {
-        
+        // DB config injected via environment (Secrets Manager on Fargate ->
+        // serfel-dev-db). Fallbacks are the legacy names for local dev; the
+        // password is never hardcoded.
+        $this->host     = getenv('DB_HOST') ?: 'mariadb';
+        $this->dbname   = getenv('DB_NAME') ?: 'serfelcl_distribuidor';
+        $this->usuario  = getenv('DB_USER') ?: 'serfelcl_dist';
+        $this->password = getenv('DB_PASS') ?: '';
     }
-    
+
     public function abrirConexion() {
         try {
-            $db = new PDO("mysql:dbname=$this->dbname;host=mariadb", $this->usuario, $this->password, $this->options);
+            $db = new PDO("mysql:dbname=$this->dbname;host=$this->host", $this->usuario, $this->password, $this->options);
             $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             
             return $db;

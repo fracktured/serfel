@@ -6,3 +6,5 @@ dist/
 *.js.map
 sst-env.d.ts
 legacy-php/.env
+lambdas/node-app-1/_legacy/.env
+lambdas/node-app-2/_legacy/.env

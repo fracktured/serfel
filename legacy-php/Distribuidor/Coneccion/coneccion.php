@@ -5,22 +5,28 @@
  * Desc : Coneccion a BD                                    *
  ************************************************************/
 
+    // DB config is injected via environment (Secrets Manager on Fargate ->
+    // serfel-dev-db). Fallbacks are the legacy names for local dev; the
+    // password is never hardcoded.
+    function getHostBD() {
+        return getenv('DB_HOST') ?: "mariadb";
+    }
+
     function getUsuarioBD() {
-        return "serfelcl_dist";
-        //return "dist";
+        return getenv('DB_USER') ?: "serfelcl_dist";
     }
-    
+
     function getPassBD() {
-        return "sis2011dist";
+        return getenv('DB_PASS') ?: "";
     }
-    
+
     function getNomBD() {
-        return "serfelcl_distribuidor";
+        return getenv('DB_NAME') ?: "serfelcl_distribuidor";
     }
 
     function conectarse() {
         //mysql_set_charset("utf8");
-        $db = mysql_connect("mariadb", getUsuarioBD(), getPassBD());
+        $db = mysql_connect(getHostBD(), getUsuarioBD(), getPassBD());
         mysql_set_charset('utf8', $db);
         
         if (!$db) {
