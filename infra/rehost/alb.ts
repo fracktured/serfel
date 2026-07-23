@@ -1,15 +1,19 @@
 import * as aws from "@pulumi/aws";
-import { privateSubnetIds, vpcId } from "../vpc";
+import * as random from "@pulumi/random";
+import { publicSubnetIds, vpcId } from "../vpc";
 import { sgAlbId } from "./network";
 
-// Internal ALB — not internet-facing. CloudFront reaches it via the origin
-// wiring chosen in Task 8.
+// Internet-facing ALB, locked to CloudFront (Branch B): the SG allows HTTP only
+// from CloudFront's origin-facing prefix list (network.ts), and the forward
+// rule additionally requires a secret X-Origin-Verify header that only the
+// rehost CloudFront adds. (Branch A — internal ALB + CloudFront VPC origin — was
+// abandoned: it 504'd for 24+ min.) Internet-facing requires public subnets.
 const alb = new aws.lb.LoadBalancer("rehost-alb", {
   name: "serfel-dev-rehost-alb",
-  internal: true,
+  internal: false,
   loadBalancerType: "application",
   securityGroups: [sgAlbId],
-  subnets: privateSubnetIds,
+  subnets: publicSubnetIds,
   tags: { Name: "serfel-dev-rehost-alb" },
 });
 
@@ -35,12 +39,24 @@ const phpApp1Tg = new aws.lb.TargetGroup("rehost-php1-tg", {
   tags: { Name: "serfel-dev-rehost-php1" },
 });
 
-// One container serves BOTH legacy apps (design §4), so both real path
-// prefixes forward to the same target group.
+// Secret header shared with CloudFront: CloudFront adds it on the ALB origin
+// (cdn.ts), the ALB forward rule requires it. Requests to the public ALB that
+// don't carry it fall through to the default 404 — so only CloudFront is served.
+const originVerify = new random.RandomPassword("rehost-origin-verify", {
+  length: 32,
+  special: false,
+});
+
+// One container serves BOTH legacy apps (design §4). `/Distribuidor*` and
+// `/SerfelWeb*` (no slash before *, so the bare prefixes match too) forward to
+// the same target group — but only when the CloudFront secret header is present.
 new aws.lb.ListenerRule("rehost-php-rule", {
   listenerArn: listener.arn,
   priority: 10,
-  conditions: [{ pathPattern: { values: ["/Distribuidor/*", "/SerfelWeb/*"] } }],
+  conditions: [
+    { pathPattern: { values: ["/Distribuidor*", "/SerfelWeb*"] } },
+    { httpHeader: { httpHeaderName: "X-Origin-Verify", values: [originVerify.result] } },
+  ],
   actions: [{ type: "forward", targetGroupArn: phpApp1Tg.arn }],
 });
 
@@ -49,3 +65,4 @@ export const albDnsName = alb.dnsName;
 export const albZoneId = alb.zoneId;
 export const albListenerArn = listener.arn;
 export const phpApp1TargetGroupArn = phpApp1Tg.arn;
+export const originVerifySecret = originVerify.result;

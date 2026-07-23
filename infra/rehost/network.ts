@@ -1,12 +1,29 @@
 import * as aws from "@pulumi/aws";
 import { vpcId, sgRdsId } from "../vpc";
 
-// ALB security group: HTTP from CloudFront (locked down in Task 8 once the
-// origin approach is chosen). Starts closed; Task 8 adds the exact ingress.
+// CloudFront origin-facing managed prefix list — the internet-facing ALB
+// (Branch B) accepts HTTP only from CloudFront edge locations. Combined with
+// the secret X-Origin-Verify header enforced at the ALB listener (alb.ts), this
+// keeps the public ALB reachable only through the rehost CloudFront. (Branch A
+// — internal ALB via CloudFront VPC origin — was abandoned: it 504'd for 24+
+// min despite provably-correct SG/port/association.)
+const cfPrefixList = aws.ec2.getManagedPrefixListOutput({
+  name: "com.amazonaws.global.cloudfront.origin-facing",
+});
+
+// ALB security group: HTTP from CloudFront edge only.
+// NOTE: description is immutable in AWS — keep the original string so this SG
+// updates in place (ingress change only) instead of being replaced (a
+// replacement deadlocks against the ALB that still references it).
 const sgAlb = new aws.ec2.SecurityGroup("rehost-alb", {
   name: "serfel-dev-rehost-alb",
   vpcId,
   description: "Rehost internal ALB",
+  ingress: [{
+    protocol: "tcp", fromPort: 80, toPort: 80,
+    prefixListIds: [cfPrefixList.id],
+    description: "HTTP from CloudFront (origin-facing prefix list)",
+  }],
   egress: [{
     protocol: "tcp", fromPort: 80, toPort: 80,
     cidrBlocks: ["10.0.0.0/16"], description: "HTTP to Fargate tasks",

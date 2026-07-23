@@ -38,5 +38,6 @@ export default $config({
     await import("./infra/rehost/basic-auth");
     await import("./infra/rehost/node-api");
     await import("./infra/rehost/legacy-frontend");
+    await import("./infra/rehost/cdn");
   },
 });
