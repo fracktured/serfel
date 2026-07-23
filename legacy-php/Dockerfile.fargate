@@ -1,0 +1,19 @@
+# Real combined image: Distribuidor (raw PHP, mysql_*) + SerfelWeb (CodeIgniter,
+# mysqli), one Apache doc root. PHP 5.6 is EOL. Built ARM64 to match the task def.
+FROM php:5.6-apache
+
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf \
+    && docker-php-ext-install mysql mysqli pdo pdo_mysql mbstring \
+    && a2enmod rewrite
+
+# SerfelWeb relies on .htaccess rewrites — enable AllowOverride for the doc root.
+RUN printf '<Directory /var/www/html/>\n    AllowOverride All\n    Require all granted\n</Directory>\n' \
+      > /etc/apache2/conf-available/allow-override.conf \
+    && a2enconf allow-override
+
+COPY Distribuidor/ /var/www/html/Distribuidor/
+COPY SerfelWeb/   /var/www/html/SerfelWeb/
+COPY health.php   /var/www/html/health.php
+
+EXPOSE 80
+HEALTHCHECK --interval=30s --timeout=3s CMD curl -f http://localhost/health.php || exit 1

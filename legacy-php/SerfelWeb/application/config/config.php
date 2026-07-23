@@ -25,7 +25,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 */
 //$config['base_url'] = 'http://192.168.0.3/SerfelWeb/';
 //$config['base_url'] = 'http://localhost/SerfelWeb/';
-$config['base_url'] = 'http://www.serfel.cl/SerfelWeb/';
+$config['base_url'] = '';
 //$config['base_url'] = 'http://www.serfel.cl/CoproadWeb/';
 
 /*
@@ -317,7 +317,7 @@ $config['cache_query_string'] = FALSE;
 | https://codeigniter.com/user_guide/libraries/encryption.html
 |
 */
-$config['encryption_key'] = 'REALLY_LONG_NUMBER';
+$config['encryption_key'] = getenv('CI_ENCRYPTION_KEY') ?: 'dev-insecure-key-change-me';
 
 /*
 |--------------------------------------------------------------------------
