@@ -13,7 +13,8 @@
     "db:tunnel": "./scripts/db-tunnel.sh",
     "db:migrate": "./scripts/db-migrate.sh",
     "bastion:start": "./scripts/bastion-start.sh",
-    "bastion:stop": "./scripts/bastion-stop.sh"
+    "bastion:stop": "./scripts/bastion-stop.sh",
+    "rehost:smoke": "./scripts/rehost-smoke.sh"
   },
   "devDependencies": {
     "@pulumi/aws": "^6.0.0",
