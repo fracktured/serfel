@@ -25,7 +25,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 */
 //$config['base_url'] = 'http://192.168.0.3/SerfelWeb/';
 //$config['base_url'] = 'http://localhost/SerfelWeb/';
-$config['base_url'] = '';
+// Behind CloudFront the viewer is always HTTPS and the forwarded Host header
+// carries the public (CloudFront) domain. CI's empty-base_url auto-detect would
+// instead use $_SERVER['SERVER_ADDR'] (the container's private IP) + http,
+// causing mixed-content — so build base_url from HTTP_HOST + https explicitly.
+$config['base_url'] = 'https://' . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost') . '/SerfelWeb/';
 //$config['base_url'] = 'http://www.serfel.cl/CoproadWeb/';
 
 /*

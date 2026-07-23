@@ -20,7 +20,7 @@
         <!-- Custom Theme Style -->
         <link href="<?= asset_url(); ?>customtheamestyle/css/custom.min.css" rel="stylesheet">
         
-        <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+        <script src="https://code.jquery.com/jquery-latest.min.js"></script>
         <script src="<?= asset_url(); ?>js/md5-min.js"></script>
         <script src="<?= asset_url(); ?>angular/angular.js"></script>
         <script src="<?= asset_url(); ?>angularApp/login-app.js"></script>
