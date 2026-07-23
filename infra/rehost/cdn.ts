@@ -19,8 +19,12 @@ const albOriginId = "rehost-alb-origin";
 
 // CloudFront managed policy IDs (stable across accounts/regions).
 const CACHING_DISABLED_POLICY_ID = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad";
-const ALL_VIEWER_EXCEPT_HOST_HEADER_POLICY_ID =
-  "b689b0a8-53d0-40ab-baf2-68738e2966ac";
+// AllViewer forwards ALL viewer headers INCLUDING Host, so the PHP app sees
+// Host = the CloudFront domain (not the internal ALB DNS). This makes Apache
+// trailing-slash redirects and CodeIgniter base_url() point at CloudFront
+// (Plan 2 decision). The secret X-Origin-Verify custom origin header still
+// overrides any viewer-supplied value, so the ALB lockdown holds.
+const ALL_VIEWER_POLICY_ID = "216adef6-5c7f-47e4-b989-5492eafa07d3";
 
 function albBehavior(
   pathPattern: string,
@@ -32,11 +36,11 @@ function albBehavior(
     allowedMethods: ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"],
     cachedMethods: ["GET", "HEAD"],
     compress: true,
-    // Dynamic PHP app: never cache; forward everything (incl. Authorization and
-    // cookies) except the Host header. (Custom origin headers like the secret
-    // X-Origin-Verify are always sent regardless of this policy.)
+    // Dynamic PHP app: never cache; forward everything (incl. Authorization,
+    // cookies, and Host — see ALL_VIEWER_POLICY_ID above). The secret
+    // X-Origin-Verify custom origin header is always sent regardless.
     cachePolicyId: CACHING_DISABLED_POLICY_ID,
-    originRequestPolicyId: ALL_VIEWER_EXCEPT_HOST_HEADER_POLICY_ID,
+    originRequestPolicyId: ALL_VIEWER_POLICY_ID,
   };
 }
 

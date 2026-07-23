@@ -19,7 +19,11 @@ const dbSubnets = new aws.rds.SubnetGroup("db-subnets", {
 const dbParams = new aws.rds.ParameterGroup("db-params", {
   name: "serfel-dev-mariadb114",
   family: "mariadb11.4",
-  parameters: [{ name: "require_secure_transport", value: "ON" }],
+  // OFF (was ON): the rehosted PHP apps use the legacy mysql_* API, which can't
+  // do TLS. This *allows* non-TLS connections over the private VPC; the Node
+  // Lambdas still connect with TLS explicitly (rds-global-bundle.pem). See
+  // Fase 3.5 design §4/§6 (PHP-path TLS relaxation, decided).
+  parameters: [{ name: "require_secure_transport", value: "OFF" }],
   tags: { Name: "serfel-dev-mariadb114" },
 });
 
