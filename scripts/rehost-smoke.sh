@@ -36,10 +36,13 @@ check "php SerfelWeb serves"        200 "$(code "$BASE/SerfelWeb/")"
 # DB connectivity: LoginValidar runs a real users-table query. A working DB
 # returns the app's invalid-login view (200); a broken DB returns a CodeIgniter
 # "Database Error". Assert the query ran without a DB connection error.
+DBCODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 35 -X POST -d "username=probe&password=probe" "$BASE/SerfelWeb/LoginValidar")
 DBPROBE=$(curl -s --max-time 35 -X POST -d "username=probe&password=probe" "$BASE/SerfelWeb/LoginValidar")
-echo "$DBPROBE" | grep -qiE "Database Error|Unable to connect to your database" \
-  && { FAIL=$((FAIL+1)); echo "FAIL php DB connectivity (SerfelWeb reported a DB error)"; } \
-  || { PASS=$((PASS+1)); echo "ok   php DB connectivity (LoginValidar query ran against RDS)"; }
+if [ "$DBCODE" = "200" ] && ! echo "$DBPROBE" | grep -qiE "Database Error|Unable to connect to your database"; then
+  PASS=$((PASS+1)); echo "ok   php DB connectivity (LoginValidar query ran against RDS)"
+else
+  FAIL=$((FAIL+1)); echo "FAIL php DB connectivity (code=$DBCODE or SerfelWeb reported a DB error)"
+fi
 
 echo "---- $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ]
