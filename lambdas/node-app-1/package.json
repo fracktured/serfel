@@ -1,0 +1,16 @@
+{
+  "name": "@serfel/node-app-1",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@codegenie/serverless-express": "^4.16.0",
+    "@aws-sdk/client-secrets-manager": "^3.0.0",
+    "express": "^4.17.1",
+    "sequelize": "^6.6.2",
+    "mysql2": "^2.2.5",
+    "helmet": "^4.6.0",
+    "cors": "^2.8.5",
+    "winston": "^3.3.3",
+    "ts-base-error": "^1.0.5"
+  }
+}

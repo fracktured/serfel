@@ -3,6 +3,7 @@ packages:
   - '!apps/legacy-frontend'
   - 'packages/*'
   - 'lambdas'
+  - 'lambdas/node-app-1'
   - 'infra'
 allowBuilds:
   '@parcel/watcher': false

@@ -11,14 +11,12 @@ import { UM } from '../model/um.model';
 import { Venta } from '../model/venta.model';
 import { Usuario } from '../model/usuario.model';
 
-import * as dotenv from "dotenv";
 import { Pedido } from '../model/pedido.model';
 import { Cliente } from '../model/cliente.model';
 import { ProductoPedido } from '../model/producto.pedido.model';
 import { Impuesto } from '../model/impuesto.model';
 import { Stock } from '../model/stock.model';
 import { Empresa } from '../model/empresa.model';
-dotenv.config();
 
 const config: Options = {
    username: process.env.DB_USER,
