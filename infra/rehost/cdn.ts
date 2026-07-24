@@ -49,6 +49,7 @@ function albBehavior(
 const router = new sst.aws.Router("RehostRouter", {
   routes: {
     "/api/node/*": nodeApiUrl,
+    "/sales/*": nodeApiUrl, // ported node-app-1 (sales) Lambda, app-level Basic Auth
     "/*": legacySite.url,
   },
   transform: {
