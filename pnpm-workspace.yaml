@@ -4,6 +4,7 @@ packages:
   - 'packages/*'
   - 'lambdas'
   - 'lambdas/node-app-1'
+  - 'lambdas/node-app-2'
   - 'infra'
 allowBuilds:
   '@parcel/watcher': false
