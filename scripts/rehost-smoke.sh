@@ -29,6 +29,11 @@ check "legacy site serves"          200 "$(code "$BASE/")"
 check "node health rejects anon"    401 "$(code "$BASE/api/node/health")"
 check "node health accepts basic"   200 "$(code -u "$BASIC_USER:$BASIC_PASS" "$BASE/api/node/health")"
 
+# 2b. sales Lambda (wrapped Express app; validates Basic Auth against 10_m_usuario)
+check "sales rejects anon"          401 "$(code "$BASE/sales/")"
+# a bogus rut-dv forces a users-table query; a working app+DB returns 401 (not 5xx)
+check "sales reaches app+DB"        401 "$(code -u "0-0:x" "$BASE/sales/")"
+
 # 3. The real PHP apps via the locked-down ALB (both served from one container).
 #    Start the dev DB (pnpm db:start) so DB-backed pages work.
 check "php Distribuidor serves"     200 "$(code "$BASE/Distribuidor/")"
