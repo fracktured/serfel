@@ -34,6 +34,10 @@ check "sales rejects anon"          401 "$(code "$BASE/sales/")"
 # a bogus rut-dv forces a users-table query; a working app+DB returns 401 (not 5xx)
 check "sales reaches app+DB"        401 "$(code -u "0-0:x" "$BASE/sales/")"
 
+# 2c. orders Lambda (wrapped Express app; same Basic-Auth-against-DB)
+check "orders rejects anon"         401 "$(code "$BASE/orders/")"
+check "orders reaches app+DB"       401 "$(code -u "0-0:x" "$BASE/orders/")"
+
 # 3. The real PHP apps via the locked-down ALB (both served from one container).
 #    Start the dev DB (pnpm db:start) so DB-backed pages work.
 check "php Distribuidor serves"     200 "$(code "$BASE/Distribuidor/")"
