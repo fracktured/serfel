@@ -16,6 +16,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # --- Legacy Angular 14 build (Fase 3.5 rehost) ---
+      # Angular 14 requires Node 16 (not 22). Build it FIRST with Node 16; the
+      # StaticSite (infra/rehost/legacy-frontend.ts) points at the pre-built
+      # dist/, which is gitignored, so CI must produce it. Use the production
+      # configuration so bundles are content-hashed (index.html is served
+      # no-cache; assets are immutable — hashed names avoid stale caches).
+      - name: Setup Node 16 (for the Angular 14 build)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '16'
+
+      - name: Build legacy Angular frontend
+        working-directory: apps/legacy-frontend
+        run: |
+          # SST regenerates sst-env.d.ts here on deploy; it breaks the Angular
+          # tsc build. Defensive delete (no-op on a fresh checkout).
+          find . -name "sst-env.d.ts" -not -path "./node_modules/*" -delete || true
+          npm ci
+          npx ng build --configuration production
+
+      # --- Main toolchain: Node 22 + pnpm (SST) ---
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -43,6 +64,27 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::146476548567:role/serfel-github-actions-role
           aws-region: us-east-1
+
+      # --- npm shim (Fase 3.5 rehost) ---
+      # SST's `nodejs.install` (the sales/orders Lambdas install sequelize+mysql2
+      # into the bundle, since esbuild can't bundle Sequelize's dynamic dialect
+      # require) invokes `npm install ... --platform=linux --arch=arm64 ...`.
+      # Modern npm removed --platform/--arch (now --os/--cpu, which SST also
+      # passes) and rejects the old flags (EUNKNOWNCONFIG) -> "failed to run
+      # npm install". Shim `npm` to drop the two deprecated flags, then exec the
+      # real npm. Harmless if a future npm accepts them.
+      - name: Install npm shim for SST nodejs.install
+        run: |
+          REAL_NPM="$(command -v npm)"
+          mkdir -p "$HOME/npmshim"
+          cat > "$HOME/npmshim/npm" <<SHIM
+          #!/usr/bin/env bash
+          filtered=()
+          for a in "\$@"; do case "\$a" in --platform=*|--arch=*|--platform|--arch) ;; *) filtered+=("\$a");; esac; done
+          exec "$REAL_NPM" "\${filtered[@]}"
+          SHIM
+          chmod +x "$HOME/npmshim/npm"
+          echo "$HOME/npmshim" >> "$GITHUB_PATH"
 
       - name: Deploy
         run: npx sst deploy --stage dev
