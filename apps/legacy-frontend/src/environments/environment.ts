@@ -4,14 +4,14 @@
 
 export const environment = {
   production: false,
-  esCoproad: true,
+  esCoproad: false,
   apiUrl: '',
   apiUrlSerfelWeb: '/SerfelWeb',
   apiProductos: '/products',
   apiPorciones: '/products/portions',
   apiRutas: '/routes',
   apiPDF: '/pdf',
-  apiPedidos: '/orders',
+  apiPedidos: '/orders/',
   apiVentas: '/sales',
 };
 
