@@ -5,14 +5,14 @@
 export const environment = {
   production: false,
   esCoproad: true,
-  apiUrl: 'http://localhost',
-  apiUrlSerfelWeb: 'http://localhost/SerfelWeb',
-  apiProductos: 'http://localhost:3002/products',
-  apiPorciones: 'http://localhost:3001/products/portions',
-  apiRutas: 'http://localhost:3003/routes',
-  apiPDF: 'http://localhost:3003/pdf',
-  apiPedidos: 'http://localhost:3004/orders',
-  apiVentas: 'http://localhost:3005/sales',
+  apiUrl: '',
+  apiUrlSerfelWeb: '/SerfelWeb',
+  apiProductos: '/products',
+  apiPorciones: '/products/portions',
+  apiRutas: '/routes',
+  apiPDF: '/pdf',
+  apiPedidos: '/orders',
+  apiVentas: '/sales',
 };
 
 /*
