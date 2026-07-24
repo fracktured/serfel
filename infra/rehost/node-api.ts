@@ -61,4 +61,23 @@ for (const method of ["GET", "POST", "PUT", "DELETE"] as const) {
   nodeApi.route(`${method} /sales/{proxy+}`, salesFn.arn);
 }
 
+// Ported node-app-2 (orders): same wrap as sales; app does its own Basic Auth,
+// router mounts at /orders/. No API Gateway authorizer.
+const ordersFn = new sst.aws.Function("RehostOrdersFn", {
+  handler: "lambdas/node-app-2/index.handler",
+  runtime: "nodejs22.x",
+  architecture: "arm64",
+  timeout: "20 seconds",
+  memory: "512 MB",
+  vpc: { privateSubnets: privateSubnetIds, securityGroups: [sgLambdaId] },
+  environment: { DB_SECRET_ARN: dbSecretArn },
+  permissions: [{ actions: ["secretsmanager:GetSecretValue"], resources: [dbSecretArn] }],
+  nodejs: { install: ["sequelize", "mysql2"] },
+  transform: { function: { name: "serfel-dev-rehost-orders" } },
+});
+
+for (const method of ["GET", "POST", "PUT", "DELETE"] as const) {
+  nodeApi.route(`${method} /orders/{proxy+}`, ordersFn.arn);
+}
+
 export const nodeApiUrl = nodeApi.url;
