@@ -55,9 +55,9 @@ export function renderCargoListPdf(data: CargoListData): Promise<Uint8Array> {
       doc
         .font("Helvetica-Bold").fontSize(11)
         .text("N", doc.page.margins.left, undefined, COL_N).moveUp()
-        .text("Nombre Producto", X_NOM, undefined, COL_NOM).moveUp()
-        .text("Precio Total", X_PRECIO, undefined, COL_PRECIO).moveUp()
-        .text("Cantidad", X_CANT, undefined, COL_CANT).moveUp()
+        .text("Nombre Producto", X_NOM, undefined, { ...COL_NOM, align: "left" }).moveUp()
+        .text("Precio Total", X_PRECIO, undefined, { ...COL_PRECIO, align: "right" }).moveUp()
+        .text("Cantidad", X_CANT, undefined, { ...COL_CANT, align: "right" }).moveUp()
         .text("UM", X_UM, undefined, COL_N).moveUp()
         .text("Obs", X_OBS, undefined, COL_OBS)
         .moveTo(doc.page.margins.left, doc.y - 3)
@@ -66,10 +66,16 @@ export function renderCargoListPdf(data: CargoListData): Promise<Uint8Array> {
         .font("Helvetica").fontSize(11);
     };
 
+    // True only on the row where the tipo changes (mirrors legacy's
+    // `this.printTipoProducto = nomTipoProducto != this.tipoProducto`,
+    // recomputed per row). Used by the pageAdded handler so the tipo
+    // title is NOT repeated on pdfkit's automatic overflow pages.
+    let tipoJustChanged = false;
+
     doc.on("pageAdded", () => {
       printHeader();
       doc.moveDown();
-      if (currentTipo) printTipoTitle();
+      if (tipoJustChanged) printTipoTitle();
       printTableHeader();
     });
 
@@ -80,6 +86,7 @@ export function renderCargoListPdf(data: CargoListData): Promise<Uint8Array> {
 
     for (const row of data.rows) {
       const isNewTipo = row.nomTipoProducto !== currentTipo;
+      tipoJustChanged = isNewTipo;
       if (isNewTipo) {
         if (currentTipo !== "") {
           currentTipo = row.nomTipoProducto;

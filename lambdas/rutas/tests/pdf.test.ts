@@ -23,4 +23,30 @@ describe("renderCargoListPdf", () => {
     const bytes = await renderCargoListPdf({ nomRutas: "Ruta X", rows: [], totals: { numFacturas: 0, total: 0 } });
     expect(Array.from(bytes.slice(0, 4))).toEqual([0x25, 0x50, 0x44, 0x46]);
   });
+
+  it("renders a document where the first tipo overflows a page (auto pageAdded)", async () => {
+    const rows = [];
+    for (let i = 0; i < 60; i++) {
+      rows.push({
+        idProducto: i,
+        codSerfel: 100 + i,
+        nomProducto: `Producto ${i}`,
+        nomUm: "UNI",
+        nomTipoProducto: "BEBIDAS",
+        sumCantidad: "5.00",
+        subtotal: 2500 + i,
+        obs: [],
+      });
+    }
+    rows.push({ idProducto: 999, codSerfel: 999, nomProducto: "Leche", nomUm: "UNI", nomTipoProducto: "LACTEOS", sumCantidad: "1.00", subtotal: 720, obs: [5] });
+
+    const data: CargoListData = {
+      nomRutas: "Ruta Norte, Ruta Sur",
+      rows,
+      totals: { numFacturas: 2, total: 3000 },
+    };
+
+    const bytes = await renderCargoListPdf(data);
+    expect(Array.from(bytes.slice(0, 4))).toEqual([0x25, 0x50, 0x44, 0x46]);
+  });
 });
