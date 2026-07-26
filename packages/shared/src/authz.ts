@@ -6,6 +6,7 @@
  */
 export const MODULE_ROLES = {
   productos: [1], // 1 = Administrador
+  rutas: [1], // 1 = Administrador
 } as const;
 
 export type ModuleName = keyof typeof MODULE_ROLES;
