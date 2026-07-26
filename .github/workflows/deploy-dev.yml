@@ -33,7 +33,11 @@ jobs:
           # SST regenerates sst-env.d.ts here on deploy; it breaks the Angular
           # tsc build. Defensive delete (no-op on a fresh checkout).
           find . -name "sst-env.d.ts" -not -path "./node_modules/*" -delete || true
-          npm ci
+          # `npm install` (not `npm ci`): this vendored Angular 14 app's dep tree
+          # produces a lockfile that npm 8's `npm ci` rejects as out-of-sync
+          # (ajv/postcss-selector-parser transitive conflicts). npm install
+          # reconciles it. Build output is deterministic (same content hash).
+          npm install
           npx ng build --configuration production
 
       # --- Main toolchain: Node 22 + pnpm (SST) ---
