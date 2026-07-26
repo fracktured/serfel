@@ -93,6 +93,45 @@ jobs:
       - name: Deploy
         run: npx sst deploy --stage dev
 
+      # --- Legacy PHP Fargate image (Fase 3.5 rehost) ---
+      # infra/rehost/fargate.ts pins the task def to a static, mutable ECR tag
+      # (`:v1`) rather than a content hash, so `sst deploy` above never rebuilds
+      # or pushes it — it only manages the ECS/ECR resources. Without this step,
+      # source edits under legacy-php/Distribuidor or legacy-php/SerfelWeb would
+      # deploy CI-green but never actually reach the running container (bit us
+      # 2026-07-25: Reporte/ vendored in a commit that "deployed" clean, but the
+      # Fargate task kept serving the pre-vendor image until fixed manually).
+      - name: Set up QEMU (arm64 emulation for cross-build)
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to ECR
+        run: |
+          aws ecr get-login-password --region us-east-1 \
+            | docker login --username AWS --password-stdin 146476548567.dkr.ecr.us-east-1.amazonaws.com
+
+      - name: Build and push legacy PHP Fargate image
+        working-directory: legacy-php
+        run: |
+          docker buildx build --platform linux/arm64 \
+            -f Dockerfile.fargate \
+            -t 146476548567.dkr.ecr.us-east-1.amazonaws.com/serfel-dev-rehost-php-app-1:v1 \
+            --push .
+
+      # The tag above is mutable and unchanged ("v1"), so ECS won't notice the
+      # new image on its own — force it to pull the digest just pushed.
+      - name: Force new ECS deployment for the PHP Fargate service
+        run: |
+          aws ecs update-service --cluster serfel-dev-rehost \
+            --service serfel-dev-rehost-php-app-1 --force-new-deployment \
+            --region us-east-1
+          aws ecs wait services-stable --cluster serfel-dev-rehost \
+            --services serfel-dev-rehost-php-app-1 --region us-east-1
+
       - name: Run DB migrations (skips if DB is stopped)
         run: |
           STATUS=$(aws rds describe-db-instances \
