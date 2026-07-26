@@ -43,7 +43,7 @@
         
         $PHPJasperXML->xml_dismantle($xml);
 
-        $PHPJasperXML->transferDBtoArray("localhost", getUsuarioBD(), getPassBD(), getNomBD());
+        $PHPJasperXML->transferDBtoArray(getHostBD(), getUsuarioBD(), getPassBD(), getNomBD());
         $PHPJasperXML->outpage("I");    //page output method I:standard output  D:Download file
     }
 ?>
