@@ -8,6 +8,7 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
+    "sst:deploy": "./scripts/sst-deploy.sh",
     "db:start": "./scripts/db-start.sh",
     "db:stop": "./scripts/db-stop.sh",
     "db:tunnel": "./scripts/db-tunnel.sh",
