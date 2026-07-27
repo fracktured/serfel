@@ -2,8 +2,8 @@ import { computed, inject, Injectable, signal } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 import { HttpErrorResponse } from "@angular/common/http";
 import type { ApiErrorBody, RutaDto } from "@serfel/shared";
-import { RutasApi } from "./rutas-api.service";
-import { allSelected, selectedRutas, toggleSelection } from "./rutas-logic";
+import { ListadoCargaApi } from "./listado-carga-api.service";
+import { allSelected, selectedRutas, toggleSelection } from "./listado-carga-logic";
 
 /** Extracts the structured API error body, or null for network/unknown errors. */
 export function apiError(err: unknown): ApiErrorBody["error"] | null {
@@ -14,8 +14,8 @@ export function apiError(err: unknown): ApiErrorBody["error"] | null {
 }
 
 @Injectable({ providedIn: "root" })
-export class RutasStore {
-  private api = inject(RutasApi);
+export class ListadoCargaStore {
+  private api = inject(ListadoCargaApi);
 
   readonly rutas = signal<RutaDto[]>([]);
   readonly selected = signal<Set<number>>(new Set());

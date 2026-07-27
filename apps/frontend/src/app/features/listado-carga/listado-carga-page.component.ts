@@ -3,11 +3,11 @@ import { Component, inject, OnInit } from "@angular/core";
 import { NavbarComponent } from "../../core/navbar.component";
 import { ToastComponent } from "../../core/toast.component";
 import { ToastService } from "../../core/toast.service";
-import { parseApiErrorText } from "./rutas-logic";
-import { RutasStore, apiError } from "./rutas-store";
+import { parseApiErrorText } from "./listado-carga-logic";
+import { ListadoCargaStore, apiError } from "./listado-carga-store";
 
 @Component({
-  selector: "app-rutas-page",
+  selector: "app-listado-carga-page",
   standalone: true,
   imports: [NavbarComponent, ToastComponent],
   template: `
@@ -64,8 +64,8 @@ import { RutasStore, apiError } from "./rutas-store";
     .rutas-empty { padding: 16px; color: #6b7280; font-size: 14px; }
   `],
 })
-export class RutasPageComponent implements OnInit {
-  readonly store = inject(RutasStore);
+export class ListadoCargaPageComponent implements OnInit {
+  readonly store = inject(ListadoCargaStore);
   private toast = inject(ToastService);
 
   ngOnInit(): void {

@@ -4,7 +4,7 @@ import type { RutaDto, RutaSelection } from "@serfel/shared";
 import { environment } from "../../../environments/environment";
 
 @Injectable({ providedIn: "root" })
-export class RutasApi {
+export class ListadoCargaApi {
   private http = inject(HttpClient);
   private base = `${environment.apiUrl}/api`;
 

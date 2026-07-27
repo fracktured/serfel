@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { RutaDto } from "@serfel/shared";
-import { toggleSelection, allSelected, selectedRutas, parseApiErrorText } from "./rutas-logic";
+import { toggleSelection, allSelected, selectedRutas, parseApiErrorText } from "./listado-carga-logic";
 
 const routes: RutaDto[] = [
   { idRuta: 1, nomRuta: "Norte", idUsuario: 1, numDia: 1, idEstado: 1 },
