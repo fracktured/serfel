@@ -1,9 +1,11 @@
+import { HttpErrorResponse } from "@angular/common/http";
 import { Component, inject, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { AuthService } from "../../core/auth.service";
 import { SessionService } from "../../core/session.service";
 import { ToastComponent } from "../../core/toast.component";
 import { ToastService } from "../../core/toast.service";
+import { parseApiErrorText } from "./rutas-logic";
 import { RutasStore, apiError } from "./rutas-store";
 
 @Component({
@@ -97,9 +99,16 @@ export class RutasPageComponent implements OnInit {
       const url = URL.createObjectURL(blob);
       window.open(url, "_blank");
     } catch (err) {
-      const known = apiError(err);
-      this.toast.show(known?.message ?? "No se pudo generar el listado.", "error");
+      this.toast.show(await this.cargoListError(err), "error");
     }
+  }
+
+  private async cargoListError(err: unknown): Promise<string> {
+    if (err instanceof HttpErrorResponse && err.error instanceof Blob) {
+      const parsed = parseApiErrorText(await err.error.text());
+      if (parsed) return parsed.message;
+    }
+    return apiError(err)?.message ?? "No se pudo generar el listado.";
   }
 
   async logout(): Promise<void> {
