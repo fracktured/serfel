@@ -1,9 +1,7 @@
 import { Component, inject, OnInit, signal, viewChild } from '@angular/core';
-import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import type { EstadoFilter, ProductoDto, ProductoInput } from '@serfel/shared';
-import { AuthService } from '../../core/auth.service';
-import { SessionService } from '../../core/session.service';
+import { NavbarComponent } from '../../core/navbar.component';
 import { ProductosStore, apiError } from './productos-store';
 import { ProductModalComponent } from './product-modal.component';
 import { ToastComponent } from '../../core/toast.component';
@@ -13,31 +11,16 @@ import { brandBadgeStyle, toCsv, type SortKey } from './productos-logic';
 @Component({
   selector: 'app-productos-page',
   standalone: true,
-  imports: [FormsModule, ProductModalComponent, ToastComponent],
+  imports: [FormsModule, NavbarComponent, ProductModalComponent, ToastComponent],
   template: `
-    <header class="header">
-      <div class="header-inner">
-        <div class="header-logo">
-          <div class="logo-badge">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-          </div>
-          Serfel
-        </div>
-        <nav class="header-nav">
-          @if (session.canAccess('productos')) {
-            <div class="nav-item active">Productos</div>
-          }
-        </nav>
-        <div class="header-spacer"></div>
-        <div class="header-search">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-          <input type="text" placeholder="Buscar en catálogo…"
-                 [ngModel]="store.filters().quick"
-                 (ngModelChange)="store.setFilter({ quick: $event })" />
-        </div>
-        <div class="header-avatar" (click)="logout()" [title]="(session.me()?.nomUsuario ?? '') + ' — Cerrar sesión'">⎋</div>
+    <app-navbar>
+      <div class="header-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" placeholder="Buscar en catálogo…"
+               [ngModel]="store.filters().quick"
+               (ngModelChange)="store.setFilter({ quick: $event })" />
       </div>
-    </header>
+    </app-navbar>
 
     <div class="hero">
       <div class="hero-inner">
@@ -242,9 +225,6 @@ import { brandBadgeStyle, toCsv, type SortKey } from './productos-logic';
 })
 export class ProductosPageComponent implements OnInit {
   readonly store = inject(ProductosStore);
-  private auth = inject(AuthService);
-  private router = inject(Router);
-  readonly session = inject(SessionService);
   private toasts = inject(ToastService);
   readonly modalOpen = signal(false);
   readonly editing = signal<ProductoDto | null>(null);
@@ -296,12 +276,6 @@ export class ProductosPageComponent implements OnInit {
     a.download = 'productos.csv';
     a.click();
     URL.revokeObjectURL(a.href);
-  }
-
-  async logout(): Promise<void> {
-    this.session.clear();
-    await this.auth.logout();
-    await this.router.navigate(['/login']);
   }
 
   openModal(product: ProductoDto | null): void {

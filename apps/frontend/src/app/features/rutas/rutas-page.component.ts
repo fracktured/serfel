@@ -1,8 +1,6 @@
 import { HttpErrorResponse } from "@angular/common/http";
 import { Component, inject, OnInit } from "@angular/core";
-import { Router } from "@angular/router";
-import { AuthService } from "../../core/auth.service";
-import { SessionService } from "../../core/session.service";
+import { NavbarComponent } from "../../core/navbar.component";
 import { ToastComponent } from "../../core/toast.component";
 import { ToastService } from "../../core/toast.service";
 import { parseApiErrorText } from "./rutas-logic";
@@ -11,25 +9,9 @@ import { RutasStore, apiError } from "./rutas-store";
 @Component({
   selector: "app-rutas-page",
   standalone: true,
-  imports: [ToastComponent],
+  imports: [NavbarComponent, ToastComponent],
   template: `
-    <header class="header">
-      <div class="header-inner">
-        <div class="header-logo">
-          <div class="logo-badge">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-          </div>
-          Serfel
-        </div>
-        <nav class="header-nav">
-          @if (session.canAccess('rutas')) {
-            <div class="nav-item active">Listado Carga</div>
-          }
-        </nav>
-        <div class="header-spacer"></div>
-        <div class="header-avatar" (click)="logout()" [title]="(session.me()?.nomUsuario ?? '') + ' — Cerrar sesión'">⎋</div>
-      </div>
-    </header>
+    <app-navbar />
 
     <div class="hero">
       <div class="hero-inner">
@@ -84,9 +66,6 @@ import { RutasStore, apiError } from "./rutas-store";
 })
 export class RutasPageComponent implements OnInit {
   readonly store = inject(RutasStore);
-  readonly session = inject(SessionService);
-  private auth = inject(AuthService);
-  private router = inject(Router);
   private toast = inject(ToastService);
 
   ngOnInit(): void {
@@ -109,11 +88,5 @@ export class RutasPageComponent implements OnInit {
       if (parsed) return parsed.message;
     }
     return apiError(err)?.message ?? "No se pudo generar el listado.";
-  }
-
-  async logout(): Promise<void> {
-    this.session.clear();
-    await this.auth.logout();
-    await this.router.navigate(["/login"]);
   }
 }

@@ -10,6 +10,6 @@ export const routes: Routes = [
   { path: 'sin-acceso', component: SinAccesoComponent },
   { path: '', pathMatch: 'full', redirectTo: 'productos' },
   { path: 'productos', component: ProductosPageComponent, canActivate: [moduleGuard('productos')] },
-  { path: 'rutas', component: RutasPageComponent, canActivate: [moduleGuard('rutas')] },
+  { path: 'listado-carga', component: RutasPageComponent, canActivate: [moduleGuard('rutas')] },
   { path: '**', redirectTo: 'productos' },
 ];
