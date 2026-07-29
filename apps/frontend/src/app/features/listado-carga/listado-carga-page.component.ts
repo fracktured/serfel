@@ -33,6 +33,17 @@ import { ListadoCargaStore, apiError } from "./listado-carga-store";
         <div class="login-error">{{ msg }}</div>
       }
 
+      <div class="tipo-row">
+        <label class="tipo-opt">
+          <input type="radio" name="tipo" [checked]="store.tipo() === 'ventas'" (change)="store.tipo.set('ventas')" />
+          <span>Ventas</span>
+        </label>
+        <label class="tipo-opt">
+          <input type="radio" name="tipo" [checked]="store.tipo() === 'pedidos'" (change)="store.tipo.set('pedidos')" />
+          <span>Pedidos</span>
+        </label>
+      </div>
+
       <div class="rutas-card">
         @if (store.loading()) {
           <p class="rutas-empty">Cargando rutas…</p>
@@ -62,6 +73,9 @@ import { ListadoCargaStore, apiError } from "./listado-carga-store";
     .ruta-row input { width: 16px; height: 16px; accent-color: var(--accent, #7c3aed); }
     .ruta-all { font-weight: 600; border-bottom: 1px solid #eef2f7; border-radius: 8px 8px 0 0; }
     .rutas-empty { padding: 16px; color: #6b7280; font-size: 14px; }
+    .tipo-row { display: flex; gap: 16px; margin-bottom: 16px; }
+    .tipo-opt { display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; }
+    .tipo-opt input { width: 16px; height: 16px; accent-color: var(--accent, #7c3aed); }
   `],
 })
 export class ListadoCargaPageComponent implements OnInit {
