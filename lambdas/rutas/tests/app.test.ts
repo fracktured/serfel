@@ -64,15 +64,35 @@ describe("rutas app", () => {
     expect((await res.json()).error.code).toBe("VALIDACION");
   });
 
-  it("POST /api/routes/cargoList returns a PDF for a valid selection", async () => {
+  it("POST /api/routes/cargoList returns a PDF for a valid ventas selection", async () => {
     const app = await appPromise;
     const res = await app.request(
       "/api/routes/cargoList",
-      postJson([{ idRuta: SEED.rutaNorte, nomRuta: "Ruta Norte" }])
+      postJson({ tipo: "ventas", rutas: [{ idRuta: SEED.rutaNorte, nomRuta: "Ruta Norte" }] })
     );
     expect(res.status).toBe(200);
     expect(res.headers.get("content-type")).toContain("application/pdf");
     const bytes = new Uint8Array(await res.arrayBuffer());
     expect(Array.from(bytes.slice(0, 4))).toEqual([0x25, 0x50, 0x44, 0x46]);
+  });
+
+  it("POST /api/routes/cargoList returns a PDF for a pedidos selection", async () => {
+    const app = await appPromise;
+    const res = await app.request(
+      "/api/routes/cargoList",
+      postJson({ tipo: "pedidos", rutas: [{ idRuta: SEED.rutaNorte, nomRuta: "Ruta Norte" }] })
+    );
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toContain("application/pdf");
+  });
+
+  it("POST /api/routes/cargoList 400s on an invalid tipo", async () => {
+    const app = await appPromise;
+    const res = await app.request(
+      "/api/routes/cargoList",
+      postJson({ tipo: "otros", rutas: [{ idRuta: SEED.rutaNorte, nomRuta: "Ruta Norte" }] })
+    );
+    expect(res.status).toBe(400);
+    expect((await res.json()).error.code).toBe("VALIDACION");
   });
 });

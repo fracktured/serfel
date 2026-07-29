@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { RutaSelectionSchema, type ApiErrorBody } from "@serfel/shared";
+import { CargoListRequestSchema, type ApiErrorBody } from "@serfel/shared";
 import { AppError, isDbUnreachable } from "./errors";
 import { getCargoListData, listActiveRutas } from "./service";
 import { renderCargoListPdf } from "./pdf";
@@ -50,11 +50,11 @@ export function createApp(deps: AppDeps) {
     const raw = await c.req.json().catch(() => {
       throw new AppError("VALIDACION", 400, "El cuerpo debe ser JSON válido");
     });
-    const parsed = RutaSelectionSchema.safeParse(raw);
+    const parsed = CargoListRequestSchema.safeParse(raw);
     if (!parsed.success) {
       throw new AppError("VALIDACION", 400, "Debe enviar al menos una ruta");
     }
-    const data = await getCargoListData(await deps.getDb(), parsed.data);
+    const data = await getCargoListData(await deps.getDb(), parsed.data.rutas, parsed.data.tipo);
     const pdf = await renderCargoListPdf(data);
     // application/pdf is treated as binary by hono/aws-lambda (base64-encoded,
     // isBase64Encoded=true), and HTTP API decodes it for the browser.
