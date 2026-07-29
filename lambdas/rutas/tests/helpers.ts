@@ -19,6 +19,8 @@ import {
   t40MRutaLocalCliente,
   t40MVenta,
   t40MProductoVenta,
+  t30MPedido,
+  t30MProductoPedido,
   t20MPorcion,
 } from "@serfel/db";
 
@@ -47,6 +49,10 @@ export const SEED = {
   localNorte: 500,
   localSur: 501,
   ESTADO_FINALIZADO: 3,
+  pedidoUno: 1,
+  pedidoDos: 2,
+  pedidoAnulado: 3,
+  ESTADO_PEDIDO_VIGENTE: 1,
 } as const;
 
 export async function setupTestDb(
@@ -129,6 +135,21 @@ export async function setupTestDb(
     idProducto: SEED.prodLeche, fecha: NOW, grupo: 1, numero: 5, cantidad: "1.000",
     idVenta: 1, idUsuario: SEED.usuarioAdmin, idEstado: 1,
   });
+
+  const pedido = (idPedido: number, idLocalCliente: number, idEstado: number, precioTotal: number) => ({
+    idPedido, fechaPedido: NOW, idLocalCliente, idListaPrecio: 1, idEstado, precioTotal,
+  });
+  await db.insert(t30MPedido).values([
+    pedido(SEED.pedidoUno, SEED.localNorte, SEED.ESTADO_PEDIDO_VIGENTE, 1500), // matches
+    pedido(SEED.pedidoDos, SEED.localSur, SEED.ESTADO_PEDIDO_VIGENTE, 2500), // matches
+    pedido(SEED.pedidoAnulado, SEED.localNorte, 0, 7777), // id_estado != 1 -> excluded
+  ]);
+  await db.insert(t30MProductoPedido).values([
+    { idPedido: SEED.pedidoUno, idProducto: SEED.prodAgua, cantidad: "4.000", precio: 500, porcenDesc: 0 },
+    { idPedido: SEED.pedidoUno, idProducto: SEED.prodLeche, cantidad: "2.000", precio: 800, porcenDesc: 10 },
+    { idPedido: SEED.pedidoDos, idProducto: SEED.prodAgua, cantidad: "1.000", precio: 500, porcenDesc: 0 },
+    { idPedido: SEED.pedidoAnulado, idProducto: SEED.prodAgua, cantidad: "50.000", precio: 500, porcenDesc: 0 },
+  ]);
 
   const teardown = async () => {
     await pool.end();
