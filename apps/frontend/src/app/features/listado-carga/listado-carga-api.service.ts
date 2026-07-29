@@ -1,6 +1,6 @@
 import { inject, Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import type { RutaDto, RutaSelection } from "@serfel/shared";
+import type { CargoTipo, RutaDto, RutaSelection } from "@serfel/shared";
 import { environment } from "../../../environments/environment";
 
 @Injectable({ providedIn: "root" })
@@ -11,8 +11,8 @@ export class ListadoCargaApi {
   list() {
     return this.http.get<RutaDto[]>(`${this.base}/routes`);
   }
-  cargoList(sel: RutaSelection) {
-    return this.http.post(`${this.base}/routes/cargoList`, sel, {
+  cargoList(sel: RutaSelection, tipo: CargoTipo) {
+    return this.http.post(`${this.base}/routes/cargoList`, { tipo, rutas: sel }, {
       responseType: "blob",
     });
   }

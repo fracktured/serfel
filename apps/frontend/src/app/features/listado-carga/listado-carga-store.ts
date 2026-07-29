@@ -1,7 +1,7 @@
 import { computed, inject, Injectable, signal } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 import { HttpErrorResponse } from "@angular/common/http";
-import type { ApiErrorBody, RutaDto } from "@serfel/shared";
+import type { ApiErrorBody, CargoTipo, RutaDto } from "@serfel/shared";
 import { ListadoCargaApi } from "./listado-carga-api.service";
 import { allSelected, selectedRutas, toggleSelection } from "./listado-carga-logic";
 
@@ -22,6 +22,7 @@ export class ListadoCargaStore {
   readonly loading = signal(false);
   readonly generating = signal(false);
   readonly errorMsg = signal<string | null>(null);
+  readonly tipo = signal<CargoTipo>("ventas");
 
   readonly allChecked = computed(() => allSelected(this.rutas(), this.selected()));
   readonly hasSelection = computed(() => this.selected().size > 0);
@@ -57,7 +58,7 @@ export class ListadoCargaStore {
     this.generating.set(true);
     try {
       return await firstValueFrom(
-        this.api.cargoList(selectedRutas(this.rutas(), this.selected()))
+        this.api.cargoList(selectedRutas(this.rutas(), this.selected()), this.tipo())
       );
     } finally {
       this.generating.set(false);
