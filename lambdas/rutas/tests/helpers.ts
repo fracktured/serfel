@@ -11,6 +11,7 @@ import {
   t10PTipoDocto,
   t10MEmpresa,
   t10MCliente,
+  t10MLocalCliente,
   t20PMarca,
   t20PTipoProducto,
   t20PUnidadMedida,
@@ -93,6 +94,10 @@ export async function setupTestDb(
     rutCliente: SEED.cliente, dvCliente: "0", razonSocial: "CLIENTE", idListaPrecio: 1,
     idUsuarioMod: SEED.usuarioAdmin, ultFechaMod: NOW, idEstado: 1,
   });
+  await db.insert(t10MLocalCliente).values([
+    { idLocalCliente: SEED.localNorte, rutCliente: SEED.cliente, nomLocalCliente: "Local Norte", idUsuarioMod: SEED.usuarioAdmin, ultFechaMod: NOW, idEstado: 1 },
+    { idLocalCliente: SEED.localSur, rutCliente: SEED.cliente, nomLocalCliente: "Local Sur", idUsuarioMod: SEED.usuarioAdmin, ultFechaMod: NOW, idEstado: 1 },
+  ]);
   await db.insert(t20PMarca).values({ idMarca: SEED.marca, nomMarca: "MARCA" });
   await db.insert(t20PTipoProducto).values([
     { idTipoProducto: SEED.tipoBebidas, nomTipoProducto: "BEBIDAS", idUsuarioMod: SEED.usuarioAdmin, ultFechaMod: NOW, idEstado: 1 },
@@ -137,7 +142,7 @@ export async function setupTestDb(
   });
 
   const pedido = (idPedido: number, idLocalCliente: number, idEstado: number, precioTotal: number) => ({
-    idPedido, fechaPedido: NOW, idLocalCliente, idListaPrecio: 1, idEstado, precioTotal,
+    idPedido, fechaPedido: NOW, idLocalCliente, idListaPrecio: 1, idEstado, precioTotal, idUsuario: SEED.usuarioAdmin,
   });
   await db.insert(t30MPedido).values([
     pedido(SEED.pedidoUno, SEED.localNorte, SEED.ESTADO_PEDIDO_VIGENTE, 1500), // matches

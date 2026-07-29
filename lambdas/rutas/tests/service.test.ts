@@ -26,7 +26,7 @@ describe("getCargoListData", () => {
     const data = await getCargoListData(db, [
       { idRuta: SEED.rutaNorte, nomRuta: "Ruta Norte" },
       { idRuta: SEED.rutaSur, nomRuta: "Ruta Sur" },
-    ]);
+    ], "ventas");
 
     expect(data.nomRutas).toBe("Ruta Norte, Ruta Sur");
     // ordered by tipo (BEBIDAS < LACTEOS) then nombre
@@ -45,6 +45,33 @@ describe("getCargoListData", () => {
     // V3 (entregado=1) and V4 (id_estado=1) are excluded
     expect(data.totals.numFacturas).toBe(2);
     expect(data.totals.total).toBe(3000); // 1000 + 2000
+  });
+
+  it("aggregates per product across vigente pedidos when tipo is pedidos", async () => {
+    const data = await getCargoListData(
+      db,
+      [
+        { idRuta: SEED.rutaNorte, nomRuta: "Ruta Norte" },
+        { idRuta: SEED.rutaSur, nomRuta: "Ruta Sur" },
+      ],
+      "pedidos"
+    );
+
+    expect(data.rows.map((r) => r.nomProducto)).toEqual(["Agua", "Leche"]);
+
+    const agua = data.rows[0];
+    expect(agua.sumCantidad).toBe("5.00"); // 4.000 + 1.000 -> "5.000" -> chop
+    expect(agua.subtotal).toBe(2500);
+    expect(agua.obs).toEqual([]); // pedidos never carry porciones
+
+    const leche = data.rows[1];
+    expect(leche.sumCantidad).toBe("2.00");
+    expect(leche.subtotal).toBe(1440); // 2*(800 - 10%)
+    expect(leche.obs).toEqual([]);
+
+    // pedido 3 (id_estado != 1) is excluded
+    expect(data.totals.numFacturas).toBe(2);
+    expect(data.totals.total).toBe(4000); // 1500 + 2500
   });
 });
 

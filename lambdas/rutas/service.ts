@@ -4,6 +4,8 @@ import {
   t40MRutaLocalCliente,
   t40MVenta,
   t40MProductoVenta,
+  t30MPedido,
+  t30MProductoPedido,
   t20MProducto,
   t20MPorcion,
   t20PUnidadMedida,
@@ -11,11 +13,12 @@ import {
   t10MUsuario,
   type Db,
 } from "@serfel/db";
-import { ESTADO_ACTIVO, type RutaDto, type RutaSelection } from "@serfel/shared";
+import { ESTADO_ACTIVO, type CargoTipo, type RutaDto, type RutaSelection } from "@serfel/shared";
 import type { CargoListData, DetailRow } from "./types";
 
 const ESTADO_FINALIZADO = 3;
 const NO_ENTREGADO = 0;
+const ESTADO_PEDIDO_VIGENTE = 1;
 
 export async function listActiveRutas(db: Db): Promise<RutaDto[]> {
   return db
@@ -117,6 +120,66 @@ async function fetchTotals(
   return rows[0] ?? { numFacturas: 0, total: null };
 }
 
+async function fetchDetailPedido(db: Db, idRutas: number[]): Promise<DetailRow[]> {
+  return db
+    .select({
+      idProducto: t30MProductoPedido.idProducto,
+      codSerfel: t20MProducto.codSerfel,
+      nomProducto: t20MProducto.nomProducto,
+      nomUm: t20PUnidadMedida.nomUm,
+      nomTipoProducto: t20PTipoProducto.nomTipoProducto,
+      sumCantidad: sql<string>`SUM(${t30MProductoPedido.cantidad})`,
+      subtotal: sql<string>`SUM(${t30MProductoPedido.cantidad} * (${t30MProductoPedido.precio} - ${t30MProductoPedido.precio} * ${t30MProductoPedido.porcenDesc} / 100))`,
+    })
+    .from(t30MProductoPedido)
+    .innerJoin(
+      t30MPedido,
+      and(
+        eq(t30MPedido.idPedido, t30MProductoPedido.idPedido),
+        eq(t30MPedido.idEstado, ESTADO_PEDIDO_VIGENTE)
+      )
+    )
+    .innerJoin(
+      t40MRutaLocalCliente,
+      and(
+        eq(t40MRutaLocalCliente.idLocalCliente, t30MPedido.idLocalCliente),
+        inArray(t40MRutaLocalCliente.idRuta, idRutas)
+      )
+    )
+    .innerJoin(t20MProducto, eq(t20MProducto.idProducto, t30MProductoPedido.idProducto))
+    .innerJoin(t20PUnidadMedida, eq(t20PUnidadMedida.idUm, t20MProducto.idUm))
+    .innerJoin(t20PTipoProducto, eq(t20PTipoProducto.idTipoProducto, t20MProducto.idTipoProducto))
+    .groupBy(
+      t30MProductoPedido.idProducto,
+      t20MProducto.codSerfel,
+      t20MProducto.nomProducto,
+      t20PUnidadMedida.nomUm,
+      t20PTipoProducto.nomTipoProducto
+    )
+    .orderBy(asc(t20PTipoProducto.nomTipoProducto), asc(t20MProducto.nomProducto));
+}
+
+async function fetchTotalsPedido(
+  db: Db,
+  idRutas: number[]
+): Promise<{ numFacturas: number | string; total: string | null }> {
+  const rows = await db
+    .select({
+      numFacturas: sql<number>`COUNT(${t30MPedido.idPedido})`,
+      total: sql<string | null>`SUM(${t30MPedido.precioTotal})`,
+    })
+    .from(t30MPedido)
+    .innerJoin(
+      t40MRutaLocalCliente,
+      and(
+        eq(t40MRutaLocalCliente.idLocalCliente, t30MPedido.idLocalCliente),
+        inArray(t40MRutaLocalCliente.idRuta, idRutas)
+      )
+    )
+    .where(eq(t30MPedido.idEstado, ESTADO_PEDIDO_VIGENTE));
+  return rows[0] ?? { numFacturas: 0, total: null };
+}
+
 /**
  * Faithful port of the legacy display quirk: the summed DECIMAL(18,3) string
  * has its last character dropped, truncating to 2 decimals ("5.000" -> "5.00").
@@ -159,9 +222,18 @@ export function assembleCargoList(
 
 export async function getCargoListData(
   db: Db,
-  rutas: RutaSelection
+  rutas: RutaSelection,
+  tipo: CargoTipo
 ): Promise<CargoListData> {
   const idRutas = rutas.map((r) => r.idRuta);
+  if (tipo === "pedidos") {
+    const [detail, totals] = await Promise.all([
+      fetchDetailPedido(db, idRutas),
+      fetchTotalsPedido(db, idRutas),
+    ]);
+    // Pedidos have no porcion link, so obs is always [].
+    return assembleCargoList(rutas, detail, [], totals);
+  }
   const [detail, porciones, totals] = await Promise.all([
     fetchDetail(db, idRutas),
     fetchPorciones(db, idRutas),
