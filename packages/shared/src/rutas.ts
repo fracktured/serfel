@@ -18,3 +18,13 @@ export const RutaSelectionSchema = z
   )
   .min(1);
 export type RutaSelection = z.infer<typeof RutaSelectionSchema>;
+
+export const CargoTipoSchema = z.enum(["ventas", "pedidos"]);
+export type CargoTipo = z.infer<typeof CargoTipoSchema>;
+
+// cargoList body: which source to report on + the selected rutas.
+export const CargoListRequestSchema = z.object({
+  tipo: CargoTipoSchema.default("ventas"),
+  rutas: RutaSelectionSchema,
+});
+export type CargoListRequest = z.infer<typeof CargoListRequestSchema>;
