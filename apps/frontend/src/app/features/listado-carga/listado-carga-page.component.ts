@@ -33,15 +33,18 @@ import { ListadoCargaStore, apiError } from "./listado-carga-store";
         <div class="login-error">{{ msg }}</div>
       }
 
-      <div class="tipo-row">
-        <label class="tipo-opt">
-          <input type="radio" name="tipo" [checked]="store.tipo() === 'ventas'" (change)="store.tipo.set('ventas')" />
-          <span>Ventas</span>
-        </label>
-        <label class="tipo-opt">
-          <input type="radio" name="tipo" [checked]="store.tipo() === 'pedidos'" (change)="store.tipo.set('pedidos')" />
-          <span>Pedidos</span>
-        </label>
+      <div class="tipo-card">
+        <span class="tipo-label">Tipo de listado</span>
+        <div class="tipo-pills">
+          <label class="filter-pill" [class.active]="store.tipo() === 'ventas'">
+            <input type="radio" name="tipo" [checked]="store.tipo() === 'ventas'" (change)="store.tipo.set('ventas')" />
+            Ventas
+          </label>
+          <label class="filter-pill" [class.active]="store.tipo() === 'pedidos'">
+            <input type="radio" name="tipo" [checked]="store.tipo() === 'pedidos'" (change)="store.tipo.set('pedidos')" />
+            Pedidos
+          </label>
+        </div>
       </div>
 
       <div class="rutas-card">
@@ -73,9 +76,18 @@ import { ListadoCargaStore, apiError } from "./listado-carga-store";
     .ruta-row input { width: 16px; height: 16px; accent-color: var(--accent, #7c3aed); }
     .ruta-all { font-weight: 600; border-bottom: 1px solid #eef2f7; border-radius: 8px 8px 0 0; }
     .rutas-empty { padding: 16px; color: #6b7280; font-size: 14px; }
-    .tipo-row { display: flex; gap: 16px; margin-bottom: 16px; }
-    .tipo-opt { display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; }
-    .tipo-opt input { width: 16px; height: 16px; accent-color: var(--accent, #7c3aed); }
+    .tipo-card {
+      display: inline-flex; flex-direction: column; gap: 8px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 18px; margin-bottom: 18px;
+    }
+    .tipo-label {
+      font-size: 11px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .08em;
+    }
+    .tipo-pills { display: flex; gap: 8px; }
+    .tipo-pills .filter-pill { user-select: none; }
+    .tipo-pills .filter-pill input { position: absolute; opacity: 0; width: 0; height: 0; }
   `],
 })
 export class ListadoCargaPageComponent implements OnInit {
