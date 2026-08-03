@@ -6,3 +6,14 @@
 :cloudfront::
 # Cognito user pool CLIENTS are not taggable (the user POOL is tagged).
 :userpoolclient/
+# API Gateway access-log groups auto-created by SST for the HTTP APIs.
+:log-group:/aws/vendedlogs/apis/
+# HTTP API $default stages: SST creates the stage; the Api resource itself is
+# tagged (transform.api). Stage-level tags add nothing for cost attribution.
+:/apis/
+# Root EBS volume auto-created with the bastion EC2 instance (instance tagged).
+:volume/
+# Stale ECS task-definition revisions linger in the tagging API until they are
+# deregistered and reaped. The ACTIVE revision carries serfel:stack=serfel-rehost
+# (verified :3); only superseded revisions surface here.
+:task-definition/serfel-dev-rehost-php-app-1:

@@ -16,8 +16,15 @@ new sst.aws.StaticSite("Frontend", {
   // SPA: serve index.html for unknown paths (Angular router handles the rest)
   errorPage: "index.html",
   transform: {
-    assets: (args) => {
-      args.tags = { ...(args.tags as Record<string, string> | undefined), ...stackTags("serfel-aws") };
+    // `assets` transforms SST's Bucket *component*; the raw S3 bucket that
+    // resourcegroupstaggingapi sees is reached one level down via its own
+    // `transform.bucket`. Tagging the component args alone is a no-op.
+    assets: {
+      transform: {
+        bucket: (bArgs) => {
+          bArgs.tags = { ...(bArgs.tags as Record<string, string> | undefined), ...stackTags("serfel-aws") };
+        },
+      },
     },
   },
 });

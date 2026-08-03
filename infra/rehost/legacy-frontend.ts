@@ -7,8 +7,14 @@ export const legacySite = new sst.aws.StaticSite("RehostLegacyFrontend", {
   // SPA fallback for the Angular router (matches infra/frontend.ts).
   errorPage: "index.html",
   transform: {
-    assets: (args) => {
-      args.tags = { ...(args.tags as Record<string, string> | undefined), ...stackTags("serfel-rehost") };
+    // See infra/frontend.ts: tag the raw S3 bucket via the Bucket component's
+    // own `transform.bucket`, not the component args (which is a no-op).
+    assets: {
+      transform: {
+        bucket: (bArgs) => {
+          bArgs.tags = { ...(bArgs.tags as Record<string, string> | undefined), ...stackTags("serfel-rehost") };
+        },
+      },
     },
   },
 });
