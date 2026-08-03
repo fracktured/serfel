@@ -1,0 +1,5 @@
+# Resources that legitimately carry only defaultTags (no serfel:stack).
+# StaticSite/Router CloudFront distributions expose no tag transform in this SST version.
+:cloudfront::
+# Cognito user pool CLIENTS are not taggable (the user POOL is tagged).
+:userpoolclient/
