@@ -94,8 +94,15 @@ No se usa un único `$transform` global ni una `registerStackTransformation` de 
 
 ## 6. Caveats conocidos (documentados, no ocultos)
 
-1. **Hijos anidados de componentes SST.** Algunos recursos auto-creados por `StaticSite`/`Function` (Lambda@Edge, ciertos log groups y roles IAM) pueden **no** ser alcanzables por la prop `transform` y quedar solo con los tres tags de `defaultTags`, sin `serfel:stack`. Son recursos de **costo ~cero**, así que la atribución de costos no se ve afectada. La tarea documentará explícitamente cuáles quedan sin `serfel:stack`.
-2. **Activación de cost allocation tags es manual.** Para que `serfel:stack` (y `Project`) aparezcan en Cost Explorer, hay que **activarlos como user-defined cost allocation tags** en la consola de Billing (nivel cuenta, `us-east-1`, ~24 h en poblarse). La IaC **no** puede hacer esto — es un paso de consola/CLI de facturación. Va como ítem explícito del checklist.
+1. **Hijos anidados de componentes SST / recursos auto-creados por AWS.** Algunos recursos no son alcanzables por la prop `transform` por-módulo y quedan solo con los tres tags de `defaultTags`, sin `serfel:stack`. Son de **costo ~cero**, así que la atribución de costos no se ve afectada. Están en `scripts/tag-audit-allowlist.txt`. **Lista confirmada tras el deploy a `dev` (2026-08-02):**
+   - Distribuciones **CloudFront de las dos `StaticSite`** (Frontend, RehostLegacyFrontend) — sin transform de tags en esta versión de SST. *(La distribución del `Router` del rehost SÍ se etiqueta vía `cdn.ts`.)*
+   - **Log groups de acceso de las HTTP API** (`/aws/vendedlogs/apis/*`), auto-creados por SST.
+   - **Stages `$default` de las HTTP API** — el recurso `Api` sí se etiqueta (`transform.api`); el tag a nivel de stage no aporta a la atribución de costos.
+   - **Volumen EBS raíz** auto-creado con la instancia bastión (la instancia sí está etiquetada).
+   - **Revisiones ECS task-definition superseded** — la revisión **activa** lleva `serfel:stack=serfel-rehost`; solo las revisiones viejas aparecen hasta ser dadas de baja.
+   - **Cognito user pool *clients*** — no etiquetables (el user *pool* sí).
+   - *Nota de implementación:* el bucket S3 de cada `StaticSite` **sí** se etiqueta, pero requiere transform **anidado** (`transform.assets.transform.bucket`), no `transform.assets` directo — este último opera sobre los args del *componente* Bucket y es un no-op sobre el `s3.BucketV2` subyacente.
+2. **Activación de cost allocation tags es semi-manual.** Para que `serfel:stack` (y `Project`) aparezcan en Cost Explorer hay que **activarlos como user-defined cost allocation tags** (nivel cuenta payer, `us-east-1`). Se puede por CLI: `aws ce update-cost-allocation-tags-status --cost-allocation-tags-status 'TagKey=serfel:stack,Status=Active'`. **Estado 2026-08-02:** `Project` **activado**; `serfel:stack` devolvió `404 tag key missing` porque AWS tarda hasta ~24 h en registrar una clave de tag nueva para asignación de costos — reintentar el comando al día siguiente. La IaC **no** puede hacer esto (es API de facturación, no de recursos).
 
 ## 7. Verificación y enforcement
 
