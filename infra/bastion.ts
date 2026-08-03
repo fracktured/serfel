@@ -1,5 +1,6 @@
 import * as aws from "@pulumi/aws";
 import { publicSubnetIds, sgRdsId, vpcId } from "./vpc";
+import { stackTags } from "./tags";
 
 // Amazon Linux 2023 ARM — SSM agent preinstalled
 const al2023 = aws.ec2.getAmiOutput({
@@ -21,6 +22,7 @@ const bastionRole = new aws.iam.Role("bastion-role", {
       Action: "sts:AssumeRole",
     }],
   }),
+  tags: stackTags("serfel-shared"),
 });
 
 new aws.iam.RolePolicyAttachment("bastion-ssm-core", {
@@ -31,6 +33,7 @@ new aws.iam.RolePolicyAttachment("bastion-ssm-core", {
 const bastionProfile = new aws.iam.InstanceProfile("bastion-profile", {
   name: "serfel-dev-bastion-profile",
   role: bastionRole.name,
+  tags: stackTags("serfel-shared"),
 });
 
 // No inbound rules at all — access is exclusively through SSM Session Manager.
@@ -54,7 +57,7 @@ const sgBastion = new aws.ec2.SecurityGroup("bastion", {
       description: "MariaDB to RDS",
     },
   ],
-  tags: { Name: "serfel-dev-sg-bastion" },
+  tags: { Name: "serfel-dev-sg-bastion", ...stackTags("serfel-shared") },
 });
 
 new aws.ec2.SecurityGroupRule("rds-from-bastion", {
@@ -76,7 +79,7 @@ const bastion = new aws.ec2.Instance("bastion", {
   vpcSecurityGroupIds: [sgBastion.id],
   iamInstanceProfile: bastionProfile.name,
   metadataOptions: { httpTokens: "required" }, // IMDSv2 only
-  tags: { Name: "serfel-dev-bastion" },
+  tags: { Name: "serfel-dev-bastion", ...stackTags("serfel-shared") },
 }, { ignoreChanges: ["ami"] });
 
 export const bastionInstanceId = bastion.id;

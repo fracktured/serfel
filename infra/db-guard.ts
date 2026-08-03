@@ -1,5 +1,6 @@
 import * as aws from "@pulumi/aws";
 import { dbInstanceArn, dbInstanceIdentifier } from "./database";
+import { stackTags } from "./tags";
 
 const guardFn = new sst.aws.Function("DbGuard", {
   handler: "lambdas/db-guard/index.handler",
@@ -18,8 +19,8 @@ const guardFn = new sst.aws.Function("DbGuard", {
     { actions: ["rds:StopDBInstance"], resources: [dbInstanceArn] },
   ],
   transform: {
-    function: { name: "serfel-dev-db-guard" },
-    logGroup: { name: "/aws/lambda/serfel-dev-db-guard" },
+    function: { name: "serfel-dev-db-guard", tags: stackTags("serfel-shared") },
+    logGroup: { name: "/aws/lambda/serfel-dev-db-guard", tags: stackTags("serfel-shared") },
   },
 });
 
@@ -34,6 +35,7 @@ const rule = new aws.cloudwatch.EventRule("db-autostart-rule", {
       EventID: ["RDS-EVENT-0154"],
     },
   }),
+  tags: stackTags("serfel-shared"),
 });
 
 new aws.cloudwatch.EventTarget("db-autostart-target", {

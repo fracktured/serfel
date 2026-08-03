@@ -1,11 +1,13 @@
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
+import { stackTags } from "./tags";
 
 const githubOidcProvider = new aws.iam.OpenIdConnectProvider("github-oidc", {
   url: "https://token.actions.githubusercontent.com",
   clientIdLists: ["sts.amazonaws.com"],
   // AWS validates GitHub tokens via public keys since 2023; thumbprint still required by provider
   thumbprintLists: ["6938fd4d98bab03faadb97b34396831e3780aea1"],
+  tags: stackTags("serfel-shared"),
 });
 
 const assumeRolePolicy = pulumi
@@ -35,6 +37,7 @@ const assumeRolePolicy = pulumi
 const githubActionsRole = new aws.iam.Role("github-actions-role", {
   name: "serfel-github-actions-role",
   assumeRolePolicy,
+  tags: stackTags("serfel-shared"),
 });
 
 new aws.iam.RolePolicyAttachment("github-actions-admin", {

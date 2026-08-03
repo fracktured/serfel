@@ -1,5 +1,6 @@
 import { privateSubnetIds, sgLambdaId } from "./vpc";
 import { dbSecretArn } from "./database";
+import { stackTags } from "./tags";
 
 new sst.aws.Function("Migrate", {
   handler: "lambdas/migrate/index.handler",
@@ -22,7 +23,7 @@ new sst.aws.Function("Migrate", {
     { from: "packages/db/rds-global-bundle.pem", to: "rds-global-bundle.pem" },
   ],
   transform: {
-    function: { name: "serfel-dev-migrate" },
-    logGroup: { name: "/aws/lambda/serfel-dev-migrate" },
+    function: { name: "serfel-dev-migrate", tags: stackTags("serfel-shared") },
+    logGroup: { name: "/aws/lambda/serfel-dev-migrate", tags: stackTags("serfel-shared") },
   },
 });
