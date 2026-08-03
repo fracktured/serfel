@@ -1,5 +1,6 @@
 import * as aws from "@pulumi/aws";
 import { vpcId, sgRdsId } from "../vpc";
+import { stackTags } from "../tags";
 
 // CloudFront origin-facing managed prefix list — the internet-facing ALB
 // (Branch B) accepts HTTP only from CloudFront edge locations. Combined with
@@ -28,7 +29,7 @@ const sgAlb = new aws.ec2.SecurityGroup("rehost-alb", {
     protocol: "tcp", fromPort: 80, toPort: 80,
     cidrBlocks: ["10.0.0.0/16"], description: "HTTP to Fargate tasks",
   }],
-  tags: { Name: "serfel-dev-rehost-alb" },
+  tags: { Name: "serfel-dev-rehost-alb", ...stackTags("serfel-rehost") },
 });
 
 // S3 managed prefix list — ECR image layers are served from S3, reached via the
@@ -47,7 +48,7 @@ const sgFargate = new aws.ec2.SecurityGroup("rehost-fargate", {
     { protocol: "tcp", fromPort: 443, toPort: 443, prefixListIds: [s3PrefixList.id], description: "HTTPS to S3 (ECR image layers) via gateway endpoint" },
     { protocol: "tcp", fromPort: 3306, toPort: 3306, cidrBlocks: ["10.0.3.0/24", "10.0.4.0/24"], description: "MariaDB to private subnets" },
   ],
-  tags: { Name: "serfel-dev-rehost-fargate" },
+  tags: { Name: "serfel-dev-rehost-fargate", ...stackTags("serfel-rehost") },
 });
 
 new aws.ec2.SecurityGroupRule("rehost-fargate-from-alb", {

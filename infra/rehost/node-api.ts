@@ -1,6 +1,7 @@
 import { privateSubnetIds, sgLambdaId } from "../vpc";
 import { dbSecretArn } from "../database";
 import { basicAuthorizerFn } from "./basic-auth";
+import { stackTags } from "../tags";
 
 const healthFn = new sst.aws.Function("RehostHealthFn", {
   handler: "lambdas/rehost-health/index.handler",
@@ -12,13 +13,16 @@ const healthFn = new sst.aws.Function("RehostHealthFn", {
   environment: { DB_SECRET_ARN: dbSecretArn },
   permissions: [{ actions: ["secretsmanager:GetSecretValue"], resources: [dbSecretArn] }],
   copyFiles: [{ from: "packages/db/rds-global-bundle.pem", to: "rds-global-bundle.pem" }],
-  transform: { function: { name: "serfel-dev-rehost-health" } },
+  transform: {
+    function: { name: "serfel-dev-rehost-health", tags: stackTags("serfel-rehost") },
+    logGroup: { tags: stackTags("serfel-rehost") },
+  },
 });
 
 // Separate HTTP API from the products/Cognito API (design §5).
 const nodeApi = new sst.aws.ApiGatewayV2("RehostNodeApi", {
   cors: { allowOrigins: ["*"], allowMethods: ["*"], allowHeaders: ["authorization", "content-type"] },
-  transform: { api: { name: "serfel-dev-rehost-node-api" } },
+  transform: { api: { name: "serfel-dev-rehost-node-api", tags: stackTags("serfel-rehost") } },
 });
 
 const basicAuth = nodeApi.addAuthorizer({
@@ -54,7 +58,10 @@ const salesFn = new sst.aws.Function("RehostSalesFn", {
   environment: { DB_SECRET_ARN: dbSecretArn },
   permissions: [{ actions: ["secretsmanager:GetSecretValue"], resources: [dbSecretArn] }],
   nodejs: { install: ["sequelize", "mysql2"] },
-  transform: { function: { name: "serfel-dev-rehost-sales" } },
+  transform: {
+    function: { name: "serfel-dev-rehost-sales", tags: stackTags("serfel-rehost") },
+    logGroup: { tags: stackTags("serfel-rehost") },
+  },
 });
 
 for (const method of ["GET", "POST", "PUT", "DELETE"] as const) {
@@ -73,7 +80,10 @@ const ordersFn = new sst.aws.Function("RehostOrdersFn", {
   environment: { DB_SECRET_ARN: dbSecretArn },
   permissions: [{ actions: ["secretsmanager:GetSecretValue"], resources: [dbSecretArn] }],
   nodejs: { install: ["sequelize", "mysql2"] },
-  transform: { function: { name: "serfel-dev-rehost-orders" } },
+  transform: {
+    function: { name: "serfel-dev-rehost-orders", tags: stackTags("serfel-rehost") },
+    logGroup: { tags: stackTags("serfel-rehost") },
+  },
 });
 
 for (const method of ["GET", "POST", "PUT", "DELETE"] as const) {

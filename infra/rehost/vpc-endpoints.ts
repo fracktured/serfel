@@ -1,5 +1,6 @@
 import * as aws from "@pulumi/aws";
 import { vpcId, privateSubnetIds } from "../vpc";
+import { stackTags } from "../tags";
 
 // Fargate tasks in private subnets must reach ECR to pull images. The shared
 // VPC has no NAT and no ECR endpoints (Phase 3 Lambdas didn't need them). The
@@ -14,7 +15,7 @@ const sgEcr = new aws.ec2.SecurityGroup("rehost-ecr-endpoints", {
     cidrBlocks: ["10.0.0.0/16"], description: "HTTPS from VPC",
   }],
   egress: [],
-  tags: { Name: "serfel-dev-rehost-ecr-endpoints" },
+  tags: { Name: "serfel-dev-rehost-ecr-endpoints", ...stackTags("serfel-rehost") },
 });
 
 for (const svc of ["ecr.api", "ecr.dkr"] as const) {
@@ -25,6 +26,6 @@ for (const svc of ["ecr.api", "ecr.dkr"] as const) {
     subnetIds: privateSubnetIds,
     securityGroupIds: [sgEcr.id],
     privateDnsEnabled: true,
-    tags: { Name: `serfel-dev-rehost-${svc}` },
+    tags: { Name: `serfel-dev-rehost-${svc}`, ...stackTags("serfel-rehost") },
   });
 }

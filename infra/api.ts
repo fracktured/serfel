@@ -1,6 +1,7 @@
 import { privateSubnetIds, sgLambdaId } from "./vpc";
 import { dbSecretArn } from "./database";
 import { userPoolClientId, userPoolEndpoint } from "./auth";
+import { stackTags } from "./tags";
 
 const productsFn = new sst.aws.Function("ProductsFn", {
   handler: "lambdas/products/index.handler",
@@ -22,7 +23,8 @@ const productsFn = new sst.aws.Function("ProductsFn", {
     { from: "packages/db/rds-global-bundle.pem", to: "rds-global-bundle.pem" },
   ],
   transform: {
-    function: { name: "serfel-dev-products" },
+    function: { name: "serfel-dev-products", tags: stackTags("serfel-aws") },
+    logGroup: { tags: stackTags("serfel-aws") },
   },
 });
 
@@ -49,7 +51,8 @@ const rutasFn = new sst.aws.Function("RutasFn", {
     { from: "packages/db/rds-global-bundle.pem", to: "rds-global-bundle.pem" },
   ],
   transform: {
-    function: { name: "serfel-dev-rutas" },
+    function: { name: "serfel-dev-rutas", tags: stackTags("serfel-aws") },
+    logGroup: { tags: stackTags("serfel-aws") },
   },
 });
 
@@ -60,7 +63,7 @@ const api = new sst.aws.ApiGatewayV2("Api", {
     allowMethods: ["*"],
     allowHeaders: ["authorization", "content-type"],
   },
-  transform: { api: { name: "serfel-dev-api" } },
+  transform: { api: { name: "serfel-dev-api", tags: stackTags("serfel-aws") } },
 });
 
 const jwtAuthorizer = api.addAuthorizer({
