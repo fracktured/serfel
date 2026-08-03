@@ -1,5 +1,6 @@
 import { apiUrl } from "./api";
 import { userPoolClientId, userPoolId } from "./auth";
+import { stackTags } from "./tags";
 
 new sst.aws.StaticSite("Frontend", {
   path: "apps/frontend",
@@ -14,4 +15,9 @@ new sst.aws.StaticSite("Frontend", {
   },
   // SPA: serve index.html for unknown paths (Angular router handles the rest)
   errorPage: "index.html",
+  transform: {
+    assets: (args) => {
+      args.tags = { ...(args.tags as Record<string, string> | undefined), ...stackTags("serfel-aws") };
+    },
+  },
 });

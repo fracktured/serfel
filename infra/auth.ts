@@ -1,4 +1,5 @@
 import * as aws from "@pulumi/aws";
+import { stackTags } from "./tags";
 
 const userPool = new aws.cognito.UserPool("user-pool", {
   name: "serfel-dev-users",
@@ -22,7 +23,7 @@ const userPool = new aws.cognito.UserPool("user-pool", {
       numberAttributeConstraints: { minValue: "1", maxValue: "100000000" },
     },
   ],
-  tags: { Name: "serfel-dev-users" },
+  tags: { Name: "serfel-dev-users", ...stackTags("serfel-aws") },
 });
 
 const userPoolClient = new aws.cognito.UserPoolClient("user-pool-client", {
