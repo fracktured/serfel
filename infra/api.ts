@@ -24,6 +24,7 @@ const productsFn = new sst.aws.Function("ProductsFn", {
   ],
   transform: {
     function: { name: "serfel-dev-products", tags: stackTags("serfel-aws") },
+    logGroup: { tags: stackTags("serfel-aws") },
   },
 });
 
@@ -51,6 +52,7 @@ const rutasFn = new sst.aws.Function("RutasFn", {
   ],
   transform: {
     function: { name: "serfel-dev-rutas", tags: stackTags("serfel-aws") },
+    logGroup: { tags: stackTags("serfel-aws") },
   },
 });
 

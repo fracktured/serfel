@@ -22,7 +22,10 @@ export const basicAuthorizerFn = new sst.aws.Function("RehostBasicAuthFn", {
   memory: "128 MB",
   environment: { BASIC_AUTH_SECRET_ARN: basicAuthSecret.arn },
   permissions: [{ actions: ["secretsmanager:GetSecretValue"], resources: [basicAuthSecret.arn] }],
-  transform: { function: { name: "serfel-dev-rehost-basic-auth", tags: stackTags("serfel-rehost") } },
+  transform: {
+    function: { name: "serfel-dev-rehost-basic-auth", tags: stackTags("serfel-rehost") },
+    logGroup: { tags: stackTags("serfel-rehost") },
+  },
 });
 
 export const basicAuthSecretArn = basicAuthSecret.arn;

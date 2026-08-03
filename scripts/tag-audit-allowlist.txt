@@ -1,5 +1,8 @@
 # Resources that legitimately carry only defaultTags (no serfel:stack).
-# StaticSite/Router CloudFront distributions expose no tag transform in this SST version.
+# Exception applies ONLY to the two StaticSite distributions (Frontend,
+# RehostLegacyFrontend), which expose no tag transform in this SST version.
+# The rehost Router distribution (cdn.ts) IS expected to carry
+# serfel:stack=serfel-rehost; verify in Tag Editor at deploy.
 :cloudfront::
 # Cognito user pool CLIENTS are not taggable (the user POOL is tagged).
 :userpoolclient/

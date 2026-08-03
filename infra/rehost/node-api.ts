@@ -13,7 +13,10 @@ const healthFn = new sst.aws.Function("RehostHealthFn", {
   environment: { DB_SECRET_ARN: dbSecretArn },
   permissions: [{ actions: ["secretsmanager:GetSecretValue"], resources: [dbSecretArn] }],
   copyFiles: [{ from: "packages/db/rds-global-bundle.pem", to: "rds-global-bundle.pem" }],
-  transform: { function: { name: "serfel-dev-rehost-health", tags: stackTags("serfel-rehost") } },
+  transform: {
+    function: { name: "serfel-dev-rehost-health", tags: stackTags("serfel-rehost") },
+    logGroup: { tags: stackTags("serfel-rehost") },
+  },
 });
 
 // Separate HTTP API from the products/Cognito API (design §5).
@@ -55,7 +58,10 @@ const salesFn = new sst.aws.Function("RehostSalesFn", {
   environment: { DB_SECRET_ARN: dbSecretArn },
   permissions: [{ actions: ["secretsmanager:GetSecretValue"], resources: [dbSecretArn] }],
   nodejs: { install: ["sequelize", "mysql2"] },
-  transform: { function: { name: "serfel-dev-rehost-sales", tags: stackTags("serfel-rehost") } },
+  transform: {
+    function: { name: "serfel-dev-rehost-sales", tags: stackTags("serfel-rehost") },
+    logGroup: { tags: stackTags("serfel-rehost") },
+  },
 });
 
 for (const method of ["GET", "POST", "PUT", "DELETE"] as const) {
@@ -74,7 +80,10 @@ const ordersFn = new sst.aws.Function("RehostOrdersFn", {
   environment: { DB_SECRET_ARN: dbSecretArn },
   permissions: [{ actions: ["secretsmanager:GetSecretValue"], resources: [dbSecretArn] }],
   nodejs: { install: ["sequelize", "mysql2"] },
-  transform: { function: { name: "serfel-dev-rehost-orders", tags: stackTags("serfel-rehost") } },
+  transform: {
+    function: { name: "serfel-dev-rehost-orders", tags: stackTags("serfel-rehost") },
+    logGroup: { tags: stackTags("serfel-rehost") },
+  },
 });
 
 for (const method of ["GET", "POST", "PUT", "DELETE"] as const) {
