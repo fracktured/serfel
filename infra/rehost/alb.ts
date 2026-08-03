@@ -2,6 +2,7 @@ import * as aws from "@pulumi/aws";
 import * as random from "@pulumi/random";
 import { publicSubnetIds, vpcId } from "../vpc";
 import { sgAlbId } from "./network";
+import { stackTags } from "../tags";
 
 // Internet-facing ALB, locked to CloudFront (Branch B): the SG allows HTTP only
 // from CloudFront's origin-facing prefix list (network.ts), and the forward
@@ -14,7 +15,7 @@ const alb = new aws.lb.LoadBalancer("rehost-alb", {
   loadBalancerType: "application",
   securityGroups: [sgAlbId],
   subnets: publicSubnetIds,
-  tags: { Name: "serfel-dev-rehost-alb" },
+  tags: { Name: "serfel-dev-rehost-alb", ...stackTags("serfel-rehost") },
 });
 
 // Default listener returns 404 for unrouted paths; per-app rules added below.
@@ -26,6 +27,7 @@ const listener = new aws.lb.Listener("rehost-alb-listener", {
     type: "fixed-response",
     fixedResponse: { contentType: "text/plain", messageBody: "no route", statusCode: "404" },
   }],
+  tags: stackTags("serfel-rehost"),
 });
 
 // Target group for php-app-1 (ip target type = Fargate).
@@ -36,7 +38,7 @@ const phpApp1Tg = new aws.lb.TargetGroup("rehost-php1-tg", {
   targetType: "ip",
   vpcId,
   healthCheck: { path: "/health.php", matcher: "200", interval: 30, timeout: 5 },
-  tags: { Name: "serfel-dev-rehost-php1" },
+  tags: { Name: "serfel-dev-rehost-php1", ...stackTags("serfel-rehost") },
 });
 
 // Secret header shared with CloudFront: CloudFront adds it on the ALB origin
@@ -58,6 +60,7 @@ new aws.lb.ListenerRule("rehost-php-rule", {
     { httpHeader: { httpHeaderName: "X-Origin-Verify", values: [originVerify.result] } },
   ],
   actions: [{ type: "forward", targetGroupArn: phpApp1Tg.arn }],
+  tags: stackTags("serfel-rehost"),
 });
 
 export const albArn = alb.arn;

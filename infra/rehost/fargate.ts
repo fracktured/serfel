@@ -6,10 +6,11 @@ import { dbSecretArn } from "../database";
 import { sgFargateId } from "./network";
 import { phpApp1RepoUrl } from "./ecr";
 import { phpApp1TargetGroupArn } from "./alb";
+import { stackTags } from "../tags";
 
 const cluster = new aws.ecs.Cluster("rehost-cluster", {
   name: "serfel-dev-rehost",
-  tags: { Name: "serfel-dev-rehost" },
+  tags: { Name: "serfel-dev-rehost", ...stackTags("serfel-rehost") },
 });
 
 // Execution role: pull from ECR, write logs, read the DB secret at task start.
@@ -19,6 +20,7 @@ const execRole = new aws.iam.Role("rehost-php1-exec", {
     Version: "2012-10-17",
     Statement: [{ Effect: "Allow", Principal: { Service: "ecs-tasks.amazonaws.com" }, Action: "sts:AssumeRole" }],
   }),
+  tags: stackTags("serfel-rehost"),
 });
 new aws.iam.RolePolicyAttachment("rehost-php1-exec-managed", {
   role: execRole.name,
@@ -35,6 +37,7 @@ new aws.iam.RolePolicy("rehost-php1-exec-secret", {
 const logGroup = new aws.cloudwatch.LogGroup("rehost-php1-logs", {
   name: "/ecs/serfel-dev-rehost-php-app-1",
   retentionInDays: 14,
+  tags: stackTags("serfel-rehost"),
 });
 
 // CodeIgniter (SerfelWeb) encryption/session key, injected as a container env.
@@ -53,6 +56,7 @@ const taskDef = new aws.ecs.TaskDefinition("rehost-php1-task", {
   // if the image is ever rebuilt for x86.
   runtimePlatform: { cpuArchitecture: "ARM64", operatingSystemFamily: "LINUX" },
   executionRoleArn: execRole.arn,
+  tags: stackTags("serfel-rehost"),
   containerDefinitions: pulumi
     .all([phpApp1RepoUrl, dbSecretArn, logGroup.name, ciKey.result])
     .apply(([repoUrl, secretArn, lg, ciKeyVal]) =>
@@ -90,5 +94,5 @@ new aws.ecs.Service("rehost-php1-svc", {
     assignPublicIp: false,
   },
   loadBalancers: [{ targetGroupArn: phpApp1TargetGroupArn, containerName: "php-app-1", containerPort: 80 }],
-  tags: { Name: "serfel-dev-rehost-php-app-1" },
+  tags: { Name: "serfel-dev-rehost-php-app-1", ...stackTags("serfel-rehost") },
 });

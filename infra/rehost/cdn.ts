@@ -2,6 +2,7 @@ import type { input as awsInputs } from "@pulumi/aws/types";
 import { nodeApiUrl } from "./node-api";
 import { legacySite } from "./legacy-frontend";
 import { albDnsName, originVerifySecret } from "./alb";
+import { stackTags } from "../tags";
 
 // --- Task 8, Branch B -------------------------------------------------------
 // CloudFront reaches the (now internet-facing, CloudFront-locked) ALB via a
@@ -87,6 +88,7 @@ const router = new sst.aws.Router("RehostRouter", {
       ] as unknown as typeof args.orderedCacheBehaviors;
 
       args.comment = "serfel-dev-rehost-router";
+      args.tags = { ...(args.tags as Record<string, string> | undefined), ...stackTags("serfel-rehost") };
     },
   },
 });

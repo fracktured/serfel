@@ -1,4 +1,5 @@
 import * as aws from "@pulumi/aws";
+import { stackTags } from "../tags";
 
 function repo(name: string) {
   return new aws.ecr.Repository(`rehost-${name}`, {
@@ -6,7 +7,7 @@ function repo(name: string) {
     imageTagMutability: "MUTABLE",
     forceDelete: true, // dev only
     imageScanningConfiguration: { scanOnPush: true },
-    tags: { Name: `serfel-dev-rehost-${name}` },
+    tags: { Name: `serfel-dev-rehost-${name}`, ...stackTags("serfel-rehost") },
   });
 }
 
