@@ -1,4 +1,5 @@
 import { stackTags } from "../tags";
+import { webAclArn } from "../waf";
 
 export const legacySite = new sst.aws.StaticSite("RehostLegacyFrontend", {
   // Pre-built Angular 14 output (built with Node 16 — SST runs on Node 22, so
@@ -15,6 +16,9 @@ export const legacySite = new sst.aws.StaticSite("RehostLegacyFrontend", {
           bArgs.tags = { ...(bArgs.tags as Record<string, string> | undefined), ...stackTags("serfel-rehost") };
         },
       },
+    },
+    cdn: (cdnArgs) => {
+      cdnArgs.webAclArn = webAclArn;
     },
   },
 });
