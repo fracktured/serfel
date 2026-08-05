@@ -28,6 +28,7 @@ export default $config({
     await import("./infra/migrate");
     await import("./infra/db-guard");
     await import("./infra/auth");
+    await import("./infra/waf");
     await import("./infra/api");
     await import("./infra/frontend");
     await import("./infra/rehost/network");

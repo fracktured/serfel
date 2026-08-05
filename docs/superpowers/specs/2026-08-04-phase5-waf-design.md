@@ -125,3 +125,30 @@ Un Web ACL `scope=CLOUDFRONT` en `us-east-1` con IpReputation + KnownBadInputs +
 - [ ] `pnpm sst:deploy` a `dev`; confirmar 3 asociaciones en consola WAF.
 - [ ] *Smoke*: benigno→200, sonda KnownBadInputs→403, flood >1000/5min→403; revisar *sampled requests*.
 - [ ] Documentar en README/runbook el *rollback* (rate rule → Count) y el *carry-forward* de la API Cognito sin WAF.
+
+## 11. Verificación del deploy a `dev` (2026-08-05)
+
+Desplegado a `dev` (cuenta 146476548567) vía `./scripts/sst-deploy.sh --stage dev` (Node 22). Resultado:
+
+- **Web ACL creado:** `serfel-dev-waf`, ARN `arn:aws:wafv2:us-east-1:146476548567:global/webacl/serfel-dev-waf/99644a4e-d03d-4e50-94a8-e3ee1a4eee82`, con las 3 reglas en orden (`AmazonIpReputationList` 0, `KnownBadInputs` 1, `RateLimit` 2).
+- **Asociaciones (3/3):** las tres distribuciones CloudFront del proyecto llevan `WebACLId` = ese ARN:
+  - `ddq2gwitful2l.cloudfront.net` — Frontend (app nueva)
+  - `d3k1mbba3zd3qv.cloudfront.net` — RehostLegacyFrontend
+  - `d2f6f0amgzurw.cloudfront.net` — RehostRouter
+- **Smoke:** benigno `GET /` → 200. Sonda KnownBadInputs (`User-Agent: ${jndi:ldap://x/a}` y `/?x=${jndi:...}`) → **bloqueada** en las tres (confirmado por `get-sampled-requests`, acción `BLOCK`).
+
+### 11.1 Hallazgo importante: en las StaticSite el bloqueo WAF se ve como HTTP 404, no 403
+
+En las distribuciones **StaticSite** (Frontend, RehostLegacyFrontend) un bloqueo de WAF **no llega al cliente como 403**. SST configura `CustomErrorResponses` para el fallback SPA que mapea **403 → 404 → `/index.html`** (y `404 → 404 → /index.html`). Por eso una petición bloqueada por WAF devuelve **404 con el cuerpo de `index.html`** (`server: AmazonS3`, `content-length` = tamaño de index.html), en vez del 403 crudo. El bloqueo **sí ocurre** (verificado en los *sampled requests* de la regla). El **RehostRouter** no tiene ese mapeo SPA, así que ahí el bloqueo se ve como **403 crudo** (`server: CloudFront`).
+
+Implicación para verificar/monitorear: no usar el status HTTP del cliente como prueba de bloqueo en las StaticSite; usar los **sampled requests** / **métricas `BlockedRequests`** de WAF. Este 403→404 es el mismo *carry-forward* de `errorPage` de SST ya anotado en el plan (Fase 5): si en el futuro se mapea a 200, el bloqueo WAF también cambiará de forma.
+
+Nota operativa: la asociación WAF puede tardar unos minutos en activarse en todos los POPs de CloudFront tras el deploy (las StaticSite se despliegan sin *deployment waiter*, a diferencia del Router). Durante ese lapso una petición puede alcanzar el origen antes de que el bloqueo esté activo en ese POP.
+
+### 11.2 Rollback
+
+Si alguna vez se bloquea a usuarios legítimos (p. ej. la oficina tras la NAT): en `infra/waf.ts` cambiar la acción de la regla `RateLimit` de `action: { block: {} }` a `action: { count: {} }` (o quitar la asignación `args.webAclArn` de la distribución afectada) y `./scripts/sst-deploy.sh --stage dev`.
+
+### 11.3 Carry-forward
+
+La HTTP API Cognito de la app nueva (`kov4mkjgnd.execute-api...`) **no** está cubierta por WAF (HTTP API v2 + no está detrás de CloudFront). Revisar en Fase 6 con front-door CloudFront + lockdown de origen `X-Origin-Verify` (ver §2.1).
