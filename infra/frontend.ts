@@ -1,6 +1,7 @@
 import { apiUrl } from "./api";
 import { userPoolClientId, userPoolId } from "./auth";
 import { stackTags } from "./tags";
+import { webAclArn } from "./waf";
 
 new sst.aws.StaticSite("Frontend", {
   path: "apps/frontend",
@@ -25,6 +26,9 @@ new sst.aws.StaticSite("Frontend", {
           bArgs.tags = { ...(bArgs.tags as Record<string, string> | undefined), ...stackTags("serfel-aws") };
         },
       },
+    },
+    cdn: (cdnArgs) => {
+      cdnArgs.webAclArn = webAclArn;
     },
   },
 });
