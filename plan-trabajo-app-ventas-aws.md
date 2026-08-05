@@ -262,7 +262,7 @@ Cada módulo repite el patrón de la Fase 3: tipos/Zod en `packages/shared` → 
 **Entregable:** aplicación completa módulo a módulo, cada uno probado y desplegado en `dev` antes de pasar al siguiente.
 
 ### Fase 5 — Seguridad, observabilidad y *hardening* · (3–5 días)
-- [ ] **AWS WAF** sobre CloudFront/API (reglas administradas, *rate limiting*).
+- [x] **AWS WAF** sobre CloudFront (reglas administradas + *rate limiting*) — Web ACL `serfel-dev-waf` (scope CLOUDFRONT): `AmazonIpReputationList` + `KnownBadInputsRuleSet` + regla *rate-based* 1000/5min por IP, en modo Block, asociada a las 3 distribuciones CloudFront públicas (Frontend, RehostRouter, RehostLegacyFrontend). Sin CRS (evita falsos positivos de `SizeRestrictions_BODY`). La HTTP API Cognito de la app nueva queda **sin** cobertura WAF (HTTP API v2 no acepta WAF y no está tras CloudFront) → *carry-forward* de Fase 6. Desplegado y verificado en `dev` (2026-08-05). Diseño y verificación: `docs/superpowers/specs/2026-08-04-phase5-waf-design.md`.
 - [ ] **X-Ray** para *tracing* end-to-end; *dashboards* y **alarmas** clave (errores 5xx, latencia, errores de Lambda, conexiones DB).
 - [ ] Revisión de IAM (mínimo privilegio real).
 - [ ] Cifrado en reposo/tránsito verificado en todos los componentes.
