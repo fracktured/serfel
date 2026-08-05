@@ -33,8 +33,8 @@ There is **no** third node app — `node-app-3` is an empty `_legacy` stub and i
 - A new **`coproad`** schema (database) inside the **existing** `serfel-dev-db` RDS MariaDB instance. **No new RDS instance.**
 - The `coproad` DDL is **structurally identical** to `serfel` (confirmed): same tables and columns, so reused Node queries and models that reference concrete columns (`cod_serfel`, `10_m_usuario`, ...) hold across both schemas. Only the data and a few config rows differ.
 - **Data import (operational, human step):**
-  - Place the dump at **`scripts/coproad-data/coproad-dump.sql`** — this directory is **gitignored** (real business data, never committed).
-  - Import over the existing SSM tunnel: `pnpm db:tunnel` (via bastion), then load the dump into a fresh `coproad` schema with a mysql client (`CREATE DATABASE coproad; ... ; USE coproad; source coproad-dump.sql`). This mirrors how the Serfel legacy data was loaded; the dump is not run through the Drizzle migrate Lambda (that governs the new serverless schema, not the rehosted legacy data).
+  - Place the dump at **`packages/db/dump/coproad/`** — the same location the Serfel dumps live (`packages/db/dump/legacy-data.sql`, `legacy-schema.sql`). Already **gitignored** via `packages/db/.gitignore` (`dump/`), so real business data is never committed; no new ignore rule needed.
+  - Import over the existing SSM tunnel: `pnpm db:tunnel` (via bastion), then load the dump into a fresh `coproad` schema with a mysql client (`CREATE DATABASE coproad; ... ; USE coproad; source packages/db/dump/coproad/<dump>.sql`). This mirrors how the Serfel legacy data was loaded; the dump is not run through the Drizzle migrate Lambda (that governs the new serverless schema, not the rehosted legacy data).
 - **Credentials:** Coproad shares the **same** DB endpoint, user, and password as Serfel. Only the **schema name** differs. The PHP path continues to use the existing non-TLS DB user (legacy `mysql_*` limitation, unchanged from Fase 3.5); the Node Lambdas keep TLS to RDS.
 
 ---
@@ -100,7 +100,7 @@ Everything is additive inside the existing SST app under `infra/rehost/`:
 - `infra/rehost/node-api.ts` — routes for the `/coproad/...` node paths onto the same API + Lambdas (the multi-tenant logic lives in the Lambda handlers, not the infra).
 - `lambdas/node-app-1`, `node-app-2` — two Sequelize instances + prefix-based tenant selection.
 - `legacy-php/Coproad/`, `legacy-php/CoproadWeb/` + extended Dockerfile `COPY`.
-- `.gitignore` — add `scripts/coproad-data/`.
+- Coproad data dump dropped into `packages/db/dump/coproad/` (already gitignored via `packages/db/.gitignore`; no repo change needed).
 
 **Reused as-is (no change):** RDS instance, ALB + target group, PHP Fargate service, RehostNodeApi, ECR repo, VPC/SG, `serfel-dev-db-credentials` secret, Basic Auth authorizer wiring.
 
