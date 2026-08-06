@@ -53,5 +53,20 @@ else
   FAIL=$((FAIL+1)); echo "FAIL php DB connectivity (code=$DBCODE or SerfelWeb reported a DB error)"
 fi
 
+# --- Coproad tenant (schema `coproad`, /coproad/* prefix) ---
+# Coproad SPA (its own StaticSite, base-href /coproad/)
+check "coproad SPA serves"            200 "$(code "$BASE/coproad/")"
+
+# Coproad node: same source, schema=coproad. Anon rejected; a bogus cred
+# reaches the app+DB (coproad.10_m_usuario) and returns 401 (not 5xx).
+check "coproad sales rejects anon"    401 "$(code "$BASE/coproad/sales/")"
+check "coproad sales reaches app+DB"  401 "$(code -u "0-0:x" "$BASE/coproad/sales/")"
+check "coproad orders rejects anon"   401 "$(code "$BASE/coproad/orders/")"
+check "coproad orders reaches app+DB" 401 "$(code -u "0-0:x" "$BASE/coproad/orders/")"
+
+# Coproad PHP via the same ALB/task, served from the Coproad/ + CoproadWeb/ dirs
+check "coproad Coproad serves"        200 "$(code "$BASE/coproad/Coproad/")"
+check "coproad CoproadWeb serves"     200 "$(code "$BASE/coproad/CoproadWeb/")"
+
 echo "---- $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ]
