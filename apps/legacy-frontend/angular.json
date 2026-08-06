@@ -66,6 +66,8 @@
                             ]
                         },
                         "coproad": {
+                            "outputPath": "dist/coproad-ang/coproad",
+                            "baseHref": "/coproad/",
                             "fileReplacements": [
                                 {
                                     "replace": "src/environments/environment.ts",
