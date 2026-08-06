@@ -248,6 +248,16 @@ repo/
 > - Enumerar extensiones PHP por app (para el Dockerfile) y de dónde leen hoy las apps Node sus credenciales Basic Auth (para moverlas a Secrets Manager).
 > - Verificar disponibilidad de **CloudFront VPC origin** en la versión de SST en uso; si no, usar el fallback de ALB internet-facing restringido.
 
+#### Fase 3.5b — Rehost de Coproad (segundo negocio, multi-tenant por esquema)
+
+> **Coproad** es un segundo negocio del cliente (mismo sistema, otra base de datos, más algunas etiquetas y un flag `esCoproad=true`). Se rehospeda **sobre el mismo stack del rehost de Serfel**, no como stack paralelo. Separación por **esquema de BD** (`coproad` dentro de la misma instancia `serfel-dev-db`, DDL idéntico) y discriminación por **prefijo de ruta `/coproad/*`** en la RehostRouter CloudFront compartida. Diseño: `docs/superpowers/specs/2026-08-05-coproad-rehost-design.md`; plan: `docs/superpowers/plans/2026-08-05-coproad-rehost.md`.
+
+- [x] **Código completo y revisado** en la rama `coproad-rehost` (aún **sin desplegar**): helper `stripCoproadPrefix` en `packages/shared`; adaptadores Node (`DB_SCHEMA_OVERRIDE` + strip de `/coproad`, sin tocar el código Express); 2 Functions Coproad reusando el mismo fuente con `DB_SCHEMA_OVERRIDE=coproad`; `COPY Coproad/`+`CoproadWeb/` en la misma imagen Fargate + env `DB_NAME_COPROAD`; `RehostCoproadFrontend` StaticSite + build config `coproad` (base-href `/coproad/`); ruteo `/coproad/*` con orden de behaviors correcto; smoke extendido. Recursos solo-Coproad etiquetados `coproad-rehost`.
+- [ ] **Pendiente (humano) para desplegar y verificar:** crear esquema `coproad` e importar dump (`packages/db/dump/coproad/`); vendorizar fuente PHP `legacy-php/Coproad`+`CoproadWeb` **leyendo `DB_NAME_COPROAD`** (riesgo de aislamiento si lee `DB_NAME`=serfel); `ng build --configuration coproad` (Node 16); reconstruir+empujar imagen PHP; `sst deploy --stage dev` + `rehost-smoke.sh` + verificar aislamiento de esquema.
+- [ ] **Dominio propio de Coproad** diferido a un **cutover combinado de Fase 6** (ambos negocios promovidos juntos a la cuenta prod del cliente; ruteo por path en `dev` no requiere Route 53/ACM).
+
+**Entregable:** Coproad corriendo en AWS `dev` contra el esquema `coproad`, conviviendo con Serfel sobre el mismo ALB/Fargate/RehostNodeApi/RDS. **Costo añadido:** ~USD 1–5/mes (solo el StaticSite Coproad; el resto es infraestructura compartida ya pagada).
+
 ### Fase 4 — Módulos restantes (cortes verticales) · (1–2 semanas por módulo)
 
 Cada módulo repite el patrón de la Fase 3: tipos/Zod en `packages/shared` → Lambda de dominio → pantalla Angular → deploy. Orden sugerido (ajustar por prioridad de negocio):
