@@ -9,3 +9,6 @@ sst-env.d.ts
 legacy-php/.env
 lambdas/node-app-1/_legacy/.env
 lambdas/node-app-2/_legacy/.env
+
+# SDD subagent-driven-development scratch (ledger, briefs, review packages)
+.superpowers/
