@@ -4,6 +4,7 @@ import { legacySite } from "./legacy-frontend";
 import { albDnsName, originVerifySecret } from "./alb";
 import { stackTags } from "../tags";
 import { webAclArn } from "../waf";
+import { coproadSite } from "./coproad-frontend";
 
 // --- Task 8, Branch B -------------------------------------------------------
 // CloudFront reaches the (now internet-facing, CloudFront-locked) ALB via a
@@ -50,6 +51,9 @@ function albBehavior(
 // static site. The ALB origin + behaviors are added via `transform.cdn` below.
 const router = new sst.aws.Router("RehostRouter", {
   routes: {
+    "/coproad/sales/*": nodeApiUrl,
+    "/coproad/orders/*": nodeApiUrl,
+    "/coproad/*": coproadSite.url,
     "/api/node/*": nodeApiUrl,
     "/sales/*": nodeApiUrl, // ported node-app-1 (sales) Lambda, app-level Basic Auth
     "/orders/*": nodeApiUrl, // ported node-app-2 (orders) Lambda, app-level Basic Auth
@@ -83,6 +87,8 @@ const router = new sst.aws.Router("RehostRouter", {
       ] as unknown as typeof args.origins;
 
       args.orderedCacheBehaviors = [
+        albBehavior("/coproad/Coproad*"),
+        albBehavior("/coproad/CoproadWeb*"),
         ...behaviors,
         albBehavior("/Distribuidor*"),
         albBehavior("/SerfelWeb*"),
