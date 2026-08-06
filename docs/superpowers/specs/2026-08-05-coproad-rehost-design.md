@@ -54,16 +54,22 @@ The Serfel PHP rehost is **one** `php:5.6-apache` Fargate task serving both apps
 
 ---
 
-## 4. Node — reused Lambdas, two Sequelize instances
+## 4. Node — same source, a second Function per app (schema by env)
 
-**No new Lambdas.** `salesFn` (`node-app-1`) and `ordersFn` (`node-app-2`) are made multi-tenant:
+**No source changes to the ported apps, and no source duplication.** The node apps bind a **module-singleton** Sequelize at import (`src/config/bd.sequelize.ts`; models `.init()` once via `doInit(sequelize)`), and Sequelize forbids re-`init()`-ing a model class — so in-process request-level multi-tenancy would force an invasive rewrite of the frozen route/service/auth code. Instead, the **same source** is deployed **a second time** as a separate Function with the schema selected by env:
 
-- Each Lambda holds **two module-level Sequelize instances** — one bound to schema `serfel`, one to `coproad` — both created at cold start and cached across warm invocations. (Sequelize's `database` is fixed at construction, so a single mutable env var cannot switch schemas per request; two instances is the safe pattern — no `USE` on a pooled connection, no cross-tenant state leak.)
-- **Tenant discrimination — path prefix.** RehostRouter routes the Coproad node paths to the **same** RehostNodeApi:
-  - `/coproad/sales/*`, `/coproad/orders/*`, `/coproad/api/node/*` → RehostNodeApi
-- The reused handler inspects the incoming path: a leading **`/coproad`** segment sets `tenant=coproad` (default `tenant=serfel`), the handler **strips** the `/coproad` prefix, then hands the remaining path (`/sales/...`, `/orders/...`) to the existing Express/router mount so route matching is unchanged. The selected Sequelize instance is threaded through the request.
-- **Auth ordering:** the node apps do their **own** app-level Basic Auth against `10_m_usuario` (no API Gateway authorizer on `/sales`, `/orders`). Tenant selection therefore happens **before** auth, so Basic Auth validates against **`coproad.10_m_usuario`** for Coproad requests and `serfel.10_m_usuario` for Serfel. Credentials are the legacy DB users, per tenant.
-- **Cost:** up to 2 pooled DB connections per warm container instead of 1 — negligible at this scale, and only opened lazily per tenant actually hit.
+- **Two new Functions** reusing the exact same handlers:
+  - `RehostSalesCoproadFn` → `lambdas/node-app-1/index.handler`, env `DB_SCHEMA_OVERRIDE=coproad`
+  - `RehostOrdersCoproadFn` → `lambdas/node-app-2/index.handler`, env `DB_SCHEMA_OVERRIDE=coproad`
+  - The existing `salesFn`/`ordersFn`/`healthFn` are unchanged and keep serving `serfel`. No Coproad health Function — Coproad DB connectivity is proven by an authenticated `/coproad/sales` smoke call, avoiding a needless edit to the Hono `rehost-health` handler.
+- **Adapter-only edits** in the thin `index.ts` (the AWS-Lambda glue, not business logic — the rehost pattern already puts adapter concerns here). Two tenant-only tweaks, applied to `node-app-1/index.ts` and `node-app-2/index.ts`:
+  1. **Schema override:** `process.env.DB_NAME = process.env.DB_SCHEMA_OVERRIDE ?? c.dbname;` (default stays `serfel` from the secret's `dbname`).
+  2. **Prefix strip:** strip a leading `/coproad` from the incoming event path before handing off to `serverless-express`, so the Express app (mounted at `/sales/`, `/orders/`) matches unchanged. Harmless for Serfel (its paths never start with `/coproad`).
+- **Tenant discrimination — path prefix.** RehostRouter routes the Coproad node paths to the **same** RehostNodeApi, which registers `/coproad/...` routes to the Coproad Functions:
+  - `/coproad/sales/*` → `RehostSalesCoproadFn`
+  - `/coproad/orders/*` → `RehostOrdersCoproadFn`
+- **Auth:** the sales/orders apps do their **own** app-level Basic Auth against `10_m_usuario`. Because the Coproad Function runs with `DB_NAME=coproad`, that auth resolves against **`coproad.10_m_usuario`** automatically — no auth code change.
+- **Cost:** a few more Lambda functions, invoked only when Coproad is hit — effectively $0 at this scale.
 
 ---
 
@@ -86,7 +92,7 @@ All behaviors live on the **existing** RehostRouter CloudFront. Coproad adds onl
 | `/Distribuidor*`, `/SerfelWeb*` | ALB (shared PHP task) | serfel |
 | `/sales/*`, `/orders/*`, `/api/node/*` | RehostNodeApi | serfel |
 | `/coproad/Coproad*`, `/coproad/CoproadWeb*` | ALB (**same** PHP task) | coproad |
-| `/coproad/sales/*`, `/coproad/orders/*`, `/coproad/api/node/*` | RehostNodeApi (schema switch) | coproad |
+| `/coproad/sales/*`, `/coproad/orders/*` | RehostNodeApi → Coproad Functions (`DB_NAME=coproad`) | coproad |
 | `/coproad/*` | Coproad StaticSite | coproad |
 
 ---
@@ -97,14 +103,14 @@ Everything is additive inside the existing SST app under `infra/rehost/`:
 
 - `infra/rehost/cdn.ts` — add the `/coproad/Coproad*`, `/coproad/CoproadWeb*` ALB behaviors, the `/coproad/sales/*`, `/coproad/orders/*`, `/coproad/api/node/*` node routes, and the `/coproad/*` Coproad StaticSite route.
 - `infra/rehost/legacy-frontend.ts` (or a sibling `coproad-frontend.ts`) — add `RehostCoproadFrontend` StaticSite.
-- `infra/rehost/node-api.ts` — routes for the `/coproad/...` node paths onto the same API + Lambdas (the multi-tenant logic lives in the Lambda handlers, not the infra).
-- `lambdas/node-app-1`, `node-app-2` — two Sequelize instances + prefix-based tenant selection.
+- `infra/rehost/node-api.ts` — add the two Coproad Functions (`RehostSalesCoproadFn`, `RehostOrdersCoproadFn`) with `DB_SCHEMA_OVERRIDE=coproad`, and register their `/coproad/sales/*` + `/coproad/orders/*` routes on the same RehostNodeApi.
+- `lambdas/node-app-1/index.ts`, `lambdas/node-app-2/index.ts` — adapter-only edits: schema override + `/coproad` prefix strip (no `src/` app changes).
 - `legacy-php/Coproad/`, `legacy-php/CoproadWeb/` + extended Dockerfile `COPY`.
 - Coproad data dump dropped into `packages/db/dump/coproad/` (already gitignored via `packages/db/.gitignore`; no repo change needed).
 
 **Reused as-is (no change):** RDS instance, ALB + target group, PHP Fargate service, RehostNodeApi, ECR repo, VPC/SG, `serfel-dev-db-credentials` secret, Basic Auth authorizer wiring.
 
-**Tagging by application stack.** Coproad resources are tagged as a **distinct stack** (e.g. `stackTags("coproad-rehost")` vs the existing `stackTags("serfel-rehost")`) so cost and ownership split cleanly per business in Fase 5 cost reports. Resources genuinely **shared** between both businesses (the ALB, the PHP task, the node API, the RDS instance, the reused Lambdas) stay tagged to their existing Serfel-rehost stack — they are not duplicated, so their cost is not split; only the Coproad-only resource (the `RehostCoproadFrontend` StaticSite + bucket) carries the `coproad-rehost` tag. This is documented so the tag audit (`scripts/tag-audit.sh`) does not flag it.
+**Tagging by application stack.** Coproad resources are tagged as a **distinct stack** — a new `"coproad-rehost"` member added to the `StackTag` union in `infra/tags.ts`, used as `stackTags("coproad-rehost")` vs the existing `stackTags("serfel-rehost")` — so cost and ownership split cleanly per business in Fase 5 cost reports. Resources genuinely **shared** between both businesses (the ALB, the PHP task, the node API, the RDS instance, the reused Lambdas) stay tagged to their existing Serfel-rehost stack — they are not duplicated, so their cost is not split; only the Coproad-only resource (the `RehostCoproadFrontend` StaticSite + bucket) carries the `coproad-rehost` tag. This is documented so the tag audit (`scripts/tag-audit.sh`) does not flag it.
 
 Resource names remain parameterized by stage (`serfel-<stage>-*`); Coproad-only resources use a `serfel-<stage>-coproad-*` name segment.
 
@@ -141,7 +147,7 @@ No new always-on compute. Coproad rides the existing ALB + Fargate + node API co
 
 ## 10. Scope
 
-**In scope:** `coproad` schema + data import (dump/restore), 2 PHP dirs (`Coproad/`, `CoproadWeb/`) in the shared Fargate task, multi-tenant `salesFn`/`ordersFn` (two Sequelize instances + prefix-based tenant selection + tenant-aware Basic Auth), `RehostCoproadFrontend` StaticSite, the `/coproad/*` Router behaviors, per-business (application-stack) tagging, extended smoke tests.
+**In scope:** `coproad` schema + data import (dump/restore), 2 PHP dirs (`Coproad/`, `CoproadWeb/`) in the shared Fargate task, Coproad node Functions (same source deployed with `DB_SCHEMA_OVERRIDE=coproad` + adapter-only prefix strip), `RehostCoproadFrontend` StaticSite, the `/coproad/*` Router behaviors, per-business (application-stack) tagging, extended smoke tests.
 
 **Out of scope:** Coproad's own branded domain and the prod-account migration (both **Fase 6**, combined with Serfel); any PHP/Node code rewrite or strangler redesign (Fase 4+); `node-app-3` (empty stub, not a real app); moving PHP sessions to a shared store (only if scaled >1 task later).
 
