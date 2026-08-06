@@ -68,6 +68,29 @@ for (const method of ["GET", "POST", "PUT", "DELETE"] as const) {
   nodeApi.route(`${method} /sales/{proxy+}`, salesFn.arn);
 }
 
+// Coproad tenant: SAME source as salesFn, deployed again with the schema
+// overridden to `coproad`. The adapter strips the /coproad prefix so the
+// Express app (mounted at /sales/) matches unchanged.
+const salesCoproadFn = new sst.aws.Function("RehostSalesCoproadFn", {
+  handler: "lambdas/node-app-1/index.handler",
+  runtime: "nodejs22.x",
+  architecture: "arm64",
+  timeout: "20 seconds",
+  memory: "512 MB",
+  vpc: { privateSubnets: privateSubnetIds, securityGroups: [sgLambdaId] },
+  environment: { DB_SECRET_ARN: dbSecretArn, DB_SCHEMA_OVERRIDE: "coproad" },
+  permissions: [{ actions: ["secretsmanager:GetSecretValue"], resources: [dbSecretArn] }],
+  nodejs: { install: ["sequelize", "mysql2"] },
+  transform: {
+    function: { name: "serfel-dev-rehost-sales-coproad", tags: stackTags("coproad-rehost") },
+    logGroup: { tags: stackTags("coproad-rehost") },
+  },
+});
+
+for (const method of ["GET", "POST", "PUT", "DELETE"] as const) {
+  nodeApi.route(`${method} /coproad/sales/{proxy+}`, salesCoproadFn.arn);
+}
+
 // Ported node-app-2 (orders): same wrap as sales; app does its own Basic Auth,
 // router mounts at /orders/. No API Gateway authorizer.
 const ordersFn = new sst.aws.Function("RehostOrdersFn", {
@@ -88,6 +111,29 @@ const ordersFn = new sst.aws.Function("RehostOrdersFn", {
 
 for (const method of ["GET", "POST", "PUT", "DELETE"] as const) {
   nodeApi.route(`${method} /orders/{proxy+}`, ordersFn.arn);
+}
+
+// Coproad tenant: SAME source as ordersFn, deployed again with the schema
+// overridden to `coproad`. The adapter strips the /coproad prefix so the
+// Express app (mounted at /orders/) matches unchanged.
+const ordersCoproadFn = new sst.aws.Function("RehostOrdersCoproadFn", {
+  handler: "lambdas/node-app-2/index.handler",
+  runtime: "nodejs22.x",
+  architecture: "arm64",
+  timeout: "20 seconds",
+  memory: "512 MB",
+  vpc: { privateSubnets: privateSubnetIds, securityGroups: [sgLambdaId] },
+  environment: { DB_SECRET_ARN: dbSecretArn, DB_SCHEMA_OVERRIDE: "coproad" },
+  permissions: [{ actions: ["secretsmanager:GetSecretValue"], resources: [dbSecretArn] }],
+  nodejs: { install: ["sequelize", "mysql2"] },
+  transform: {
+    function: { name: "serfel-dev-rehost-orders-coproad", tags: stackTags("coproad-rehost") },
+    logGroup: { tags: stackTags("coproad-rehost") },
+  },
+});
+
+for (const method of ["GET", "POST", "PUT", "DELETE"] as const) {
+  nodeApi.route(`${method} /coproad/orders/{proxy+}`, ordersCoproadFn.arn);
 }
 
 export const nodeApiUrl = nodeApi.url;

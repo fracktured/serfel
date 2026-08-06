@@ -1,5 +1,5 @@
 /** Application group a resource belongs to, surfaced as the `serfel:stack` tag. */
-export type StackTag = "serfel-aws" | "serfel-rehost" | "serfel-shared";
+export type StackTag = "serfel-aws" | "serfel-rehost" | "serfel-shared" | "coproad-rehost";
 
 /**
  * Per-module tag identifying the app group. Merge into a resource's `tags`
