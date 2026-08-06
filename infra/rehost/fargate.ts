@@ -73,7 +73,7 @@ const taskDef = new aws.ecs.TaskDefinition("rehost-php1-task", {
           { name: "DB_PASS", valueFrom: `${secretArn}:password::` },
           { name: "DB_NAME", valueFrom: `${secretArn}:dbname::` },
         ],
-        environment: [{ name: "CI_ENCRYPTION_KEY", value: ciKeyVal }],
+        environment: [{ name: "CI_ENCRYPTION_KEY", value: ciKeyVal }, { name: "DB_NAME_COPROAD", value: "coproad" }],
         logConfiguration: {
           logDriver: "awslogs",
           options: { "awslogs-group": lg, "awslogs-region": "us-east-1", "awslogs-stream-prefix": "php-app-1" },

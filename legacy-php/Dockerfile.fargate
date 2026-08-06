@@ -13,6 +13,8 @@ RUN printf '<Directory /var/www/html/>\n    AllowOverride All\n    Require all g
 
 COPY Distribuidor/ /var/www/html/Distribuidor/
 COPY SerfelWeb/   /var/www/html/SerfelWeb/
+COPY Coproad/     /var/www/html/Coproad/
+COPY CoproadWeb/  /var/www/html/CoproadWeb/
 COPY health.php   /var/www/html/health.php
 
 EXPOSE 80
