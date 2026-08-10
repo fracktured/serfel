@@ -360,7 +360,7 @@ class XMLDTEEcertChileNEG {
     
     protected function crearNodoAdicional($oXML, $oPDO, $iNumVendedor) {
         $oTipoDoctoDAO = new TipoDoctoDAO($this->cRutaRelativa);
-        $oTipoDocto = $oTipoDoctoDAO->obtTipoDocto($oPDO, $this->oVenta->id_forma_pago);
+        $oTipoDocto = $oTipoDoctoDAO->obtTipoDocto($oPDO, $this->oLocalCliente->id_forma_pago);
         
         $oNodoAdicional = $oXML->createElement("Adicional");
         $oNodoNodosa = $oXML->createElement("NodosA");

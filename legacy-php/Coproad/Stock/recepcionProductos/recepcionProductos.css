@@ -1,0 +1,32 @@
+@charset "utf-8";
+
+.listaProductos {
+    width           : 100%;
+    font-weight: bold;
+    text-align : center;
+    font-family: "Arial";
+    font-size  : 11px;
+    border: 1px;    
+}
+
+.listaProductos th {
+    border          : 0px solid #000000;
+    background-color: gray;
+    color           : #ffffff;
+    font-size       : 11px;
+    text-align      : center;
+    height          : 25px;
+    border-color: black;
+
+
+}
+
+.listaProductos td {
+    border     : 0px solid #000000;
+    font-size  : 11px;
+    font-weight: bold;
+    /*text-align:left;*/
+    padding    : 0px 2px 0px 2px;
+    color:  teal;
+
+}

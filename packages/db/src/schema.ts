@@ -321,7 +321,7 @@ export const t10MEmpresa = mysqlTable("10_m_empresa", {
 
 export const t20PTipoProducto = mysqlTable("20_p_tipo_producto", {
 	idTipoProducto: int("id_tipo_producto").notNull(),
-	nomTipoProducto: varchar("nom_tipo_producto", { length: 15 }).notNull(),
+	nomTipoProducto: varchar("nom_tipo_producto", { length: 50 }).notNull(),
 	descTipoProducto: varchar("desc_tipo_producto", { length: 200 }).default('').notNull(),
 	nivel1: int("nivel_1").default(0).notNull(),
 	nivel2: int("nivel_2").default(0).notNull(),

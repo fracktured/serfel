@@ -22,6 +22,34 @@
       "when": 1784331157554,
       "tag": "0002_seed_sin_impuesto_adicional",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1786300258733,
+      "tag": "0003_widen_nom_tipo_producto",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1786300266854,
+      "tag": "0004_seed_clientes",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1786300267613,
+      "tag": "0005_seed_productos",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1786310527621,
+      "tag": "0006_seed_stock",
+      "breakpoints": true
     }
   ]
 }

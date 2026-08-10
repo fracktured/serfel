@@ -1,0 +1,18 @@
+/* 
+    Document   : index
+    Created on : 27-nov-2011, 20:52:22
+    Author     : Christian
+    Description:
+        Estilos unicos de la pantalla de inicio
+*/
+
+#rutLogin, #passLogin {
+    float    : none;
+    font-size: 26px;
+    margin   : 0 0 0 0;
+}
+
+#txtVacio {
+    color: red;
+}
+

@@ -19,14 +19,14 @@ const guardFn = new sst.aws.Function("DbGuard", {
     { actions: ["rds:StopDBInstance"], resources: [dbInstanceArn] },
   ],
   transform: {
-    function: { name: "serfel-dev-db-guard", tags: stackTags("serfel-shared") },
-    logGroup: { name: "/aws/lambda/serfel-dev-db-guard", tags: stackTags("serfel-shared") },
+    function: { name: `serfel-${$app.stage}-db-guard`, tags: stackTags("serfel-shared") },
+    logGroup: { name: `/aws/lambda/serfel-${$app.stage}-db-guard`, tags: stackTags("serfel-shared") },
   },
 });
 
 const rule = new aws.cloudwatch.EventRule("db-autostart-rule", {
-  name: "serfel-dev-db-autostart-guard",
-  description: "Re-stop serfel-dev-db when AWS force-starts it after 7 days stopped",
+  name: `serfel-${$app.stage}-db-autostart-guard`,
+  description: `Re-stop serfel-${$app.stage}-db when AWS force-starts it after 7 days stopped`,
   eventPattern: JSON.stringify({
     source: ["aws.rds"],
     "detail-type": ["RDS DB Instance Event"],

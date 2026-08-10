@@ -3,11 +3,11 @@ import { stackTags } from "../tags";
 
 function repo(name: string) {
   return new aws.ecr.Repository(`rehost-${name}`, {
-    name: `serfel-dev-rehost-${name}`,
+    name: `serfel-${$app.stage}-rehost-${name}`,
     imageTagMutability: "MUTABLE",
     forceDelete: true, // dev only
     imageScanningConfiguration: { scanOnPush: true },
-    tags: { Name: `serfel-dev-rehost-${name}`, ...stackTags("serfel-rehost") },
+    tags: { Name: `serfel-${$app.stage}-rehost-${name}`, ...stackTags("serfel-rehost") },
   });
 }
 

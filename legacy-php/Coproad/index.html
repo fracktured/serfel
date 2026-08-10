@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8" />
+        <title>Sistema de Gestión Distribuidora SERFEL</title>
+
+	<link rel="stylesheet" type="text/css" media="screen" href="css/style.css" />
+        <link rel="stylesheet" type="text/css" href="css/ui-lightness/jquery-ui-1.8.15.custom.css"/>
+        <link rel="stylesheet" type="text/css" media="screen" href="css/index.css" />
+
+        <script type="text/javascript" src="js/jquery/jquery-1.6.2.min.js"></script>
+        <script type="text/javascript" src="js/jquery/jquery-ui-1.8.15.custom.min.js"></script>
+        <script type="text/javascript" src="js/funciones.js"></script>
+        <script type="text/javascript" src="js/md5-min.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+    </head>
+
+    <body>
+	<div class="wrap background">
+            <div style="height: 50px;"></div>
+				
+            <div id="logo">
+                <h1><a href="#">Sistema de Gestión COPROAD SPA</a></h1>
+            </div>
+
+            <div align="center">
+                <form action="javascript:ingresar()">
+                    <table>
+                        <tr style="font-size: 30px; font-weight: bold;">
+                            <td>Rut</td>
+                            <td>:</td>
+                            <td><input id="rutLogin" type="text" value="" /></td>
+                        </tr>
+                        <tr style="font-size: 30px; font-weight: bold;">
+                            <td>Contraseña</td>
+                            <td>:</td>
+                            <td><input id="passLogin" type="password" value="" /></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" align="right"><label id="txtVacio"></label></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" align="right"><button id="btnIngresar">Ingresar</button></td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+	</div>
+	
+	<div id="promo">
+            <div class="wrap">
+		<div id="footer">
+                    <p></p>
+                </div>
+            </div>
+	</div>
+    </body>
+</html>

@@ -1,0 +1,21 @@
+/* 
+    Document   : listaValoresAsociadosProducto
+    Created on : 22-10-2010, 04:56:19 PM
+    Author     : ccastro
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+.textoPrecio, #signoPeso, #signoPorcen {
+    font-size  : 14px;
+    font-weight: bold;
+}
+
+.grillaDatos td {
+    height : 29px;
+}
+
+#tituloLista {
+    font-size  : 16px;
+    font-weight: bold;
+}

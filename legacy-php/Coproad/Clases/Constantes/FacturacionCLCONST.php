@@ -1,0 +1,37 @@
+<?php
+
+/**
+ * Description of FacturacionCLCONST
+ *
+ * @author ccastro
+ */
+class FacturacionCLCONST {
+    
+    const HOST = "http://www.facturacion.cl/";
+    
+    const TIPO_MOV_COMPRA = "C";
+    const TIPO_MOV_VENTA = "V";
+    const TIPO_OPER_LIBRO_COMPRA = "COMPRA";
+    const TIPO_OPER_LIBRO_VENTA = "VENTA";
+    const TIPO_LIBRO_MENSUAL = "MENSUAL";
+    const TIPO_ENVIO_TOTAL = "TOTAL";
+    
+    const TIPO_DOCTO_FACTURA = 30;
+    const TIPO_DOCTO_FACTURA_ELECTRONICA = 33;
+    const TIPO_DOCTO_FACTURA_COMPRA = 45;
+    const TIPO_DOCTO_FACTURA_COMPRA_ELECTRONICA = 46;
+    const TIPO_DOCTO_NOTA_DEBITO = 55;
+    const TIPO_DOCTO_NOTA_DEBITO_ELECTRONICA = 56;
+    const TIPO_DOCTO_NOTA_CREDITO = 60;
+    const TIPO_DOCTO_NOTA_CREDITO_ELECTRONICA = 61;
+            
+    /*
+32 FACTURA EXENTA
+34 FACTURA EXENTA ELECTRONICA
+35 BOLETA
+38 BOLETA EXENTA
+40 LIQUIDACION FACTURA
+50 GUIA DE DESPACHO
+52 GUIA DE DESPACHO ELECTRONICA
+     */
+}

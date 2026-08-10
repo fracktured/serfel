@@ -1,0 +1,1 @@
+ALTER TABLE `20_p_tipo_producto` MODIFY COLUMN `nom_tipo_producto` varchar(50) NOT NULL;

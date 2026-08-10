@@ -4,7 +4,7 @@ import * as random from "@pulumi/random";
 import { privateSubnetIds, sgRdsId } from "./vpc";
 import { stackTags } from "./tags";
 
-const DB_IDENTIFIER = "serfel-dev-db";
+const DB_IDENTIFIER = `serfel-${$app.stage}-db`;
 
 const dbPassword = new random.RandomPassword("db-password", {
   length: 32,
@@ -12,20 +12,20 @@ const dbPassword = new random.RandomPassword("db-password", {
 });
 
 const dbSubnets = new aws.rds.SubnetGroup("db-subnets", {
-  name: "serfel-dev-db-subnets",
+  name: `serfel-${$app.stage}-db-subnets`,
   subnetIds: privateSubnetIds,
-  tags: { Name: "serfel-dev-db-subnets", ...stackTags("serfel-shared") },
+  tags: { Name: `serfel-${$app.stage}-db-subnets`, ...stackTags("serfel-shared") },
 });
 
 const dbParams = new aws.rds.ParameterGroup("db-params", {
-  name: "serfel-dev-mariadb114",
+  name: `serfel-${$app.stage}-mariadb114`,
   family: "mariadb11.4",
   // OFF (was ON): the rehosted PHP apps use the legacy mysql_* API, which can't
   // do TLS. This *allows* non-TLS connections over the private VPC; the Node
   // Lambdas still connect with TLS explicitly (rds-global-bundle.pem). See
   // Fase 3.5 design §4/§6 (PHP-path TLS relaxation, decided).
   parameters: [{ name: "require_secure_transport", value: "OFF" }],
-  tags: { Name: "serfel-dev-mariadb114", ...stackTags("serfel-shared") },
+  tags: { Name: `serfel-${$app.stage}-mariadb114`, ...stackTags("serfel-shared") },
 });
 
 // ignoreChanges on engineVersion: autoMinorVersionUpgrade:true means RDS may
@@ -57,7 +57,7 @@ const db = new aws.rds.Instance("db", {
 }, { ignoreChanges: ["engineVersion"] });
 
 const dbSecret = new aws.secretsmanager.Secret("db-secret", {
-  name: "serfel-dev-db-credentials",
+  name: `serfel-${$app.stage}-db-credentials`,
   description: "Serfel dev RDS MariaDB master credentials",
   tags: stackTags("serfel-shared"),
 });

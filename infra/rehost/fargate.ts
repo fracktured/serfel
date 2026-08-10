@@ -1,7 +1,7 @@
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
 import * as random from "@pulumi/random";
-import { privateSubnetIds } from "../vpc";
+import { publicSubnetIds } from "../vpc";
 import { dbSecretArn } from "../database";
 import { sgFargateId } from "./network";
 import { phpApp1RepoUrl } from "./ecr";
@@ -9,13 +9,13 @@ import { phpApp1TargetGroupArn } from "./alb";
 import { stackTags } from "../tags";
 
 const cluster = new aws.ecs.Cluster("rehost-cluster", {
-  name: "serfel-dev-rehost",
-  tags: { Name: "serfel-dev-rehost", ...stackTags("serfel-rehost") },
+  name: `serfel-${$app.stage}-rehost`,
+  tags: { Name: `serfel-${$app.stage}-rehost`, ...stackTags("serfel-rehost") },
 });
 
 // Execution role: pull from ECR, write logs, read the DB secret at task start.
 const execRole = new aws.iam.Role("rehost-php1-exec", {
-  name: "serfel-dev-rehost-php1-exec",
+  name: `serfel-${$app.stage}-rehost-php1-exec`,
   assumeRolePolicy: JSON.stringify({
     Version: "2012-10-17",
     Statement: [{ Effect: "Allow", Principal: { Service: "ecs-tasks.amazonaws.com" }, Action: "sts:AssumeRole" }],
@@ -35,7 +35,7 @@ new aws.iam.RolePolicy("rehost-php1-exec-secret", {
 });
 
 const logGroup = new aws.cloudwatch.LogGroup("rehost-php1-logs", {
-  name: "/ecs/serfel-dev-rehost-php-app-1",
+  name: `/ecs/serfel-${$app.stage}-rehost-php-app-1`,
   retentionInDays: 14,
   tags: stackTags("serfel-rehost"),
 });
@@ -45,7 +45,7 @@ const logGroup = new aws.cloudwatch.LogGroup("rehost-php1-logs", {
 const ciKey = new random.RandomPassword("rehost-ci-key", { length: 40, special: false });
 
 const taskDef = new aws.ecs.TaskDefinition("rehost-php1-task", {
-  family: "serfel-dev-rehost-php-app-1",
+  family: `serfel-${$app.stage}-rehost-php-app-1`,
   cpu: "256",
   memory: "512",
   networkMode: "awsvpc",
@@ -83,16 +83,24 @@ const taskDef = new aws.ecs.TaskDefinition("rehost-php1-task", {
 });
 
 new aws.ecs.Service("rehost-php1-svc", {
-  name: "serfel-dev-rehost-php-app-1",
+  name: `serfel-${$app.stage}-rehost-php-app-1`,
   cluster: cluster.arn,
   taskDefinition: taskDef.arn,
   desiredCount: 1,
   launchType: "FARGATE",
+  // Public subnets + a public IP give the task outbound internet (via the
+  // existing IGW) so the PHP app can reach external 3rd-party APIs
+  // (e.g. ws.facturacion.cl) without a NAT gateway. In a public subnet with no
+  // NAT, a public IP is required for any internet egress at all. Ingress is
+  // still gated by the Fargate SG (only port 80 from the ALB), so the public IP
+  // is used purely for egress. ECR pulls, logs, and Secrets Manager keep flowing
+  // through the private-DNS interface endpoints (resolved VPC-wide) and the S3
+  // gateway endpoint (associated with the public route table too).
   networkConfiguration: {
-    subnets: privateSubnetIds,
+    subnets: publicSubnetIds,
     securityGroups: [sgFargateId],
-    assignPublicIp: false,
+    assignPublicIp: true,
   },
   loadBalancers: [{ targetGroupArn: phpApp1TargetGroupArn, containerName: "php-app-1", containerPort: 80 }],
-  tags: { Name: "serfel-dev-rehost-php-app-1", ...stackTags("serfel-rehost") },
+  tags: { Name: `serfel-${$app.stage}-rehost-php-app-1`, ...stackTags("serfel-rehost") },
 });

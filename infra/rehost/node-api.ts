@@ -14,7 +14,7 @@ const healthFn = new sst.aws.Function("RehostHealthFn", {
   permissions: [{ actions: ["secretsmanager:GetSecretValue"], resources: [dbSecretArn] }],
   copyFiles: [{ from: "packages/db/rds-global-bundle.pem", to: "rds-global-bundle.pem" }],
   transform: {
-    function: { name: "serfel-dev-rehost-health", tags: stackTags("serfel-rehost") },
+    function: { name: `serfel-${$app.stage}-rehost-health`, tags: stackTags("serfel-rehost") },
     logGroup: { tags: stackTags("serfel-rehost") },
   },
 });
@@ -22,7 +22,7 @@ const healthFn = new sst.aws.Function("RehostHealthFn", {
 // Separate HTTP API from the products/Cognito API (design §5).
 const nodeApi = new sst.aws.ApiGatewayV2("RehostNodeApi", {
   cors: { allowOrigins: ["*"], allowMethods: ["*"], allowHeaders: ["authorization", "content-type"] },
-  transform: { api: { name: "serfel-dev-rehost-node-api", tags: stackTags("serfel-rehost") } },
+  transform: { api: { name: `serfel-${$app.stage}-rehost-node-api`, tags: stackTags("serfel-rehost") } },
 });
 
 const basicAuth = nodeApi.addAuthorizer({
@@ -59,7 +59,7 @@ const salesFn = new sst.aws.Function("RehostSalesFn", {
   permissions: [{ actions: ["secretsmanager:GetSecretValue"], resources: [dbSecretArn] }],
   nodejs: { install: ["sequelize", "mysql2"] },
   transform: {
-    function: { name: "serfel-dev-rehost-sales", tags: stackTags("serfel-rehost") },
+    function: { name: `serfel-${$app.stage}-rehost-sales`, tags: stackTags("serfel-rehost") },
     logGroup: { tags: stackTags("serfel-rehost") },
   },
 });
@@ -82,7 +82,7 @@ const salesCoproadFn = new sst.aws.Function("RehostSalesCoproadFn", {
   permissions: [{ actions: ["secretsmanager:GetSecretValue"], resources: [dbSecretArn] }],
   nodejs: { install: ["sequelize", "mysql2"] },
   transform: {
-    function: { name: "serfel-dev-rehost-sales-coproad", tags: stackTags("coproad-rehost") },
+    function: { name: `serfel-${$app.stage}-rehost-sales-coproad`, tags: stackTags("coproad-rehost") },
     logGroup: { tags: stackTags("coproad-rehost") },
   },
 });
@@ -104,7 +104,7 @@ const ordersFn = new sst.aws.Function("RehostOrdersFn", {
   permissions: [{ actions: ["secretsmanager:GetSecretValue"], resources: [dbSecretArn] }],
   nodejs: { install: ["sequelize", "mysql2"] },
   transform: {
-    function: { name: "serfel-dev-rehost-orders", tags: stackTags("serfel-rehost") },
+    function: { name: `serfel-${$app.stage}-rehost-orders`, tags: stackTags("serfel-rehost") },
     logGroup: { tags: stackTags("serfel-rehost") },
   },
 });
@@ -127,7 +127,7 @@ const ordersCoproadFn = new sst.aws.Function("RehostOrdersCoproadFn", {
   permissions: [{ actions: ["secretsmanager:GetSecretValue"], resources: [dbSecretArn] }],
   nodejs: { install: ["sequelize", "mysql2"] },
   transform: {
-    function: { name: "serfel-dev-rehost-orders-coproad", tags: stackTags("coproad-rehost") },
+    function: { name: `serfel-${$app.stage}-rehost-orders-coproad`, tags: stackTags("coproad-rehost") },
     logGroup: { tags: stackTags("coproad-rehost") },
   },
 });

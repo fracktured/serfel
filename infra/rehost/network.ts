@@ -17,7 +17,7 @@ const cfPrefixList = aws.ec2.getManagedPrefixListOutput({
 // updates in place (ingress change only) instead of being replaced (a
 // replacement deadlocks against the ALB that still references it).
 const sgAlb = new aws.ec2.SecurityGroup("rehost-alb", {
-  name: "serfel-dev-rehost-alb",
+  name: `serfel-${$app.stage}-rehost-alb`,
   vpcId,
   description: "Rehost internal ALB",
   ingress: [{
@@ -29,7 +29,7 @@ const sgAlb = new aws.ec2.SecurityGroup("rehost-alb", {
     protocol: "tcp", fromPort: 80, toPort: 80,
     cidrBlocks: ["10.0.0.0/16"], description: "HTTP to Fargate tasks",
   }],
-  tags: { Name: "serfel-dev-rehost-alb", ...stackTags("serfel-rehost") },
+  tags: { Name: `serfel-${$app.stage}-rehost-alb`, ...stackTags("serfel-rehost") },
 });
 
 // S3 managed prefix list — ECR image layers are served from S3, reached via the
@@ -40,15 +40,21 @@ const s3PrefixList = aws.ec2.getPrefixListOutput({ name: "com.amazonaws.us-east-
 
 // Fargate task security group: HTTP in from the ALB; egress to RDS + endpoints.
 const sgFargate = new aws.ec2.SecurityGroup("rehost-fargate", {
-  name: "serfel-dev-rehost-fargate",
+  name: `serfel-${$app.stage}-rehost-fargate`,
   vpcId,
   description: "Rehost Fargate PHP tasks",
   egress: [
-    { protocol: "tcp", fromPort: 443, toPort: 443, cidrBlocks: ["10.0.0.0/16"], description: "HTTPS to VPC endpoints/NAT" },
+    { protocol: "tcp", fromPort: 443, toPort: 443, cidrBlocks: ["10.0.0.0/16"], description: "HTTPS to VPC endpoints" },
     { protocol: "tcp", fromPort: 443, toPort: 443, prefixListIds: [s3PrefixList.id], description: "HTTPS to S3 (ECR image layers) via gateway endpoint" },
+    // Outbound to external 3rd-party APIs. The task runs in a public subnet
+    // with a public IP (fargate.ts) and egresses via the IGW; the PHP app calls
+    // ws.facturacion.cl over HTTP (port 80) and some endpoints over HTTPS, both
+    // to public destination IPs, so the SG must allow 0.0.0.0/0.
+    { protocol: "tcp", fromPort: 80, toPort: 80, cidrBlocks: ["0.0.0.0/0"], description: "HTTP to external APIs (via IGW)" },
+    { protocol: "tcp", fromPort: 443, toPort: 443, cidrBlocks: ["0.0.0.0/0"], description: "HTTPS to external APIs (via IGW)" },
     { protocol: "tcp", fromPort: 3306, toPort: 3306, cidrBlocks: ["10.0.3.0/24", "10.0.4.0/24"], description: "MariaDB to private subnets" },
   ],
-  tags: { Name: "serfel-dev-rehost-fargate", ...stackTags("serfel-rehost") },
+  tags: { Name: `serfel-${$app.stage}-rehost-fargate`, ...stackTags("serfel-rehost") },
 });
 
 new aws.ec2.SecurityGroupRule("rehost-fargate-from-alb", {

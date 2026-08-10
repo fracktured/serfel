@@ -23,7 +23,7 @@ const productsFn = new sst.aws.Function("ProductsFn", {
     { from: "packages/db/rds-global-bundle.pem", to: "rds-global-bundle.pem" },
   ],
   transform: {
-    function: { name: "serfel-dev-products", tags: stackTags("serfel-aws") },
+    function: { name: `serfel-${$app.stage}-products`, tags: stackTags("serfel-aws") },
     logGroup: { tags: stackTags("serfel-aws") },
   },
 });
@@ -51,7 +51,7 @@ const rutasFn = new sst.aws.Function("RutasFn", {
     { from: "packages/db/rds-global-bundle.pem", to: "rds-global-bundle.pem" },
   ],
   transform: {
-    function: { name: "serfel-dev-rutas", tags: stackTags("serfel-aws") },
+    function: { name: `serfel-${$app.stage}-rutas`, tags: stackTags("serfel-aws") },
     logGroup: { tags: stackTags("serfel-aws") },
   },
 });
@@ -63,7 +63,7 @@ const api = new sst.aws.ApiGatewayV2("Api", {
     allowMethods: ["*"],
     allowHeaders: ["authorization", "content-type"],
   },
-  transform: { api: { name: "serfel-dev-api", tags: stackTags("serfel-aws") } },
+  transform: { api: { name: `serfel-${$app.stage}-api`, tags: stackTags("serfel-aws") } },
 });
 
 const jwtAuthorizer = api.addAuthorizer({

@@ -72,7 +72,7 @@ function rutValido(rut, dv){
 }
 
 function obtPaginaInicio() {
-    return "http://localhost/Abastecimiento/SisDist.php?act=index";
+    return "/Distribuidor/SisDist.php?act=index";
 }
 
 function convertirAFechaBD(fechaIng) {

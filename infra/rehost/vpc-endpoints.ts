@@ -7,7 +7,7 @@ import { stackTags } from "../tags";
 // S3 gateway endpoint (image layers) and logs/secretsmanager endpoints already
 // exist in infra/vpc.ts; add only the two ECR interface endpoints here.
 const sgEcr = new aws.ec2.SecurityGroup("rehost-ecr-endpoints", {
-  name: "serfel-dev-rehost-ecr-endpoints",
+  name: `serfel-${$app.stage}-rehost-ecr-endpoints`,
   vpcId,
   description: "Rehost ECR interface endpoints: HTTPS from VPC",
   ingress: [{
@@ -15,7 +15,7 @@ const sgEcr = new aws.ec2.SecurityGroup("rehost-ecr-endpoints", {
     cidrBlocks: ["10.0.0.0/16"], description: "HTTPS from VPC",
   }],
   egress: [],
-  tags: { Name: "serfel-dev-rehost-ecr-endpoints", ...stackTags("serfel-rehost") },
+  tags: { Name: `serfel-${$app.stage}-rehost-ecr-endpoints`, ...stackTags("serfel-rehost") },
 });
 
 for (const svc of ["ecr.api", "ecr.dkr"] as const) {
@@ -26,6 +26,6 @@ for (const svc of ["ecr.api", "ecr.dkr"] as const) {
     subnetIds: privateSubnetIds,
     securityGroupIds: [sgEcr.id],
     privateDnsEnabled: true,
-    tags: { Name: `serfel-dev-rehost-${svc}`, ...stackTags("serfel-rehost") },
+    tags: { Name: `serfel-${$app.stage}-rehost-${svc}`, ...stackTags("serfel-rehost") },
   });
 }

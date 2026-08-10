@@ -6,7 +6,7 @@ import { stackTags } from "./tags";
 // `transform.cdn` (webAclArn). HTTP API v2 can't take WAF directly, so the
 // new-app Cognito API stays uncovered by design — see the WAF design spec §2.1.
 const webAcl = new aws.wafv2.WebAcl("SerfelWaf", {
-  name: "serfel-dev-waf",
+  name: `serfel-${$app.stage}-waf`,
   scope: "CLOUDFRONT",
   defaultAction: { allow: {} },
   rules: [
@@ -67,7 +67,7 @@ const webAcl = new aws.wafv2.WebAcl("SerfelWaf", {
     metricName: "serfel-waf",
     sampledRequestsEnabled: true,
   },
-  tags: { Name: "serfel-dev-waf", ...stackTags("serfel-shared") },
+  tags: { Name: `serfel-${$app.stage}-waf`, ...stackTags("serfel-shared") },
 });
 
 export const webAclArn = webAcl.arn;

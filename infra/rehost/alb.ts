@@ -10,12 +10,12 @@ import { stackTags } from "../tags";
 // rehost CloudFront adds. (Branch A — internal ALB + CloudFront VPC origin — was
 // abandoned: it 504'd for 24+ min.) Internet-facing requires public subnets.
 const alb = new aws.lb.LoadBalancer("rehost-alb", {
-  name: "serfel-dev-rehost-alb",
+  name: `serfel-${$app.stage}-rehost-alb`,
   internal: false,
   loadBalancerType: "application",
   securityGroups: [sgAlbId],
   subnets: publicSubnetIds,
-  tags: { Name: "serfel-dev-rehost-alb", ...stackTags("serfel-rehost") },
+  tags: { Name: `serfel-${$app.stage}-rehost-alb`, ...stackTags("serfel-rehost") },
 });
 
 // Default listener returns 404 for unrouted paths; per-app rules added below.
@@ -32,13 +32,13 @@ const listener = new aws.lb.Listener("rehost-alb-listener", {
 
 // Target group for php-app-1 (ip target type = Fargate).
 const phpApp1Tg = new aws.lb.TargetGroup("rehost-php1-tg", {
-  name: "serfel-dev-rehost-php1",
+  name: `serfel-${$app.stage}-rehost-php1`,
   port: 80,
   protocol: "HTTP",
   targetType: "ip",
   vpcId,
   healthCheck: { path: "/health.php", matcher: "200", interval: 30, timeout: 5 },
-  tags: { Name: "serfel-dev-rehost-php1", ...stackTags("serfel-rehost") },
+  tags: { Name: `serfel-${$app.stage}-rehost-php1`, ...stackTags("serfel-rehost") },
 });
 
 // Secret header shared with CloudFront: CloudFront adds it on the ALB origin
@@ -49,14 +49,17 @@ const originVerify = new random.RandomPassword("rehost-origin-verify", {
   special: false,
 });
 
-// One container serves BOTH legacy apps (design §4). `/Distribuidor*` and
-// `/SerfelWeb*` (no slash before *, so the bare prefixes match too) forward to
-// the same target group — but only when the CloudFront secret header is present.
+// One container serves BOTH businesses' PHP apps (design §4). Serfel
+// (`/Distribuidor*`, `/SerfelWeb*`) and Coproad (`/coproad/Coproad*`,
+// `/coproad/CoproadWeb*`) — no slash before *, so the bare prefixes match too —
+// forward to the same target group, but only when the CloudFront secret header
+// is present. (The Coproad paths were added with the Coproad rehost; without
+// them the ALB returns its default 404 for Coproad PHP.)
 new aws.lb.ListenerRule("rehost-php-rule", {
   listenerArn: listener.arn,
   priority: 10,
   conditions: [
-    { pathPattern: { values: ["/Distribuidor*", "/SerfelWeb*"] } },
+    { pathPattern: { values: ["/Distribuidor*", "/SerfelWeb*", "/coproad/Coproad*", "/coproad/CoproadWeb*"] } },
     { httpHeader: { httpHeaderName: "X-Origin-Verify", values: [originVerify.result] } },
   ],
   actions: [{ type: "forward", targetGroupArn: phpApp1Tg.arn }],

@@ -1,0 +1,104 @@
+                <html xmlns:o="urn:schemas-microsoft-com:office:office"
+                xmlns:x="urn:schemas-microsoft-com:office:excel"
+                xmlns="http://www.w3.org/TR/REC-html40">
+
+                <head>
+                <meta http-equiv=Content-Type content="text/html; charset=us-ascii">
+                <meta name=ProgId content=Excel.Sheet>
+                <!--[if gte mso 9]><xml>
+                 <o:DocumentProperties>
+                  <o:LastAuthor>Sriram</o:LastAuthor>
+                  <o:LastSaved>2005-01-02T07:46:23Z</o:LastSaved>
+                  <o:Version>10.2625</o:Version>
+                 </o:DocumentProperties>
+                 <o:OfficeDocumentSettings>
+                  <o:DownloadComponents/>
+                 </o:OfficeDocumentSettings>
+                </xml><![endif]-->
+                <style>
+                <!--table
+                    {mso-displayed-decimal-separator:"\.";
+                    mso-displayed-thousand-separator:"\,";}
+                @page
+                    {margin:1.0in .75in 1.0in .75in;
+                    mso-header-margin:.5in;
+                    mso-footer-margin:.5in;}
+                tr
+                    {mso-height-source:auto;}
+                col
+                    {mso-width-source:auto;}
+                br
+                    {mso-data-placement:same-cell;}
+                .style0
+                    {mso-number-format:General;
+                    text-align:general;
+                    vertical-align:bottom;
+                    white-space:nowrap;
+                    mso-rotate:0;
+                    mso-background-source:auto;
+                    mso-pattern:auto;
+                    color:windowtext;
+                    font-size:10.0pt;
+                    font-weight:400;
+                    font-style:normal;
+                    text-decoration:none;
+                    font-family:Arial;
+                    mso-generic-font-family:auto;
+                    mso-font-charset:0;
+                    border:none;
+                    mso-protection:locked visible;
+                    mso-style-name:Normal;
+                    mso-style-id:0;}
+                td
+                    {mso-style-parent:style0;
+                    padding-top:1px;
+                    padding-right:1px;
+                    padding-left:1px;
+                    mso-ignore:padding;
+                    color:windowtext;
+                    font-size:10.0pt;
+                    font-weight:400;
+                    font-style:normal;
+                    text-decoration:none;
+                    font-family:Arial;
+                    mso-generic-font-family:auto;
+                    mso-font-charset:0;
+                    mso-number-format:General;
+                    text-align:general;
+                    vertical-align:bottom;
+                    border:none;
+                    mso-background-source:auto;
+                    mso-pattern:auto;
+                    mso-protection:locked visible;
+                    white-space:nowrap;
+                    mso-rotate:0;}
+                .xl24
+                    {mso-style-parent:style0;
+                    white-space:normal;}
+                -->
+                </style>
+                <!--[if gte mso 9]><xml>
+                 <x:ExcelWorkbook>
+                  <x:ExcelWorksheets>
+                   <x:ExcelWorksheet>
+                    <x:Name>srirmam</x:Name>
+                    <x:WorksheetOptions>
+                     <x:Selected/>
+                     <x:ProtectContents>False</x:ProtectContents>
+                     <x:ProtectObjects>False</x:ProtectObjects>
+                     <x:ProtectScenarios>False</x:ProtectScenarios>
+                    </x:WorksheetOptions>
+                   </x:ExcelWorksheet>
+                  </x:ExcelWorksheets>
+                  <x:WindowHeight>10005</x:WindowHeight>
+                  <x:WindowWidth>10005</x:WindowWidth>
+                  <x:WindowTopX>120</x:WindowTopX>
+                  <x:WindowTopY>135</x:WindowTopY>
+                  <x:ProtectStructure>False</x:ProtectStructure>
+                  <x:ProtectWindows>False</x:ProtectWindows>
+                 </x:ExcelWorkbook>
+                </xml><![endif]-->
+                </head>
+
+                <body link=blue vlink=purple>
+                <table x:str border=0 cellpadding=0 cellspacing=0 style='border-collapse: collapse;table-layout:fixed;'><tr><td class=xl24 width=64 >Factura</td><td class=xl24 width=64 >Id Producto</td><td class=xl24 width=64 >Nombre Producto</td><td class=xl24 width=64 >Cantidad</td><td class=xl24 width=64 >Precio Unitario</td><td class=xl24 width=64 >% Desc - Recar</td><td class=xl24 width=64 >Sub Total</td><td class=xl24 width=64 >Anio Venta</td><td class=xl24 width=64 >Mes Venta</td><td class=xl24 width=64 >Dia Venta</td><td class=xl24 width=64 >Familia Padre</td><td class=xl24 width=64 >Familia Hija</td><td class=xl24 width=64 >Marca</td><td class=xl24 width=64 >UM</td><td class=xl24 width=64 >Forma de Pago</td><td class=xl24 width=64 >Rut Cliente</td><td class=xl24 width=64 >DV Cliente</td><td class=xl24 width=64 >Razon Social</td><td class=xl24 width=64 >Nombre Fantasia</td><td class=xl24 width=64 >Nombre Local</td><td class=xl24 width=64 >Dia Ruta</td><td class=xl24 width=64 >Vendedor</td></tr><tr><td class=xl24 width=64 >88</td><td class=xl24 width=64 >3</td><td class=xl24 width=64 >Mantequilla</td><td class=xl24 width=64 >3</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >0</td><td class=xl24 width=64 >1950</td><td class=xl24 width=64 >2012</td><td class=xl24 width=64 >4</td><td class=xl24 width=64 >26</td><td class=xl24 width=64 >Lacteos</td><td class=xl24 width=64 >Queso</td><td class=xl24 width=64 >Sin Marca</td><td class=xl24 width=64 >Litro</td><td class=xl24 width=64 >CHEQUE C/E 7D</td><td class=xl24 width=64 >16483229</td><td class=xl24 width=64 >5</td><td class=xl24 width=64 >Christian Castro</td><td class=xl24 width=64 >Flako</td><td class=xl24 width=64 >Local Olivar</td><td class=xl24 width=64 >Sin Ruta</td><td class=xl24 width=64 >MARIA ANGELICA</td></tr><tr><td class=xl24 width=64 >123</td><td class=xl24 width=64 >3</td><td class=xl24 width=64 >Mantequilla</td><td class=xl24 width=64 >1</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >0</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >2012</td><td class=xl24 width=64 >4</td><td class=xl24 width=64 >28</td><td class=xl24 width=64 >Lacteos</td><td class=xl24 width=64 >Queso</td><td class=xl24 width=64 >Sin Marca</td><td class=xl24 width=64 >Litro</td><td class=xl24 width=64 >CHEQUE C/E 30D</td><td class=xl24 width=64 >16483229</td><td class=xl24 width=64 >5</td><td class=xl24 width=64 >Christian Castro</td><td class=xl24 width=64 >Flako</td><td class=xl24 width=64 >Local Olivar</td><td class=xl24 width=64 >Sin Ruta</td><td class=xl24 width=64 >Cecilia</td></tr><tr><td class=xl24 width=64 >123</td><td class=xl24 width=64 >3</td><td class=xl24 width=64 >Mantequilla</td><td class=xl24 width=64 >1</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >0</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >2012</td><td class=xl24 width=64 >4</td><td class=xl24 width=64 >28</td><td class=xl24 width=64 >Lacteos</td><td class=xl24 width=64 >Queso</td><td class=xl24 width=64 >Sin Marca</td><td class=xl24 width=64 >Litro</td><td class=xl24 width=64 >CHEQUE C/E 30D</td><td class=xl24 width=64 >16483229</td><td class=xl24 width=64 >5</td><td class=xl24 width=64 >Christian Castro</td><td class=xl24 width=64 >Flako</td><td class=xl24 width=64 >Local Olivar</td><td class=xl24 width=64 >Sin Ruta</td><td class=xl24 width=64 >Cecilia</td></tr><tr><td class=xl24 width=64 >123</td><td class=xl24 width=64 >3</td><td class=xl24 width=64 >Mantequilla</td><td class=xl24 width=64 >1</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >0</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >2012</td><td class=xl24 width=64 >4</td><td class=xl24 width=64 >28</td><td class=xl24 width=64 >Lacteos</td><td class=xl24 width=64 >Queso</td><td class=xl24 width=64 >Sin Marca</td><td class=xl24 width=64 >Litro</td><td class=xl24 width=64 >CHEQUE C/E 30D</td><td class=xl24 width=64 >16483229</td><td class=xl24 width=64 >5</td><td class=xl24 width=64 >Christian Castro</td><td class=xl24 width=64 >Flako</td><td class=xl24 width=64 >Local Olivar</td><td class=xl24 width=64 >Sin Ruta</td><td class=xl24 width=64 >Cecilia</td></tr><tr><td class=xl24 width=64 >123</td><td class=xl24 width=64 >3</td><td class=xl24 width=64 >Mantequilla</td><td class=xl24 width=64 >1</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >0</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >2012</td><td class=xl24 width=64 >4</td><td class=xl24 width=64 >28</td><td class=xl24 width=64 >Lacteos</td><td class=xl24 width=64 >Queso</td><td class=xl24 width=64 >Sin Marca</td><td class=xl24 width=64 >Litro</td><td class=xl24 width=64 >CHEQUE C/E 30D</td><td class=xl24 width=64 >16483229</td><td class=xl24 width=64 >5</td><td class=xl24 width=64 >Christian Castro</td><td class=xl24 width=64 >Flako</td><td class=xl24 width=64 >Local Olivar</td><td class=xl24 width=64 >Sin Ruta</td><td class=xl24 width=64 >Cecilia</td></tr><tr><td class=xl24 width=64 >123</td><td class=xl24 width=64 >3</td><td class=xl24 width=64 >Mantequilla</td><td class=xl24 width=64 >1</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >0</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >2012</td><td class=xl24 width=64 >4</td><td class=xl24 width=64 >28</td><td class=xl24 width=64 >Lacteos</td><td class=xl24 width=64 >Queso</td><td class=xl24 width=64 >Sin Marca</td><td class=xl24 width=64 >Litro</td><td class=xl24 width=64 >CHEQUE C/E 30D</td><td class=xl24 width=64 >16483229</td><td class=xl24 width=64 >5</td><td class=xl24 width=64 >Christian Castro</td><td class=xl24 width=64 >Flako</td><td class=xl24 width=64 >Local Olivar</td><td class=xl24 width=64 >Sin Ruta</td><td class=xl24 width=64 >Cecilia</td></tr><tr><td class=xl24 width=64 >123</td><td class=xl24 width=64 >3</td><td class=xl24 width=64 >Mantequilla</td><td class=xl24 width=64 >1</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >0</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >2012</td><td class=xl24 width=64 >4</td><td class=xl24 width=64 >28</td><td class=xl24 width=64 >Lacteos</td><td class=xl24 width=64 >Queso</td><td class=xl24 width=64 >Sin Marca</td><td class=xl24 width=64 >Litro</td><td class=xl24 width=64 >CHEQUE C/E 30D</td><td class=xl24 width=64 >16483229</td><td class=xl24 width=64 >5</td><td class=xl24 width=64 >Christian Castro</td><td class=xl24 width=64 >Flako</td><td class=xl24 width=64 >Local Olivar</td><td class=xl24 width=64 >Sin Ruta</td><td class=xl24 width=64 >Cecilia</td></tr><tr><td class=xl24 width=64 >123</td><td class=xl24 width=64 >3</td><td class=xl24 width=64 >Mantequilla</td><td class=xl24 width=64 >1</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >0</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >2012</td><td class=xl24 width=64 >4</td><td class=xl24 width=64 >28</td><td class=xl24 width=64 >Lacteos</td><td class=xl24 width=64 >Queso</td><td class=xl24 width=64 >Sin Marca</td><td class=xl24 width=64 >Litro</td><td class=xl24 width=64 >CHEQUE C/E 30D</td><td class=xl24 width=64 >16483229</td><td class=xl24 width=64 >5</td><td class=xl24 width=64 >Christian Castro</td><td class=xl24 width=64 >Flako</td><td class=xl24 width=64 >Local Olivar</td><td class=xl24 width=64 >Sin Ruta</td><td class=xl24 width=64 >Cecilia</td></tr><tr><td class=xl24 width=64 >1234</td><td class=xl24 width=64 >3</td><td class=xl24 width=64 >Mantequilla</td><td class=xl24 width=64 >1</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >0</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >2012</td><td class=xl24 width=64 >4</td><td class=xl24 width=64 >28</td><td class=xl24 width=64 >Lacteos</td><td class=xl24 width=64 >Queso</td><td class=xl24 width=64 >Sin Marca</td><td class=xl24 width=64 >Litro</td><td class=xl24 width=64 >CHEQUE C/E 30D</td><td class=xl24 width=64 >16483229</td><td class=xl24 width=64 >5</td><td class=xl24 width=64 >Christian Castro</td><td class=xl24 width=64 >Flako</td><td class=xl24 width=64 >Local Olivar</td><td class=xl24 width=64 >Sin Ruta</td><td class=xl24 width=64 >Cecilia</td></tr><tr><td class=xl24 width=64 >4321</td><td class=xl24 width=64 >3</td><td class=xl24 width=64 >Mantequilla</td><td class=xl24 width=64 >1</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >0</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >2012</td><td class=xl24 width=64 >4</td><td class=xl24 width=64 >28</td><td class=xl24 width=64 >Lacteos</td><td class=xl24 width=64 >Queso</td><td class=xl24 width=64 >Sin Marca</td><td class=xl24 width=64 >Litro</td><td class=xl24 width=64 >CHEQUE C/E 30D</td><td class=xl24 width=64 >16483229</td><td class=xl24 width=64 >5</td><td class=xl24 width=64 >Christian Castro</td><td class=xl24 width=64 >Flako</td><td class=xl24 width=64 >Local Olivar</td><td class=xl24 width=64 >Sin Ruta</td><td class=xl24 width=64 >Cecilia</td></tr><tr><td class=xl24 width=64 >12345</td><td class=xl24 width=64 >3</td><td class=xl24 width=64 >Mantequilla</td><td class=xl24 width=64 >1</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >0</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >2012</td><td class=xl24 width=64 >4</td><td class=xl24 width=64 >28</td><td class=xl24 width=64 >Lacteos</td><td class=xl24 width=64 >Queso</td><td class=xl24 width=64 >Sin Marca</td><td class=xl24 width=64 >Litro</td><td class=xl24 width=64 >CHEQUE C/E 30D</td><td class=xl24 width=64 >16483229</td><td class=xl24 width=64 >5</td><td class=xl24 width=64 >Christian Castro</td><td class=xl24 width=64 >Flako</td><td class=xl24 width=64 >Local Olivar</td><td class=xl24 width=64 >Sin Ruta</td><td class=xl24 width=64 >Cecilia</td></tr><tr><td class=xl24 width=64 >1</td><td class=xl24 width=64 >3</td><td class=xl24 width=64 >Mantequilla</td><td class=xl24 width=64 >20</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >0</td><td class=xl24 width=64 >13000</td><td class=xl24 width=64 >2012</td><td class=xl24 width=64 >3</td><td class=xl24 width=64 >26</td><td class=xl24 width=64 >Lacteos</td><td class=xl24 width=64 >Queso</td><td class=xl24 width=64 >Sin Marca</td><td class=xl24 width=64 >Litro</td><td class=xl24 width=64 >CHEQUE C/E 30D</td><td class=xl24 width=64 >17356270</td><td class=xl24 width=64 >5</td><td class=xl24 width=64 >Felipe Aranda Diaz</td><td class=xl24 width=64 >Chelipe</td><td class=xl24 width=64 >chelipe</td><td class=xl24 width=64 >Sin Ruta</td><td class=xl24 width=64 >MARIA ANGELICA</td></tr><tr><td class=xl24 width=64 >2</td><td class=xl24 width=64 >3</td><td class=xl24 width=64 >Mantequilla</td><td class=xl24 width=64 >20</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >0</td><td class=xl24 width=64 >13000</td><td class=xl24 width=64 >2012</td><td class=xl24 width=64 >3</td><td class=xl24 width=64 >26</td><td class=xl24 width=64 >Lacteos</td><td class=xl24 width=64 >Queso</td><td class=xl24 width=64 >Sin Marca</td><td class=xl24 width=64 >Litro</td><td class=xl24 width=64 >CHEQUE VENDEDOR</td><td class=xl24 width=64 >17356270</td><td class=xl24 width=64 >5</td><td class=xl24 width=64 >Felipe Aranda Diaz</td><td class=xl24 width=64 >Chelipe</td><td class=xl24 width=64 >chelipe</td><td class=xl24 width=64 >Sin Ruta</td><td class=xl24 width=64 >MARIA ANGELICA</td></tr><tr><td class=xl24 width=64 >12321</td><td class=xl24 width=64 >3</td><td class=xl24 width=64 >Mantequilla</td><td class=xl24 width=64 >11</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >0</td><td class=xl24 width=64 >7150</td><td class=xl24 width=64 >2012</td><td class=xl24 width=64 >4</td><td class=xl24 width=64 >21</td><td class=xl24 width=64 >Lacteos</td><td class=xl24 width=64 >Queso</td><td class=xl24 width=64 >Sin Marca</td><td class=xl24 width=64 >Litro</td><td class=xl24 width=64 >CONTADO</td><td class=xl24 width=64 >17356270</td><td class=xl24 width=64 >5</td><td class=xl24 width=64 >Felipe Aranda Diaz</td><td class=xl24 width=64 >Chelipe</td><td class=xl24 width=64 >chelipe</td><td class=xl24 width=64 >Sin Ruta</td><td class=xl24 width=64 >MARIA ANGELICA</td></tr><tr><td class=xl24 width=64 >2</td><td class=xl24 width=64 >3</td><td class=xl24 width=64 >Mantequilla</td><td class=xl24 width=64 >1</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >0</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >2012</td><td class=xl24 width=64 >4</td><td class=xl24 width=64 >28</td><td class=xl24 width=64 >Lacteos</td><td class=xl24 width=64 >Queso</td><td class=xl24 width=64 >Sin Marca</td><td class=xl24 width=64 >Litro</td><td class=xl24 width=64 >CHEQUE VENDEDOR</td><td class=xl24 width=64 >17356270</td><td class=xl24 width=64 >5</td><td class=xl24 width=64 >Felipe Aranda Diaz</td><td class=xl24 width=64 >Chelipe</td><td class=xl24 width=64 >chelipe</td><td class=xl24 width=64 >Sin Ruta</td><td class=xl24 width=64 >MARIA ANGELICA</td></tr><tr><td class=xl24 width=64 >3232</td><td class=xl24 width=64 >3</td><td class=xl24 width=64 >Mantequilla</td><td class=xl24 width=64 >1</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >0</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >2012</td><td class=xl24 width=64 >4</td><td class=xl24 width=64 >28</td><td class=xl24 width=64 >Lacteos</td><td class=xl24 width=64 >Queso</td><td class=xl24 width=64 >Sin Marca</td><td class=xl24 width=64 >Litro</td><td class=xl24 width=64 >CHEQUE VENDEDOR</td><td class=xl24 width=64 >17356270</td><td class=xl24 width=64 >5</td><td class=xl24 width=64 >Felipe Aranda Diaz</td><td class=xl24 width=64 >Chelipe</td><td class=xl24 width=64 >chelipe</td><td class=xl24 width=64 >Sin Ruta</td><td class=xl24 width=64 >MARIA ANGELICA</td></tr><tr><td class=xl24 width=64 >2147483647</td><td class=xl24 width=64 >3</td><td class=xl24 width=64 >Mantequilla</td><td class=xl24 width=64 >1</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >0</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >2012</td><td class=xl24 width=64 >4</td><td class=xl24 width=64 >28</td><td class=xl24 width=64 >Lacteos</td><td class=xl24 width=64 >Queso</td><td class=xl24 width=64 >Sin Marca</td><td class=xl24 width=64 >Litro</td><td class=xl24 width=64 >CHEQUE VENDEDOR</td><td class=xl24 width=64 >17356270</td><td class=xl24 width=64 >5</td><td class=xl24 width=64 >Felipe Aranda Diaz</td><td class=xl24 width=64 >Chelipe</td><td class=xl24 width=64 >chelipe</td><td class=xl24 width=64 >Sin Ruta</td><td class=xl24 width=64 >MARIA ANGELICA</td></tr><tr><td class=xl24 width=64 >57575</td><td class=xl24 width=64 >3</td><td class=xl24 width=64 >Mantequilla</td><td class=xl24 width=64 >1</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >0</td><td class=xl24 width=64 >650</td><td class=xl24 width=64 >2012</td><td class=xl24 width=64 >4</td><td class=xl24 width=64 >28</td><td class=xl24 width=64 >Lacteos</td><td class=xl24 width=64 >Queso</td><td class=xl24 width=64 >Sin Marca</td><td class=xl24 width=64 >Litro</td><td class=xl24 width=64 >CHEQUE VENDEDOR</td><td class=xl24 width=64 >17356270</td><td class=xl24 width=64 >5</td><td class=xl24 width=64 >Felipe Aranda Diaz</td><td class=xl24 width=64 >Chelipe</td><td class=xl24 width=64 >chelipe</td><td class=xl24 width=64 >Sin Ruta</td><td class=xl24 width=64 >MARIA ANGELICA</td></tr></table></body></html>

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="hola" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="numeroFactura" class="java.lang.Integer"/>
+	<parameter name="fecha_dd" class="java.lang.String"/>
+	<parameter name="fecha_mes" class="java.lang.String"/>
+	<parameter name="fecha_yy" class="java.lang.String"/>
+	<parameter name="rutEmpresa" class="java.lang.String"/>
+	<parameter name="comuna" class="java.lang.String"/>
+	<parameter name="vendedor" class="java.lang.String"/>
+	<parameter name="vencimiento" class="java.lang.String"/>
+	<parameter name="senores" class="java.lang.String"/>
+	<parameter name="direccion" class="java.lang.String"/>
+	<parameter name="giro" class="java.lang.String"/>
+	<parameter name="subTotal" class="java.lang.String"/>
+	<parameter name="total" class="java.lang.String"/>
+	<parameter name="ivaPorcentaje" class="java.lang.String"/>
+	<parameter name="ivaTotal" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT pv.cantidad,
+       u.nom_UM,
+       pr.nom_producto,
+       pv.precio,
+       pv.porcen_desc,
+       pv.cantidad * pv.precio
+FROM 40_m_venta v
+INNER JOIN 40_m_producto_venta pv ON pv.id_venta = v.id_venta
+INNER JOIN 20_m_producto pr ON pr.id_producto = pv.id_producto
+INNER JOIN 20_p_unidad_medida u ON u.id_UM = pr.id_UM
+WHERE v.num_docto_emitido = $P{numeroFactura}]]>
+	</queryString>
+	<field name="cantidad" class="java.math.BigDecimal"/>
+	<field name="nom_UM" class="java.lang.String"/>
+	<field name="nom_producto" class="java.lang.String"/>
+	<field name="precio" class="java.lang.Integer"/>
+	<field name="porcen_desc" class="java.lang.Integer"/>
+	<field name="pv.cantidad * pv.precio" class="java.math.BigDecimal"/>
+	<title>
+		<band height="203" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement x="32" y="54" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{fecha_dd}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="104" y="54" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{fecha_mes}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="182" y="54" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{fecha_yy}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="455" y="11" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{numeroFactura}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="455" y="54" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{rutEmpresa}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="32" y="94" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{senores}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="32" y="114" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{direccion}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="32" y="134" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{giro}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<detail>
+		<band height="23" splitType="Stretch">
+			<textField>
+				<reportElement x="32" y="0" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{cantidad}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="119" y="0" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{nom_UM}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="204" y="0" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{nom_producto}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="304" y="0" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{precio}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="369" y="0" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{porcen_desc}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="469" y="0" width="76" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{pv.cantidad * pv.precio}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<lastPageFooter>
+		<band height="99">
+			<textField isBlankWhenNull="true">
+				<reportElement x="455" y="67" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{total}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="455" y="0" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{subTotal}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="355" y="20" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{ivaPorcentaje}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="455" y="20" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{ivaTotal}]]></textFieldExpression>
+			</textField>
+		</band>
+	</lastPageFooter>
+</jasperReport>

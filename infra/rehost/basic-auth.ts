@@ -5,7 +5,7 @@ import { stackTags } from "../tags";
 // Placeholder credentials for dev; rotate to the real Express-app credentials
 // (design §12 carry-forward) before Plans 4–5 go live.
 const basicAuthSecret = new aws.secretsmanager.Secret("rehost-basic-auth", {
-  name: "serfel-dev-rehost-basic-auth",
+  name: `serfel-${$app.stage}-rehost-basic-auth`,
   description: "Basic Auth credentials for rehosted node APIs",
   tags: stackTags("serfel-rehost"),
 });
@@ -23,7 +23,7 @@ export const basicAuthorizerFn = new sst.aws.Function("RehostBasicAuthFn", {
   environment: { BASIC_AUTH_SECRET_ARN: basicAuthSecret.arn },
   permissions: [{ actions: ["secretsmanager:GetSecretValue"], resources: [basicAuthSecret.arn] }],
   transform: {
-    function: { name: "serfel-dev-rehost-basic-auth", tags: stackTags("serfel-rehost") },
+    function: { name: `serfel-${$app.stage}-rehost-basic-auth`, tags: stackTags("serfel-rehost") },
     logGroup: { tags: stackTags("serfel-rehost") },
   },
 });

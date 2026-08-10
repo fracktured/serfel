@@ -2,8 +2,17 @@
 # mysqli), one Apache doc root. PHP 5.6 is EOL. Built ARM64 to match the task def.
 FROM php:5.6-apache
 
+# soap (SoapClient, used by Clases/WS/FacturacionClWS.php for e-invoicing)
+# needs libxml2-dev headers to compile.
+# PHP 5.6's base image is Debian stretch (EOL): its mirrors are gone, so repoint
+# apt to archive.debian.org and drop stretch-updates before installing.
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf \
-    && docker-php-ext-install mysql mysqli pdo pdo_mysql mbstring \
+    && sed -i '/stretch-updates/d' /etc/apt/sources.list \
+    && sed -i 's|deb.debian.org|archive.debian.org|g; s|security.debian.org|archive.debian.org|g' /etc/apt/sources.list \
+    && apt-get -o Acquire::Check-Valid-Until=false update \
+    && apt-get install -y --no-install-recommends --allow-unauthenticated libxml2-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && docker-php-ext-install mysql mysqli pdo pdo_mysql mbstring soap \
     && a2enmod rewrite
 
 # SerfelWeb relies on .htaccess rewrites — enable AllowOverride for the doc root.
@@ -13,8 +22,11 @@ RUN printf '<Directory /var/www/html/>\n    AllowOverride All\n    Require all g
 
 COPY Distribuidor/ /var/www/html/Distribuidor/
 COPY SerfelWeb/   /var/www/html/SerfelWeb/
-COPY Coproad/     /var/www/html/Coproad/
-COPY CoproadWeb/  /var/www/html/CoproadWeb/
+# Coproad (second business) is served under the /coproad/* URL prefix, so nest
+# both apps under a coproad/ dir in the doc root to match (CloudFront forwards
+# the full /coproad/... path to the ALB; there is no edge prefix strip).
+COPY Coproad/     /var/www/html/coproad/Coproad/
+COPY CoproadWeb/  /var/www/html/coproad/CoproadWeb/
 COPY health.php   /var/www/html/health.php
 
 EXPOSE 80

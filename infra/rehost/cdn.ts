@@ -94,7 +94,7 @@ const router = new sst.aws.Router("RehostRouter", {
         albBehavior("/SerfelWeb*"),
       ] as unknown as typeof args.orderedCacheBehaviors;
 
-      args.comment = "serfel-dev-rehost-router";
+      args.comment = `serfel-${$app.stage}-rehost-router`;
       args.tags = { ...(args.tags as Record<string, string> | undefined), ...stackTags("serfel-rehost") };
       args.webAclArn = webAclArn;
     },

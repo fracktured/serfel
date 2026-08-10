@@ -2,7 +2,7 @@ import * as aws from "@pulumi/aws";
 import { stackTags } from "./tags";
 
 const userPool = new aws.cognito.UserPool("user-pool", {
-  name: "serfel-dev-users",
+  name: `serfel-${$app.stage}-users`,
   usernameAttributes: ["email"],
   autoVerifiedAttributes: ["email"],
   adminCreateUserConfig: { allowAdminCreateUserOnly: true }, // no self-registration
@@ -23,11 +23,11 @@ const userPool = new aws.cognito.UserPool("user-pool", {
       numberAttributeConstraints: { minValue: "1", maxValue: "100000000" },
     },
   ],
-  tags: { Name: "serfel-dev-users", ...stackTags("serfel-aws") },
+  tags: { Name: `serfel-${$app.stage}-users`, ...stackTags("serfel-aws") },
 });
 
 const userPoolClient = new aws.cognito.UserPoolClient("user-pool-client", {
-  name: "serfel-dev-web",
+  name: `serfel-${$app.stage}-web`,
   userPoolId: userPool.id,
   explicitAuthFlows: [
     "ALLOW_USER_SRP_AUTH",

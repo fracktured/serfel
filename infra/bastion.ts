@@ -13,7 +13,7 @@ const al2023 = aws.ec2.getAmiOutput({
 });
 
 const bastionRole = new aws.iam.Role("bastion-role", {
-  name: "serfel-dev-bastion-role",
+  name: `serfel-${$app.stage}-bastion-role`,
   assumeRolePolicy: JSON.stringify({
     Version: "2012-10-17",
     Statement: [{
@@ -31,14 +31,14 @@ new aws.iam.RolePolicyAttachment("bastion-ssm-core", {
 });
 
 const bastionProfile = new aws.iam.InstanceProfile("bastion-profile", {
-  name: "serfel-dev-bastion-profile",
+  name: `serfel-${$app.stage}-bastion-profile`,
   role: bastionRole.name,
   tags: stackTags("serfel-shared"),
 });
 
 // No inbound rules at all — access is exclusively through SSM Session Manager.
 const sgBastion = new aws.ec2.SecurityGroup("bastion", {
-  name: "serfel-dev-bastion",
+  name: `serfel-${$app.stage}-bastion`,
   vpcId,
   description: "Bastion: no inbound, egress to SSM (443) and RDS (3306)",
   egress: [
@@ -57,7 +57,7 @@ const sgBastion = new aws.ec2.SecurityGroup("bastion", {
       description: "MariaDB to RDS",
     },
   ],
-  tags: { Name: "serfel-dev-sg-bastion", ...stackTags("serfel-shared") },
+  tags: { Name: `serfel-${$app.stage}-sg-bastion`, ...stackTags("serfel-shared") },
 });
 
 new aws.ec2.SecurityGroupRule("rds-from-bastion", {
@@ -79,7 +79,7 @@ const bastion = new aws.ec2.Instance("bastion", {
   vpcSecurityGroupIds: [sgBastion.id],
   iamInstanceProfile: bastionProfile.name,
   metadataOptions: { httpTokens: "required" }, // IMDSv2 only
-  tags: { Name: "serfel-dev-bastion", ...stackTags("serfel-shared") },
+  tags: { Name: `serfel-${$app.stage}-bastion`, ...stackTags("serfel-shared") },
 }, { ignoreChanges: ["ami"] });
 
 export const bastionInstanceId = bastion.id;

@@ -668,7 +668,7 @@ function Cell($w, $h=0, $txt='', $border=0, $ln=0, $align='', $fill=false, $link
 			$dx=$this->cMargin;
 		if($this->ColorFlag)
 			$s.='q '.$this->TextColor.' ';
-		$txt2=str_replace(')','\\)',str_replace('(','\\(',str_replace('\ ,'\\\ ,$txt)));
+		$txt2=str_replace(')','\\)',str_replace('(','\\(',str_replace('\\','\\\\',$txt)));
 		$s.=sprintf('BT %.2F %.2F Td (%s) Tj ET',($this->x+$dx)*$k,($this->h-($this->y+.5*$h+.3*$this->FontSize))*$k,$txt2);
 		if($this->underline)
 			$s.=' '.$this->_dounderline($this->x+$dx,$this->y+.5*$h+.3*$this->FontSize,$txt);
@@ -1142,7 +1142,7 @@ function _endpage()
 function _escape($s)
 {
 	//Escape special characters in strings
-	$s=str_replace('\ ,'\\\ ,$s);
+	$s=str_replace('\\','\\\\',$s);
 	$s=str_replace('(','\\(',$s);
 	$s=str_replace(')','\\)',$s);
 	$s=str_replace("\r",'\\r',$s);
