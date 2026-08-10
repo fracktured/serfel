@@ -77,7 +77,15 @@ const router = new sst.aws.Router("RehostRouter", {
             httpsPort: 443,
             originProtocolPolicy: "http-only", // ALB listener is HTTP-only
             originSslProtocols: ["TLSv1.2"],
-            originReadTimeout: 30,
+            // 60 s (was 30 s). Concatenar/descargar muchas facturas tarda mas
+            // que 30 s incluso con las descargas en paralelo, y CloudFront
+            // devolvia 504. 60 s es el maximo sin pedir aumento de cuota a AWS
+            // (el tope duro con aumento es 180 s). El idle timeout del ALB
+            // (alb.ts) y max_execution_time de PHP (Dockerfile.fargate) se
+            // subieron por encima de este valor para que 504 no reaparezca aguas
+            // abajo. Nota: 60 s sigue siendo un techo; el arreglo definitivo es
+            // generar el PDF de forma asincrona (S3 + presigned URL).
+            originReadTimeout: 60,
             originKeepaliveTimeout: 5,
           },
           customHeaders: [

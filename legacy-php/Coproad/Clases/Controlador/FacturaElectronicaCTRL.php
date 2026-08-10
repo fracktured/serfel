@@ -135,21 +135,52 @@ class FacturaElectronicaCTRL {
         $this->imprimirFacturasConcatenadas($oVenta, 'download');
     }
 
-    private function agregarPDF($oPDFMerger, $oVenta) {
-        $idUsuario = $this->oUsuario->getIdUsuario();
-        $cDestinoOri = __DIR__ . "/../../PDF/FE-Ori-" . $oVenta->id_venta . ".pdf";
-        $bExisteOri = FileUtil::copiarArchivoDesdeURL($oVenta->url_PDF_original, $cDestinoOri);
-                
-        $cDestinoCed = __DIR__ . "/../../PDF/FE-Ced-" . $oVenta->id_venta . ".pdf";
-        $bExisteCed = FileUtil::copiarArchivoDesdeURL($oVenta->url_PDF_cedible, $cDestinoCed);
-            
-        if ($bExisteOri && $bExisteCed) {
-            $oPDFMerger
-                ->addPDF($cDestinoOri, 'all')
-                ->addPDF($cDestinoCed, 'all');        
+    /**
+     * Descarga en PARALELO los PDFs (original + cedible) de todas las ventas y
+     * los concatena respetando el orden de seleccion. Reemplaza al antiguo
+     * agregarPDF() secuencial: con ~100 ventas eran 200 descargas una tras otra
+     * y se superaba el timeout de origen de CloudFront (504). Ahora se bajan
+     * hasta 10 a la vez (FileUtil::descargarPDFsEnParalelo).
+     *
+     * @param array $aVentas  Ventas listas para descargar, en orden.
+     * @return array  ['merger' => PDFMerger, 'docs' => int ventas agregadas].
+     */
+    private function agregarPDFsEnParalelo($aVentas) {
+        $oPDFMerger = new PDFMerger;
+
+        // Construir la lista de descargas: 1 original + 1 cedible por venta. La
+        // key liga cada archivo con su venta para concatenar luego en orden.
+        $aJobs = array();
+        foreach ($aVentas as $oVenta) {
+            $aJobs[] = array(
+                'key'      => 'ori-' . $oVenta->id_venta,
+                'url'      => $oVenta->url_PDF_original,
+                'destBase' => "FE-Ori-" . $oVenta->id_venta . ".pdf",
+            );
+            $aJobs[] = array(
+                'key'      => 'ced-' . $oVenta->id_venta,
+                'url'      => $oVenta->url_PDF_cedible,
+                'destBase' => "FE-Ced-" . $oVenta->id_venta . ".pdf",
+            );
         }
-        
-        return $oPDFMerger;
+
+        $aArchivos = FileUtil::descargarPDFsEnParalelo($aJobs);
+
+        // Concatenar en el orden de seleccion; solo se agrega la venta si sus
+        // DOS PDFs bajaron (misma condicion que el antiguo agregarPDF).
+        $iDocs = 0;
+        foreach ($aVentas as $oVenta) {
+            $cKeyOri = 'ori-' . $oVenta->id_venta;
+            $cKeyCed = 'ced-' . $oVenta->id_venta;
+            if (isset($aArchivos[$cKeyOri]) && isset($aArchivos[$cKeyCed])) {
+                $oPDFMerger
+                    ->addPDF($aArchivos[$cKeyOri], 'all')
+                    ->addPDF($aArchivos[$cKeyCed], 'all');
+                $iDocs++;
+            }
+        }
+
+        return array('merger' => $oPDFMerger, 'docs' => $iDocs);
     }
     
     /**
@@ -157,11 +188,14 @@ class FacturaElectronicaCTRL {
      * 
      */
     public function concatenarPDFs() {
-        $i = 0;
-        $oPDFMerger = new PDFMerger;
         $oVentaNEG = new VentaNEG($this->cRutaRelativa);
         $ventas = filter_input(INPUT_POST, "ventas");
-        
+
+        // Fase 1 (secuencial e inevitable): resolver cada venta y, si aun no
+        // tiene folio, emitir la factura electronica en facturacion.cl. Se
+        // acumulan en orden las ventas listas para descargar. Estas son
+        // escrituras al WS + BD, no se paralelizan.
+        $aVentasParaDescargar = array();
         foreach( explode("-", $ventas) as $idVenta ) {
             if ( $idVenta == "" ) {
                 break;
@@ -169,30 +203,31 @@ class FacturaElectronicaCTRL {
             $oVentaNDTO = $oVentaNEG->obtVenta($idVenta);
             $oVenta = $oVentaNDTO->oVenta;
             $oEmpresa = $oVentaNDTO->oEmpresa;
-            
+
             if ( $oVenta->id_folio == 0 ) {
                 $idNuevoFolio = $oVentaNEG->obtNuevoFolio($oVenta->rut_empresa);
-            
+
                 $oFacElecNEG = new XMLFacturaElectronicaNEG($this->cRutaRelativa);
                 $cRutaNomArchivo = $oFacElecNEG->crearXMLFacturaElectronica($idVenta, $idNuevoFolio);
 
                 $oFacElecCLWS = new FacturacionClWS($this->cRutaRelativa);
                 $oFacElecCLWSDTO = $oFacElecCLWS->procesarDocumento($oEmpresa->obtRutCompleto(), $cRutaNomArchivo);
-                
+
                 if($oFacElecCLWSDTO->bExito == "True") {
                     $oVentaNEG->marcarComoFacturaElectronica($idVenta, $idNuevoFolio, $this->oUsuario);
-                    $oPDFMerger = $this->agregarPDF($oPDFMerger, $oVenta);
-                    $i++;
+                    $aVentasParaDescargar[] = $oVenta;
                 }
             } else {
-                $oPDFMerger = $this->agregarPDF($oPDFMerger, $oVenta);
-                $i++;
+                $aVentasParaDescargar[] = $oVenta;
             }
         }
-        
+
+        // Fase 2 (paralela): descargar todos los PDFs a la vez y concatenar.
+        $aResultado = $this->agregarPDFsEnParalelo($aVentasParaDescargar);
+
         // Si existen documentos
-        if ( $i > 0 ) {
-            $oPDFMerger->merge('download', 'Facturas_'.$i.'.pdf');
+        if ( $aResultado['docs'] > 0 ) {
+            $aResultado['merger']->merge('download', 'Facturas_'.$aResultado['docs'].'.pdf');
         }
     }
 }

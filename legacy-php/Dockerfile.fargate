@@ -20,6 +20,10 @@ RUN printf '<Directory /var/www/html/>\n    AllowOverride All\n    Require all g
       > /etc/apache2/conf-available/allow-override.conf \
     && a2enconf allow-override
 
+# PHP 5.6 trae max_execution_time = 30, que abortaba "Descargar seleccionadas"
+# (concatenar ~100 facturas) antes de tiempo. Este ini lo sube (ver php-rehost.ini).
+COPY php-rehost.ini /usr/local/etc/php/conf.d/zz-rehost.ini
+
 COPY Distribuidor/ /var/www/html/Distribuidor/
 COPY SerfelWeb/   /var/www/html/SerfelWeb/
 # Coproad (second business) is served under the /coproad/* URL prefix, so nest

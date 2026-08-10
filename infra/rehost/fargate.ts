@@ -46,8 +46,12 @@ const ciKey = new random.RandomPassword("rehost-ci-key", { length: 40, special: 
 
 const taskDef = new aws.ecs.TaskDefinition("rehost-php1-task", {
   family: `serfel-${$app.stage}-rehost-php-app-1`,
-  cpu: "256",
-  memory: "512",
+  // 0.5 vCPU / 2 GB (was 0.25 / 0.5 GB). "Descargar seleccionadas" en listVentas
+  // concatena hasta ~100 ventas = ~200 PDFs cargados en memoria por PDFMerger
+  // (FPDI/TCPDF); 512 MB llevaba a OOM en merges grandes. Los 2 GB dan margen
+  // para el merge y para las descargas en paralelo (curl_multi). ARM64/Graviton.
+  cpu: "512",
+  memory: "2048",
   networkMode: "awsvpc",
   requiresCompatibilities: ["FARGATE"],
   // The Task-3 health image was built arm64 (on Apple Silicon), so the task

@@ -15,6 +15,11 @@ const alb = new aws.lb.LoadBalancer("rehost-alb", {
   loadBalancerType: "application",
   securityGroups: [sgAlbId],
   subnets: publicSubnetIds,
+  // 120 s (default es 60). Debe ser >= al originReadTimeout de CloudFront (60 s,
+  // cdn.ts): si el ALB cierra la conexion ociosa antes de que el origen
+  // responda, CloudFront igual devuelve 504. El margen extra evita esa carrera
+  // en descargas largas de facturas concatenadas.
+  idleTimeout: 120,
   tags: { Name: `serfel-${$app.stage}-rehost-alb`, ...stackTags("serfel-rehost") },
 });
 
