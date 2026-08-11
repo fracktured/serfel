@@ -13,12 +13,9 @@ export function computeDv(rut: number): string {
     n = Math.floor(n / 10);
     mul = mul === 7 ? 2 : mul + 1;
   }
-  const remainder = sum % 11;
-  if (remainder === 1) return "0";
-  if (remainder === 8) return "K";
-  const res = 11 - remainder;
-  if (res === 11) return "K";
-  if (res === 10) return "0";
+  const res = 11 - (sum % 11);
+  if (res === 11) return "0";
+  if (res === 10) return "K";
   return String(res);
 }
 
