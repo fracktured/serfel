@@ -105,7 +105,11 @@ export async function setupTestDb(
     idUsuarioMod: SEED.usuarioAdmin, ultFechaMod: NOW, idEstado: 1, giro: "-", codActividadEconomica: 1,
     comuna: "-", ciudad: "-", rutRepresentanteLegal: 1, dvRepresentanteLegal: "0", fechaAprobacionSii: "2026-01-01", numAprobacionSii: 1,
   });
-  await db.insert(t10MEmpresa).values([empresa(SEED.empresaTarget, "SERFEL"), empresa(SEED.empresaInterna, "INTERNA")]);
+  await db.insert(t10MEmpresa).values([
+    empresa(SEED.empresaTarget, "SERFEL"),
+    empresa(SEED.empresaInterna, "INTERNA"),
+    { ...empresa(SEED.empresaTarget, "SERFEL NUEVO"), ultFechaMod: "2026-06-01 00:00:00" },
+  ]);
 
   await db.insert(t10MCliente).values([
     { rutCliente: SEED.cliente, dvCliente: "0", razonSocial: "CLIENTE", nomFantasia: "Fantasia Norte", idListaPrecio: 1, idUsuarioMod: SEED.usuarioAdmin, ultFechaMod: NOW, idEstado: 1 },

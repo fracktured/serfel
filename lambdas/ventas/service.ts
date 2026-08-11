@@ -29,18 +29,34 @@ export async function getUserTipo(db: Db, idUsuario: number): Promise<number | n
 }
 
 export async function listEmpresas(db: Db): Promise<EmpresaDto[]> {
-  // 10_m_empresa PK is composite (rut_empresa, ult_fecha_mod): collapse to one
-  // row per rut, keeping the latest ult_fecha_mod.
-  const rows = await db
+  // 10_m_empresa PK is composite (rut_empresa, ult_fecha_mod): a rut can have
+  // multiple rows. Return one row per rut — the latest by ult_fecha_mod.
+  const latest = db
     .select({
       rutEmpresa: t10MEmpresa.rutEmpresa,
-      dv: sql<string>`MAX(${t10MEmpresa.dvEmpresa})`,
-      razonSocial: sql<string>`MAX(${t10MEmpresa.razonSocial})`,
+      maxFecha: sql<string>`MAX(${t10MEmpresa.ultFechaMod})`.as("max_fecha"),
     })
     .from(t10MEmpresa)
     .where(eq(t10MEmpresa.idEstado, ESTADO_ACTIVO))
     .groupBy(t10MEmpresa.rutEmpresa)
-    .orderBy(asc(sql`MAX(${t10MEmpresa.razonSocial})`));
+    .as("latest");
+
+  const rows = await db
+    .select({
+      rutEmpresa: t10MEmpresa.rutEmpresa,
+      dv: t10MEmpresa.dvEmpresa,
+      razonSocial: t10MEmpresa.razonSocial,
+    })
+    .from(t10MEmpresa)
+    .innerJoin(
+      latest,
+      and(
+        eq(t10MEmpresa.rutEmpresa, latest.rutEmpresa),
+        eq(t10MEmpresa.ultFechaMod, latest.maxFecha)
+      )
+    )
+    .where(eq(t10MEmpresa.idEstado, ESTADO_ACTIVO))
+    .orderBy(asc(t10MEmpresa.razonSocial));
   return rows;
 }
 

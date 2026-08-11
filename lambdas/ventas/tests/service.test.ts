@@ -23,12 +23,17 @@ describe("getUserTipo", () => {
 });
 
 describe("listEmpresas", () => {
-  it("returns active empresas, one row per rut, ordered by razonSocial", async () => {
+  it("returns active empresas, one row per rut (latest ult_fecha_mod wins), ordered by razonSocial", async () => {
     const empresas = await listEmpresas(db);
     const ruts = empresas.map((e) => e.rutEmpresa);
     expect(new Set(ruts).size).toBe(ruts.length); // no dup ruts
     expect(ruts).toContain(SEED.empresaTarget);
-    expect(empresas.find((e) => e.rutEmpresa === SEED.empresaTarget)?.razonSocial).toBe("SERFEL");
+    // empresaTarget has two rows in the seed (composite PK rut+ult_fecha_mod);
+    // must collapse to exactly one, and it must be the latest one.
+    expect(ruts.filter((r) => r === SEED.empresaTarget)).toHaveLength(1);
+    expect(empresas.find((e) => e.rutEmpresa === SEED.empresaTarget)?.razonSocial).toBe(
+      "SERFEL NUEVO"
+    );
   });
 });
 
