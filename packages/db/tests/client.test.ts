@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import mysql from "mysql2/promise";
 import { sql } from "drizzle-orm";
-import { migrate } from "drizzle-orm/mysql2/migrator";
 import { createDb, type DbCredentials } from "../src/client";
+import { migrateSchemaOnly } from "../src/test-migrate";
 
 // Requires the local docker mariadb: `docker compose up -d` in packages/db
 const ROOT = { host: "127.0.0.1", port: 3307, user: "root", password: "serfel" };
@@ -37,9 +37,9 @@ describe("createDb", () => {
     await pool.end();
   });
 
-  it("applies the migration journal to a fresh database", async () => {
+  it("applies the schema migrations to a fresh database", async () => {
     const { db, pool } = createDb(creds, { ssl: false });
-    await migrate(db, { migrationsFolder: "migrations" });
+    await migrateSchemaOnly(db, "migrations");
     const result = await db.execute(
       sql`SELECT COUNT(*) AS c FROM information_schema.tables WHERE table_schema = ${TEST_DB} AND TABLE_NAME != '__drizzle_migrations'`
     );

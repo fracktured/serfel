@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import mysql from "mysql2/promise";
-import { migrate } from "drizzle-orm/mysql2/migrator";
 import { createDb, type DbCredentials } from "../src/client";
+import { migrateSchemaOnly } from "../src/test-migrate";
 import {
   t99PEstado,
   t10PTipoUsuario,
@@ -40,7 +40,7 @@ describe("20_m_producto id_producto AUTO_INCREMENT", () => {
   it("assigns ids on insert without an explicit id_producto", async () => {
     const { db, pool } = createDb(creds, { ssl: false });
     try {
-      await migrate(db, { migrationsFolder: "migrations" });
+      await migrateSchemaOnly(db, "migrations");
 
       // minimal FK seed
       await db.insert(t99PEstado).values([
