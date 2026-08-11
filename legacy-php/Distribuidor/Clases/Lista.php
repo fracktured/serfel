@@ -333,7 +333,7 @@
                           FROM 50_m_stock s
                               INNER JOIN 20_m_producto p ON p.id_producto = s.id_producto
                               INNER JOIN 20_p_tipo_producto tp ON p.id_tipo_producto = tp.id_tipo_producto
-                              INNER JOIN 20_p_tipo_producto tpp ON tpp.id_tipo_producto = tp.nivel_1
+                              LEFT OUTER JOIN 20_p_tipo_producto tpp ON tpp.id_tipo_producto = tp.nivel_1
                           WHERE s.id_bodega = " . $idBodega . "
                               AND p.id_estado = 1
                           GROUP BY s.id_bodega, tp.nivel_1, tpp.nom_tipo_producto";
