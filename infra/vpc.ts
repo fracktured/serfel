@@ -149,6 +149,21 @@ for (const service of ["secretsmanager", "logs", "ssm"] as const) {
   });
 }
 
+// cognito-idp: the usuarios Lambda calls Cognito ListUsers/AdminCreateUser from
+// the private subnets, which have no NAT — without this endpoint the call hangs
+// until the Lambda times out (HTTP 500). The service is NOT offered in us-east-1a,
+// so the endpoint lives only in the us-east-1b private subnet; its private DNS is
+// still reachable from Lambdas running in either AZ.
+new aws.ec2.VpcEndpoint("cognito-idp-endpoint", {
+  vpcId: vpc.id,
+  serviceName: "com.amazonaws.us-east-1.cognito-idp",
+  vpcEndpointType: "Interface",
+  subnetIds: [privateSubnet1b.id],
+  securityGroupIds: [sgEndpoints.id],
+  privateDnsEnabled: true,
+  tags: { Name: `serfel-${$app.stage}-cognito-idp-endpoint`, ...stackTags("serfel-shared") },
+});
+
 export const vpcId = vpc.id;
 export const privateSubnetIds = [privateSubnet1a.id, privateSubnet1b.id];
 export const publicSubnetIds = [publicSubnet1a.id, publicSubnet1b.id];
