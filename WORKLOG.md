@@ -9,6 +9,13 @@ not stopwatch-precise. Newest entries on top.
 ---
 
 ## 2026-08-11 (Tue) — ~1h
+**Listado Carga PDF — legacy JRXML layout**
+- Reworked `lambdas/rutas/pdf.ts` product rows to match the legacy JasperReport (`ListadoCarga.jrxml`): airier row spacing (`lineGap`), legacy column proportions (numeric block pulled left of centre), roomy product-name column, full "Observaciones" header, wide underline; kept the new "$"-money format and current margins
+- Fixed a row-desync bug: long names wrapped to two lines (pdfkit `lineBreak:false` still wraps) and broke the `moveUp`/`moveDown` per-cell alignment — added `fitName` single-line ellipsis clip
+- Verified visually via qlmanage PDF→PNG renders (single-tipo + multi-tipo/overflow); `pdf.test.ts` 3/3, typecheck clean; deployed to dev (RutasFn updated)
+- Commits: 1
+
+## 2026-08-11 (Tue) — ~1h
 **Producto categoría backfill (migration 0009)**
 - Parsed `Productos Serfel.xls` (2744 rows); confirmed the `C`-strip belongs to the `CÓD ALT` match key (`C33331`→33331 vs `cod_serfel`), while `CATEGORÍA` (1–6) is the `id_tipo_producto` value
 - New `scripts/gen-update-producto-categoria.py` + migration `0009_update_producto_categoria.sql`: 6 grouped `UPDATE ... WHERE cod_serfel IN (...)`, one per category, plus audit-field bumps; registered in `meta/_journal.json`
