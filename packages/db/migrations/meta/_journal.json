@@ -64,6 +64,13 @@
       "when": 1786407704991,
       "tag": "0008_usuario_id_autoincrement",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1786459750104,
+      "tag": "0009_update_producto_categoria",
+      "breakpoints": true
     }
   ]
 }

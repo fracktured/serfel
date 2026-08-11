@@ -8,6 +8,14 @@ not stopwatch-precise. Newest entries on top.
 
 ---
 
+## 2026-08-11 (Tue) — ~1h
+**Producto categoría backfill (migration 0009)**
+- Parsed `Productos Serfel.xls` (2744 rows); confirmed the `C`-strip belongs to the `CÓD ALT` match key (`C33331`→33331 vs `cod_serfel`), while `CATEGORÍA` (1–6) is the `id_tipo_producto` value
+- New `scripts/gen-update-producto-categoria.py` + migration `0009_update_producto_categoria.sql`: 6 grouped `UPDATE ... WHERE cod_serfel IN (...)`, one per category, plus audit-field bumps; registered in `meta/_journal.json`
+- Backfilled `id_tipo_producto` on 2558 matched products (186 blank-`CÓD ALT` rows skipped, no cod collisions, all cats FK-valid)
+- Deployed to dev (re-bundles Migrate Lambda) then `db:migrate` → journal 9→10, verified in the products UI
+- Commits: 0 (uncommitted)
+
 ## 2026-08-11 (Tue) — ~0.5h
 **Usuarios num_usuario fix**
 - `assertUnique` scoped the num_usuario clash to active users only; a number freed by a deactivated user (`id_estado=0`) is now reusable on create and update
