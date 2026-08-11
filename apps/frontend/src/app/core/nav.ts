@@ -8,4 +8,5 @@ import type { ModuleName } from "@serfel/shared";
 export const NAV_ITEMS: Record<ModuleName, { label: string; path: string }> = {
   productos: { label: "Productos", path: "/productos" },
   rutas: { label: "Listado Carga", path: "/listado-carga" },
+  usuarios: { label: "Usuarios", path: "/usuarios" },
 };
