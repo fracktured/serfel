@@ -2,16 +2,26 @@ import PDFDocument from "pdfkit";
 import type { CargoListData, CargoListRow } from "./types";
 
 const MARGIN_LEFT = 10;
+// Column geometry mirrors the legacy JasperReport (ListadoCarga.jrxml): a
+// narrow N, a roomy product name, then a compact numeric block (Precio /
+// Cantidad / UM) pulled left of centre, and a wide Observaciones underline.
+// Widths are laid out across the Letter usable width (592pt), giving the name
+// more room than the A4 legacy while keeping the same visual proportions.
 const COL_N = { width: 40, align: "center" as const };
-const COL_NOM = { width: 320, align: "center" as const };
-const COL_PRECIO = { width: 65, align: "center" as const };
-const COL_CANT = { width: 50, align: "center" as const };
-const COL_OBS = { width: 65, align: "center" as const };
-const X_NOM = MARGIN_LEFT + COL_N.width + 1;
+const COL_NOM = { width: 250, align: "left" as const };
+const COL_PRECIO = { width: 80, align: "right" as const };
+const COL_CANT = { width: 60, align: "right" as const };
+const COL_UM = { width: 40, align: "center" as const };
+const COL_OBS = { width: 122, align: "center" as const };
+const X_NOM = MARGIN_LEFT + COL_N.width;
 const X_PRECIO = X_NOM + COL_NOM.width;
 const X_CANT = X_PRECIO + COL_PRECIO.width;
 const X_UM = X_CANT + COL_CANT.width;
-const X_OBS = X_UM + COL_N.width;
+const X_OBS = X_UM + COL_UM.width;
+// Legacy detail band is 18pt tall; add line spacing so rows breathe like the
+// reference report instead of the cramped single-line default.
+const ROW_GAP = 5;
+const NAME_INDENT = 8;
 const PAGE_OPTIONS = { size: "Letter" as const, margins: { top: 20, bottom: 20, left: 10, right: 10 } };
 
 function ddmmyyyy(d: Date): string {
@@ -23,6 +33,7 @@ const money = (n: number) => new Intl.NumberFormat("de-DE").format(n);
 export function renderCargoListPdf(data: CargoListData): Promise<Uint8Array> {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument(PAGE_OPTIONS);
+    doc.lineGap(ROW_GAP);
     const chunks: Buffer[] = [];
     doc.on("data", (c: Buffer) => chunks.push(c));
     doc.on("end", () => resolve(new Uint8Array(Buffer.concat(chunks))));
@@ -55,11 +66,11 @@ export function renderCargoListPdf(data: CargoListData): Promise<Uint8Array> {
       doc
         .font("Helvetica-Bold").fontSize(11)
         .text("N", doc.page.margins.left, undefined, COL_N).moveUp()
-        .text("Nombre Producto", X_NOM, undefined, { ...COL_NOM, align: "left" }).moveUp()
-        .text("Precio Total", X_PRECIO, undefined, { ...COL_PRECIO, align: "right" }).moveUp()
-        .text("Cantidad", X_CANT, undefined, { ...COL_CANT, align: "right" }).moveUp()
-        .text("UM", X_UM, undefined, COL_N).moveUp()
-        .text("Obs", X_OBS, undefined, COL_OBS)
+        .text("Nombre Producto", X_NOM + NAME_INDENT, undefined, { ...COL_NOM, width: COL_NOM.width - NAME_INDENT }).moveUp()
+        .text("Precio Total", X_PRECIO, undefined, COL_PRECIO).moveUp()
+        .text("Cantidad", X_CANT, undefined, COL_CANT).moveUp()
+        .text("UM", X_UM, undefined, COL_UM).moveUp()
+        .text("Observaciones", X_OBS, undefined, COL_OBS)
         .moveTo(doc.page.margins.left, doc.y - 3)
         .lineTo(doc.page.width - doc.page.margins.right, doc.y - 3)
         .stroke()
@@ -84,6 +95,17 @@ export function renderCargoListPdf(data: CargoListData): Promise<Uint8Array> {
     const obsText = (row: CargoListRow): string =>
       row.obs.length > 0 ? `N(${row.obs.join("-")})` : "";
 
+    // Clip an over-long product name to a single line (with an ellipsis) so the
+    // row stays one line tall — the moveUp/moveDown flow assumes each cell
+    // advances by exactly one line, which a wrapped name would break.
+    const fitName = (s: string, maxWidth: number): string => {
+      if (doc.widthOfString(s) <= maxWidth) return s;
+      let t = s;
+      while (t.length > 1 && doc.widthOfString(`${t}…`) > maxWidth) t = t.slice(0, -1);
+      return `${t.trimEnd()}…`;
+    };
+    const NAME_WIDTH = COL_NOM.width - NAME_INDENT;
+
     for (const row of data.rows) {
       const isNewTipo = row.nomTipoProducto !== currentTipo;
       tipoJustChanged = isNewTipo;
@@ -100,10 +122,10 @@ export function renderCargoListPdf(data: CargoListData): Promise<Uint8Array> {
       const obs = obsText(row);
       doc
         .text(String(row.codSerfel), doc.page.margins.left, undefined, COL_N).moveUp()
-        .text(row.nomProducto, X_NOM, undefined, { ...COL_NOM, align: "left" }).moveUp()
-        .text(`$ ${money(row.subtotal)}`, X_PRECIO, undefined, { ...COL_PRECIO, align: "right" }).moveUp()
-        .text(row.sumCantidad, X_CANT, undefined, { ...COL_CANT, align: "right" }).moveUp()
-        .text(row.nomUm, X_UM, undefined, COL_N)
+        .text(fitName(row.nomProducto, NAME_WIDTH), X_NOM + NAME_INDENT, undefined, { ...COL_NOM, width: NAME_WIDTH }).moveUp()
+        .text(`$ ${money(row.subtotal)}`, X_PRECIO, undefined, COL_PRECIO).moveUp()
+        .text(row.sumCantidad, X_CANT, undefined, COL_CANT).moveUp()
+        .text(row.nomUm, X_UM, undefined, COL_UM)
         .moveTo(X_OBS, doc.y - 3)
         .lineTo(doc.page.width - doc.page.margins.right, doc.y - 3)
         .stroke()
