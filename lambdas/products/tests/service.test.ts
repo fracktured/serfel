@@ -227,7 +227,7 @@ describe("getMe", () => {
       idUsuario: SEED.idUsuario,
       idTipoUsuario: SEED.tipoAdmin,
       nomUsuario: "Admin Test",
-      modulos: ["productos", "rutas"],
+      modulos: ["productos", "rutas", "usuarios"],
     });
   });
   it("returns an empty module list for a vendedor", async () => {
