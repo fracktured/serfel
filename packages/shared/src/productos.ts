@@ -59,7 +59,16 @@ export type ApiErrorCode =
   | "NO_AUTORIZADO"
   | "PROHIBIDO"
   | "DB_NO_DISPONIBLE"
-  | "ERROR_INTERNO";
+  | "ERROR_INTERNO"
+  | "RUT_EN_USO"
+  | "RUT_INACTIVO"
+  | "NUM_EN_USO"
+  | "EMAIL_EN_USO"
+  | "USUARIO_NO_ENCONTRADO"
+  | "USUARIO_CON_VENTAS_PENDIENTES"
+  | "USUARIO_SIN_EMAIL"
+  | "COGNITO_YA_EXISTE"
+  | "COGNITO_ERROR";
 
 export interface ApiErrorBody {
   error: { code: ApiErrorCode; message: string };
