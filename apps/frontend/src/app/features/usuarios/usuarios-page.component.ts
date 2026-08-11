@@ -193,6 +193,7 @@ export class UsuariosPageComponent implements OnInit {
             this.modalOpen.set(false);
           } catch (e2) {
             this.toasts.show(apiError(e2)?.message ?? "No se pudo reactivar", "error");
+            this.modal()?.resetBusy();
           }
         } else {
           this.modal()?.setServerError("RUT_EN_USO", "RUT inactivo");

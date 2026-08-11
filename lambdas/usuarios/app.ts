@@ -36,7 +36,7 @@ export function createApp(deps: AppDeps) {
   app.onError((err, c) => {
     if (err instanceof AppError) return c.json(errorBody(err.code, err.message), err.status);
     if (isDbUnreachable(err)) return c.json(errorBody("DB_NO_DISPONIBLE", "La base de datos no está disponible en este momento. Intenta más tarde."), 503);
-    console.error("unhandled error", err);
+    console.error("unhandled error", { message: err instanceof Error ? err.message : String(err), code: (err as { code?: string }).code });
     return c.json(errorBody("ERROR_INTERNO", "Error interno del servidor"), 500);
   });
 
@@ -51,6 +51,7 @@ export function createApp(deps: AppDeps) {
   app.use("/usuarios", gate);
   app.use("/usuarios/*", gate);
 
+  // Not wired in infra (products serves /api/me); kept for pattern parity + tests.
   app.get("/me", async (c) => c.json(await getMe(await deps.getDb(), c.get("idUsuario"))));
 
   app.get("/usuarios/lookups", async (c) => c.json(await getUsuarioLookups(await deps.getDb())));

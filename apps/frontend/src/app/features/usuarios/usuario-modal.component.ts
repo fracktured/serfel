@@ -176,4 +176,7 @@ export class UsuarioModalComponent implements OnInit {
     else if (code === "NUM_EN_USO") this.errors.set({ numero: message });
     else this.errors.set({ email: message });
   }
+
+  /** Re-enable the save button after a failed submit the parent handled via toast. */
+  resetBusy(): void { this.busy.set(false); }
 }
