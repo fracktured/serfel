@@ -216,7 +216,7 @@ export const t60MPago = mysqlTable("60_m_pago", {
 ]);
 
 export const t10MUsuario = mysqlTable("10_m_usuario", {
-	idUsuario: int("id_usuario").notNull(),
+	idUsuario: int("id_usuario").autoincrement().notNull(),
 	rutUsuario: int("rut_usuario").notNull(),
 	dvUsuario: varchar("dv_usuario", { length: 1 }).notNull(),
 	nomUsuario: varchar("nom_usuario", { length: 50 }).notNull(),

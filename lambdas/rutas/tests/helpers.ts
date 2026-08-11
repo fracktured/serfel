@@ -1,8 +1,8 @@
 import { fileURLToPath } from "node:url";
 import mysql, { type Pool } from "mysql2/promise";
-import { migrate } from "drizzle-orm/mysql2/migrator";
 import {
   createDb,
+  migrateSchemaOnly,
   type Db,
   t99PEstado,
   t10PTipoUsuario,
@@ -68,7 +68,7 @@ export async function setupTestDb(
     { host: ROOT.host, port: ROOT.port, username: ROOT.user, password: ROOT.password, dbname: dbName },
     { ssl: false }
   );
-  await migrate(db, { migrationsFolder: MIGRATIONS });
+  await migrateSchemaOnly(db, MIGRATIONS);
 
   await db.insert(t99PEstado).values([
     { idEstado: 0, nomEstado: "Inactivo", descEstado: "Inactivo" },

@@ -48,6 +48,7 @@ const userPoolClient = new aws.cognito.UserPoolClient("user-pool-client", {
 });
 
 export const userPoolId = userPool.id;
+export const userPoolArn = userPool.arn;
 export const userPoolClientId = userPoolClient.id;
 /** e.g. cognito-idp.us-east-1.amazonaws.com/us-east-1_XXXX */
 export const userPoolEndpoint = userPool.endpoint;

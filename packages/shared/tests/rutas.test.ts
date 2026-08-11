@@ -22,7 +22,7 @@ describe("rutas module role", () => {
     expect(tipoCanAccess("rutas", 1)).toBe(true);
     expect(tipoCanAccess("rutas", 3)).toBe(false);
   });
-  it("admin modules include both productos and rutas", () => {
-    expect(modulesForTipo(1)).toEqual(["productos", "rutas"]);
+  it("admin modules include productos, rutas, and usuarios", () => {
+    expect(modulesForTipo(1)).toEqual(["productos", "rutas", "usuarios"]);
   });
 });

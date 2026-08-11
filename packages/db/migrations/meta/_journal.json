@@ -50,6 +50,20 @@
       "when": 1786310527621,
       "tag": "0006_seed_stock",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1786310528621,
+      "tag": "0007_fix_clientes_error_id",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1786407704991,
+      "tag": "0008_usuario_id_autoincrement",
+      "breakpoints": true
     }
   ]
 }

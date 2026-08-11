@@ -158,29 +158,6 @@
         }
         //</editor-fold>
 
-        private function obtNuevoIdUsuario() {
-        /************************************************************
-         * Autor: Christian Castro                                  *
-         * Fecha: 23-11-2011                                        *
-         * Desc : Devuelve el siguiente Id Clientes del sistema.    *
-         *        Esta funcionalidad solo trabaja si la tabla de    *
-         *        Clientes tiene por lo menos un registro           *
-         ************************************************************/
-            $db = conectarse();
-
-            $query = "SELECT (MAX(id_usuario) + 1) as id_usuario
-                          FROM 10_m_usuario";
-            
-            $resDB = mysql_query($query, $db) or die(mysql_error());
-            
-            while ($filaDB = mysql_fetch_assoc($resDB)) $idUsuario = $filaDB["id_usuario"];
-            
-            if($idUsuario == "") $idUsuario = 1;
-
-            mysql_close($db);
-            return $idUsuario;
-        }
-
         function ingUsuario($rutUsu, $nomUsu, $apellPatUsu, $apellMatUsu, $passUsu, $idTipoUsu, $fonoUsu,
                             $direUsu, $emailUsu, $numero, $idUsuIng) {
         /************************************************************
@@ -213,12 +190,9 @@
                 if($totRes == 0) {
                     $rut = explode("-", $rutUsu);
 
-                    $idUsuario = $this->obtNuevoIdUsuario();
-
                     $db = conectarse();
 
-                    $query = "INSERT INTO 10_m_usuario (id_usuario,
-                                                        rut_usuario,
+                    $query = "INSERT INTO 10_m_usuario (rut_usuario,
                                                         dv_usuario,
                                                         nom_usuario,
                                                         apell_pat_usuario,
@@ -231,8 +205,7 @@
                                                         num_usuario,
                                                         id_usuario_mod,
                                                         ult_fecha_mod)
-                                VALUES (" . $idUsuario . ",
-                                        " . $rut[0] . ",
+                                VALUES (" . $rut[0] . ",
                                         '" . $rut[1] . "',
                                         '" . $nomUsu . "',
                                         '" . $apellPatUsu . "',
@@ -246,6 +219,7 @@
                                         " . $idUsuIng . ",
                                         NOW())";
                     mysql_query($query, $db) or die(mysql_error());
+                    $idUsuario = mysql_insert_id($db);
 
                     mysql_close($db);
                     return $idUsuario;

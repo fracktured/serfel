@@ -1,0 +1,1 @@
+ALTER TABLE `10_m_usuario` MODIFY COLUMN `id_usuario` int AUTO_INCREMENT NOT NULL;
