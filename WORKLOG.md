@@ -8,6 +8,12 @@ not stopwatch-precise. Newest entries on top.
 
 ---
 
+## 2026-08-11 (Tue) — ~0.5h
+**Rehost — uncategorized stock in bodega listing**
+- `Lista.php` (Distribuidor + Coproad) inner-joined `20_p_tipo_producto` twice; the second join onto `tp.nivel_1` (parent category) silently dropped stock whose tipo has no `nivel_1` parent. Switched that join to `LEFT OUTER JOIN` so uncategorized/top-level stock appears in `getListaExistenciasPorBodega`
+- Built the ARM64 `php-app-1` combined image, pushed to ECR `:v1`, forced a new ECS deployment on `serfel-dev-rehost`; verified running digest matches, ALB target healthy, service stable
+- Commit: 1
+
 ## 2026-08-11 (Tue) — ~1h
 **Listado Carga PDF — legacy JRXML layout**
 - Reworked `lambdas/rutas/pdf.ts` product rows to match the legacy JasperReport (`ListadoCarga.jrxml`): airier row spacing (`lineGap`), legacy column proportions (numeric block pulled left of centre), roomy product-name column, full "Observaciones" header, wide underline; kept the new "$"-money format and current margins
