@@ -95,8 +95,9 @@ async function assertUnique(
     excludeId === null ? eq(col as any, val) : and(eq(col as any, val), ne(t10MUsuario.idUsuario, excludeId));
 
   if (numUsuario !== null && numUsuario !== 0) {
+    // Only active users hold a num_usuario; one freed by a deactivated user is reusable.
     const clash = await (tx as Db).select({ id: t10MUsuario.idUsuario })
-      .from(t10MUsuario).where(notSelf(t10MUsuario.numUsuario, numUsuario));
+      .from(t10MUsuario).where(and(notSelf(t10MUsuario.numUsuario, numUsuario), eq(t10MUsuario.idEstado, ESTADO_ACTIVO)));
     if (clash.length > 0) throw new AppError("NUM_EN_USO", 409, `El número ${numUsuario} ya está en uso`);
   }
   const emailClash = await (tx as Db).select({ id: t10MUsuario.idUsuario })

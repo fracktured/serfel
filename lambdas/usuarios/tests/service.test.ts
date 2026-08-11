@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import type { Pool } from "mysql2/promise";
 import { t10MUsuario, t30MPedido, t40MVenta, type Db } from "@serfel/db";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { setupTestDb, SEED } from "./helpers";
 import {
   getUsuarioLookups, listUsuarios, createUsuario, activateUsuario,
@@ -41,6 +41,14 @@ describe("createUsuario", () => {
       .rejects.toMatchObject({ code: "NUM_EN_USO" });
   });
 
+  it("allows a num_usuario freed by a deactivated user", async () => {
+    const c = await createUsuario(db, { ...baseInput, rut: "17000000-K", emailUsuario: "num@serfel.cl", numUsuario: 55 }, SEED.idAdmin);
+    if (c.kind !== "created") throw new Error("expected created");
+    await deactivateUsuario(db, c.dto.idUsuario, SEED.idAdmin);
+    const reuse = await createUsuario(db, { ...baseInput, rut: "16000000-3", emailUsuario: "num2@serfel.cl", numUsuario: 55 }, SEED.idAdmin);
+    expect(reuse.kind).toBe("created");
+  });
+
   it("rejects duplicate email with EMAIL_EN_USO", async () => {
     await expect(createUsuario(db, { ...baseInput, rut: "6371526-K", emailUsuario: "juan@serfel.cl", numUsuario: 12 }, SEED.idAdmin))
       .rejects.toMatchObject({ code: "EMAIL_EN_USO" });
@@ -57,7 +65,8 @@ describe("createUsuario", () => {
 
 describe("activateUsuario", () => {
   it("reactivates and applies the submitted form data", async () => {
-    const rows = await db.select().from(t10MUsuario).where(eq(t10MUsuario.idEstado, 0));
+    const rows = await db.select().from(t10MUsuario)
+      .where(and(eq(t10MUsuario.idEstado, 0), eq(t10MUsuario.rutUsuario, 6371526)));
     const target = rows[0];
     const dto = await activateUsuario(db, target.idUsuario, {
       rut: "6371526-K", nomUsuario: "Nuevo", apellPatUsuario: "Nombre", apellMatUsuario: "Aca",
