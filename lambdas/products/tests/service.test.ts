@@ -38,8 +38,10 @@ describe("getLookups", () => {
       { id: SEED.umLt, nombre: "LT" },
       { id: SEED.umUni, nombre: "UNI" },
     ]);
-    // label carries the rate; ordered by raw name (IVA before Sin Imp.)
+    // label carries the rate; ordered by raw name (HARINA, IABA, IVA, Sin Imp.)
     expect(lookups.impuestos).toEqual([
+      { id: SEED.impHarina, nombre: "HARINA 12%" },
+      { id: SEED.impIaba, nombre: "IABA 18%" },
       { id: SEED.impIva, nombre: "IVA 19%" },
       { id: SEED.impSinAdicional, nombre: "Sin Imp. Adicional 0%" },
     ]);

@@ -11,6 +11,11 @@ import {
   t20PTipoProducto,
   t20PUnidadMedida,
   t99PImpuesto,
+  t50PTipoBodega,
+  t50MBodega,
+  t99PIva,
+  t10PTipoDocto,
+  t70MProveedor,
 } from "@serfel/db";
 
 const ROOT = { host: "127.0.0.1", port: 3307, user: "root", password: "serfel" };
@@ -31,6 +36,12 @@ export const SEED = {
   umLt: 2,
   impSinAdicional: 0,
   impIva: 3,
+  bodegaCentral: 1,
+  ivaRate: 19,
+  impIaba: 1,
+  impHarina: 2,
+  tipoDoctoFactura: 1,
+  proveedorRut: 76000000,
 } as const;
 
 export async function setupTestDb(
@@ -92,6 +103,24 @@ export async function setupTestDb(
   await db.insert(t99PImpuesto).values([
     { idImpuesto: SEED.impIva, nomImpuesto: "IVA", valor: 19, idImpIss: 14 },
   ]);
+  await db.insert(t99PIva).values({ iva: SEED.ivaRate });
+  await db.insert(t99PImpuesto).values([
+    { idImpuesto: SEED.impIaba, nomImpuesto: "IABA", valor: 18, idImpIss: 0 },
+    { idImpuesto: SEED.impHarina, nomImpuesto: "HARINA", valor: 12, idImpIss: 0 },
+  ]);
+  await db.insert(t50PTipoBodega).values({ idTipoBodega: 1, nomTipoBodega: "CENTRAL" });
+  await db.insert(t50MBodega).values({
+    idBodega: SEED.bodegaCentral, nomBodega: "CENTRAL", descBodega: "Bodega central",
+    idTipoBodega: 1, idUsuarioMod: SEED.idUsuario, ultFechaMod: "2026-01-01 00:00:00", idEstado: 1,
+  });
+  await db.insert(t10PTipoDocto).values({
+    idTipoDocto: SEED.tipoDoctoFactura, nomTipoDocto: "FACTURA", descTipoDocto: "Factura",
+  });
+  await db.insert(t70MProveedor).values({
+    rutProveedor: SEED.proveedorRut, dvProveedor: "9", razonSocial: "PROV TEST SA",
+    nomFantasia: "ProvTest", direccionProveedor: "-",
+    idUsuarioMod: SEED.idUsuario, ultFechaMod: "2026-01-01 00:00:00", idEstado: 1,
+  });
 
   const teardown = async () => {
     await pool.end();
