@@ -364,6 +364,13 @@ td.t-muted { color: var(--muted); }
   transition: all .2s;
 }
 .btn-save:hover { opacity: .9; transform: scale(1.02); }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; padding: 20px; }
+.detail-field { display: flex; flex-direction: column; gap: 2px; }
+.detail-field.full { grid-column: 1 / -1; }
+.detail-lbl { font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: .03em; }
+.detail-val { font-size: 15px; color: #111827; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+.stock-edit { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.stock-edit input { width: 140px; }
 
 /* ── Toast ── */
 .toast {
