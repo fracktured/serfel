@@ -4,6 +4,7 @@ import type { EstadoFilter, ProductoDto, ProductoInput } from '@serfel/shared';
 import { NavbarComponent } from '../../core/navbar.component';
 import { ProductosStore, apiError } from './productos-store';
 import { ProductModalComponent } from './product-modal.component';
+import { ProductDetailModalComponent } from './product-detail-modal.component';
 import { ToastComponent } from '../../core/toast.component';
 import { ToastService } from '../../core/toast.service';
 import { brandBadgeStyle, toCsv, type SortKey } from './productos-logic';
@@ -11,7 +12,7 @@ import { brandBadgeStyle, toCsv, type SortKey } from './productos-logic';
 @Component({
   selector: 'app-productos-page',
   standalone: true,
-  imports: [FormsModule, NavbarComponent, ProductModalComponent, ToastComponent],
+  imports: [FormsModule, NavbarComponent, ProductModalComponent, ProductDetailModalComponent, ToastComponent],
   template: `
     <app-navbar>
       <div class="header-search">
@@ -168,6 +169,9 @@ import { brandBadgeStyle, toCsv, type SortKey } from './productos-logic';
                   <td>
                     <div class="t-actions" style="justify-content:center">
                       @if (p.idEstado === 1) {
+                        <button class="t-btn t-btn-edit" (click)="openDetail(p)" title="Ver detalle">
+                          $
+                        </button>
                         <button class="t-btn t-btn-edit" (click)="openModal(p)" title="Editar">
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                           Editar
@@ -220,6 +224,12 @@ import { brandBadgeStyle, toCsv, type SortKey } from './productos-logic';
         (save)="onSave($event)"
         (cancel)="modalOpen.set(false)" />
     }
+    @if (detailOpen() && detailId() !== null) {
+      <app-product-detail-modal
+        [idProducto]="detailId()!"
+        (stockChanged)="onStockChanged()"
+        (closed)="detailOpen.set(false)" />
+    }
     <app-toast />
   `,
 })
@@ -228,6 +238,8 @@ export class ProductosPageComponent implements OnInit {
   private toasts = inject(ToastService);
   readonly modalOpen = signal(false);
   readonly editing = signal<ProductoDto | null>(null);
+  readonly detailOpen = signal(false);
+  readonly detailId = signal<number | null>(null);
   private modal = viewChild(ProductModalComponent);
 
   ngOnInit(): void {
@@ -276,6 +288,16 @@ export class ProductosPageComponent implements OnInit {
     a.download = 'productos.csv';
     a.click();
     URL.revokeObjectURL(a.href);
+  }
+
+  openDetail(p: ProductoDto): void {
+    this.detailId.set(p.idProducto);
+    this.detailOpen.set(true);
+  }
+
+  onStockChanged(): void {
+    void this.store.load();
+    this.toasts.show('Stock actualizado');
   }
 
   openModal(product: ProductoDto | null): void {
