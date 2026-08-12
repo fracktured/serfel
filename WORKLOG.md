@@ -8,6 +8,13 @@ not stopwatch-precise. Newest entries on top.
 
 ---
 
+## 2026-08-12 (Wed) — ~0.5h
+**Listado Carga — route-name text filter**
+- Added a case-insensitive text filter over the route list in `listado-carga-page.component.ts`, reusing the productos maintainer filter UI (global `.filter-dropdowns` / `.fd-field` / `.btn-clear` classes) with a "Nombre de la Ruta" input + "Limpiar" button
+- Store: new `nameFilter` signal + `filteredRutas` computed; `allChecked` / `toggleAll` now operate on the filtered set so "Seleccionar todas" applies to visible rows; added a "no coincidencias" empty state
+- Frontend typecheck clean; merged to `main` (ff, pushed 87 local commits to GitHub) and deployed to dev (admin-christian) — full stack `✓ Complete`, Frontend rebuilt + CloudFront invalidated
+- Commits: 1
+
 ## 2026-08-11 (Tue) — ~3.5h
 **Prefacturación vertical slice (new `ventas` domain) + dev deploy**
 - Analyzed the legacy Angular 14 `prefacturacion` component + its `POST /preinvoice` Sequelize backend (`node-app-1`); brainstormed the migration and wrote a design spec + step-by-step implementation plan
