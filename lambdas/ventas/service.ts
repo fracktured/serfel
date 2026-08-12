@@ -171,7 +171,7 @@ export async function prefacturarBatch(
     const mensajes: string[] = [];
     try {
       const idVenta = await db.transaction(async (tx) => {
-        return prefacturarUno(tx, idPedido, input.rutEmpresa, idUsuario, ivaValor, especValor, mensajes);
+        return prefacturarUno(tx, idPedido, input.rutEmpresa, idUsuario, ivaValor, especValor, rateOf, mensajes);
       });
       resultados.push({ idPedido, status: "facturado", idVenta, mensajes });
     } catch (err) {
@@ -202,6 +202,7 @@ async function prefacturarUno(
   idUsuario: number,
   ivaValor: number,
   especValor: number,
+  rateOf: (idImpuesto: number) => number | null,
   mensajes: string[]
 ): Promise<number> {
   // Guard: no existing non-anulada venta (re-checked inside the txn).
@@ -235,6 +236,9 @@ async function prefacturarUno(
   if (porcion.length > 0) throw new PedidoError(`Pedido [${idPedido}] contiene productos porcionados`);
 
   // Line items joined with their producto (impuesto) and central-bodega stock.
+  // Deliberately a plain read (no SELECT ... FOR UPDATE), matching legacy behavior;
+  // correctness relies on batches being processed sequentially (connectionLimit 1) —
+  // a lost-update race is only possible under concurrent batch submissions.
   const lineas = await tx
     .select({
       idProducto: t30MProductoPedido.idProducto,
@@ -279,7 +283,7 @@ async function prefacturarUno(
     if (l.impuesto === IMPUESTO_ESPEC) {
       montoESPEC += Math.round((stDesc * especValor) / 100);
     } else if (l.impuesto > 0) {
-      const rate = await taxRate(tx, l.impuesto);
+      const rate = rateOf(l.impuesto);
       if (rate !== null) montoILA += Math.round((stDesc * rate) / 100);
     }
     ventaLines.push({ idProducto: l.idProducto, cantidad, precioNeto: l.precioNeto, porcenDesc: l.porcenDesc });
@@ -359,13 +363,4 @@ async function prefacturarUno(
 
   await tx.update(t30MPedido).set({ idEstado: ESTADO_FINALIZADO }).where(eq(t30MPedido.idPedido, idPedido));
   return idVenta;
-}
-
-async function taxRate(tx: Tx, idImpuesto: number): Promise<number | null> {
-  const rows = await tx
-    .select({ valor: t99PImpuesto.valor })
-    .from(t99PImpuesto)
-    .where(eq(t99PImpuesto.idImpuesto, idImpuesto))
-    .limit(1);
-  return rows.length > 0 ? rows[0].valor : null;
 }
