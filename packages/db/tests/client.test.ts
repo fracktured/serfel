@@ -44,7 +44,7 @@ describe("createDb", () => {
       sql`SELECT COUNT(*) AS c FROM information_schema.tables WHERE table_schema = ${TEST_DB} AND TABLE_NAME != '__drizzle_migrations'`
     );
     const count = Number((result as unknown as [{ c: unknown }[], unknown])[0][0].c);
-    expect(count).toBe(42);
+    expect(count).toBe(43);
     await pool.end();
   }, 60_000);
 });
