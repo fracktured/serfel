@@ -3,6 +3,7 @@ import { HttpClient } from "@angular/common/http";
 import type {
   EstadoFilter,
   LookupsDto,
+  ProductoDetalleDto,
   ProductoDto,
   ProductoInput,
 } from "@serfel/shared";
@@ -32,5 +33,11 @@ export class ProductosApi {
   }
   restore(id: number) {
     return this.http.post<ProductoDto>(`${this.base}/products/${id}/restore`, {});
+  }
+  detalle(id: number) {
+    return this.http.get<ProductoDetalleDto>(`${this.base}/products/${id}/detalle`);
+  }
+  setStock(id: number, cantidad: number) {
+    return this.http.put<ProductoDetalleDto>(`${this.base}/products/${id}/stock`, { cantidad });
   }
 }
