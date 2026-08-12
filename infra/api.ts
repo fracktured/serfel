@@ -78,6 +78,22 @@ const usuariosFn = new sst.aws.Function("UsuariosFn", {
   },
 });
 
+const ventasFn = new sst.aws.Function("VentasFn", {
+  handler: "lambdas/ventas/index.handler",
+  runtime: "nodejs22.x",
+  architecture: "arm64",
+  timeout: "20 seconds",
+  memory: "256 MB",
+  vpc: { privateSubnets: privateSubnetIds, securityGroups: [sgLambdaId] },
+  environment: { DB_SECRET_ARN: dbSecretArn },
+  permissions: [{ actions: ["secretsmanager:GetSecretValue"], resources: [dbSecretArn] }],
+  copyFiles: [{ from: "packages/db/rds-global-bundle.pem", to: "rds-global-bundle.pem" }],
+  transform: {
+    function: { name: `serfel-${$app.stage}-ventas`, tags: stackTags("serfel-aws") },
+    logGroup: { tags: stackTags("serfel-aws") },
+  },
+});
+
 const api = new sst.aws.ApiGatewayV2("Api", {
   // dev-only wildcard CORS (JWT still required); tighten in Fase 5
   cors: {
@@ -135,6 +151,15 @@ const usuariosRoutes = [
 ] as const;
 for (const route of usuariosRoutes) {
   api.route(route, usuariosFn.arn, { auth: { jwt: { authorizer: jwtAuthorizer.id } } });
+}
+
+const ventasRoutes = [
+  "GET /api/prefacturacion/pendientes",
+  "GET /api/prefacturacion/empresas",
+  "POST /api/prefacturacion",
+] as const;
+for (const route of ventasRoutes) {
+  api.route(route, ventasFn.arn, { auth: { jwt: { authorizer: jwtAuthorizer.id } } });
 }
 
 export const apiUrl = api.url;
