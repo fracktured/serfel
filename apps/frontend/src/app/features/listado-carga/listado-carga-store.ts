@@ -23,8 +23,14 @@ export class ListadoCargaStore {
   readonly generating = signal(false);
   readonly errorMsg = signal<string | null>(null);
   readonly tipo = signal<CargoTipo>("ventas");
+  readonly nameFilter = signal("");
 
-  readonly allChecked = computed(() => allSelected(this.rutas(), this.selected()));
+  readonly filteredRutas = computed(() => {
+    const q = this.nameFilter().trim().toLowerCase();
+    if (!q) return this.rutas();
+    return this.rutas().filter((r) => r.nomRuta.toLowerCase().includes(q));
+  });
+  readonly allChecked = computed(() => allSelected(this.filteredRutas(), this.selected()));
   readonly hasSelection = computed(() => this.selected().size > 0);
 
   async load(): Promise<void> {
@@ -46,7 +52,7 @@ export class ListadoCargaStore {
 
   toggleAll(): void {
     this.selected.set(
-      this.allChecked() ? new Set() : new Set(this.rutas().map((r) => r.idRuta))
+      this.allChecked() ? new Set() : new Set(this.filteredRutas().map((r) => r.idRuta))
     );
   }
 

@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from "@angular/common/http";
 import { Component, inject, OnInit } from "@angular/core";
+import { FormsModule } from "@angular/forms";
 import { NavbarComponent } from "../../core/navbar.component";
 import { ToastComponent } from "../../core/toast.component";
 import { ToastService } from "../../core/toast.service";
@@ -9,7 +10,7 @@ import { ListadoCargaStore, apiError } from "./listado-carga-store";
 @Component({
   selector: "app-listado-carga-page",
   standalone: true,
-  imports: [NavbarComponent, ToastComponent],
+  imports: [FormsModule, NavbarComponent, ToastComponent],
   template: `
     <app-navbar />
 
@@ -47,17 +48,32 @@ import { ListadoCargaStore, apiError } from "./listado-carga-store";
         </div>
       </div>
 
+      <div class="filter-dropdowns" style="max-width:480px">
+        <div class="fd-field" style="flex:1">
+          <label for="f-ruta">Nombre de la Ruta</label>
+          <input id="f-ruta" type="text" placeholder="Buscar por nombre…"
+                 [ngModel]="store.nameFilter()"
+                 (ngModelChange)="store.nameFilter.set($event)" />
+        </div>
+        <button class="btn-clear" (click)="store.nameFilter.set('')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          Limpiar
+        </button>
+      </div>
+
       <div class="rutas-card">
         @if (store.loading()) {
           <p class="rutas-empty">Cargando rutas…</p>
         } @else if (store.rutas().length === 0) {
           <p class="rutas-empty">No hay rutas activas.</p>
+        } @else if (store.filteredRutas().length === 0) {
+          <p class="rutas-empty">No hay rutas que coincidan con el filtro.</p>
         } @else {
           <label class="ruta-row ruta-all">
             <input type="checkbox" [checked]="store.allChecked()" (change)="store.toggleAll()" />
             <span>Seleccionar todas</span>
           </label>
-          @for (ruta of store.rutas(); track ruta.idRuta) {
+          @for (ruta of store.filteredRutas(); track ruta.idRuta) {
             <label class="ruta-row">
               <input type="checkbox" [checked]="store.selected().has(ruta.idRuta)" (change)="store.toggle(ruta.idRuta)" />
               <span>{{ ruta.nomRuta }}</span>
