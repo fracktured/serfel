@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import type { Db } from "@serfel/db";
+import { t20MProducto } from "@serfel/db";
 import { setupTestDb, SEED } from "./helpers";
 import { createApp } from "../app";
 
@@ -170,5 +171,58 @@ describe("role-based access", () => {
     currentUser = SEED.idUsuario;
     expect((await app.request("/api/products")).status).toBe(200);
     expect((await app.request("/api/lookups")).status).toBe(200);
+  });
+});
+
+describe("detalle + stock routes", () => {
+  let idProd: number;
+
+  beforeAll(async () => {
+    await appPromise; // ensures db is initialised
+    const [h] = await db.insert(t20MProducto).values({
+      nomProducto: "APP DETALLE", descProducto: "", codBarraProducto: "",
+      idTipoProducto: SEED.tipoYogurt, idMarca: SEED.marcaSoprole, idUm: SEED.umUni,
+      idUsuarioMod: SEED.idUsuario, ultFechaMod: "2026-01-01 00:00:00",
+      idEstado: 1, codSerfel: 950, impuesto: 0, usaPorciones: 0, costoProm: "10.00",
+    });
+    idProd = h.insertId;
+  });
+
+  it("GET /api/products/:id/detalle returns the detail DTO", async () => {
+    const app = await appPromise;
+    const res = await app.request(`/api/products/${idProd}/detalle`);
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.idProducto).toBe(idProd);
+    expect(body).toHaveProperty("precioVentaCliente");
+  });
+
+  it("GET /api/products/:id/detalle 404s for an unknown product", async () => {
+    const app = await appPromise;
+    const res = await app.request(`/api/products/999999/detalle`);
+    expect(res.status).toBe(404);
+    expect((await res.json()).error.code).toBe("PRODUCTO_NO_ENCONTRADO");
+  });
+
+  it("PUT /api/products/:id/stock updates stock and returns refreshed detail", async () => {
+    const app = await appPromise;
+    const res = await app.request(`/api/products/${idProd}/stock`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ cantidad: 7 }),
+    });
+    expect(res.status).toBe(200);
+    expect((await res.json()).cantidadStock).toBe(7);
+  });
+
+  it("PUT /api/products/:id/stock 400s on an invalid body", async () => {
+    const app = await appPromise;
+    const res = await app.request(`/api/products/${idProd}/stock`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ cantidad: -3 }),
+    });
+    expect(res.status).toBe(400);
+    expect((await res.json()).error.code).toBe("VALIDACION");
   });
 });

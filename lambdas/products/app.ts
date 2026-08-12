@@ -2,6 +2,7 @@ import { Hono, type Context } from "hono";
 import {
   EstadoFilterSchema,
   ProductoInputSchema,
+  StockInputSchema,
   type ApiErrorBody,
 } from "@serfel/shared";
 import { AppError, isDbUnreachable } from "./errors";
@@ -10,8 +11,10 @@ import {
   deactivateProduct,
   getLookups,
   getMe,
+  getProductoDetalle,
   listProducts,
   restoreProduct,
+  setStock,
   updateProduct,
 } from "./service";
 import { requireModule } from "./authz";
@@ -34,6 +37,20 @@ async function parseInput(c: Context) {
     throw new AppError("VALIDACION", 400, "El cuerpo debe ser JSON válido");
   });
   const parsed = ProductoInputSchema.safeParse(raw);
+  if (!parsed.success) {
+    const detail = parsed.error.issues
+      .map((i) => `${i.path.join(".")}: ${i.message}`)
+      .join("; ");
+    throw new AppError("VALIDACION", 400, detail);
+  }
+  return parsed.data;
+}
+
+async function parseStockInput(c: Context) {
+  const raw = await c.req.json().catch(() => {
+    throw new AppError("VALIDACION", 400, "El cuerpo debe ser JSON válido");
+  });
+  const parsed = StockInputSchema.safeParse(raw);
   if (!parsed.success) {
     const detail = parsed.error.issues
       .map((i) => `${i.path.join(".")}: ${i.message}`)
@@ -115,6 +132,17 @@ export function createApp(deps: AppDeps) {
   app.post("/products/:id/restore", async (c) => {
     const id = parseId(c);
     return c.json(await restoreProduct(await deps.getDb(), id, c.get("idUsuario")));
+  });
+
+  app.get("/products/:id/detalle", async (c) => {
+    const id = parseId(c);
+    return c.json(await getProductoDetalle(await deps.getDb(), id));
+  });
+
+  app.put("/products/:id/stock", async (c) => {
+    const id = parseId(c);
+    const { cantidad } = await parseStockInput(c);
+    return c.json(await setStock(await deps.getDb(), id, cantidad, c.get("idUsuario")));
   });
 
   return app;
