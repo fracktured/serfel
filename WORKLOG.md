@@ -8,6 +8,18 @@ not stopwatch-precise. Newest entries on top.
 
 ---
 
+## 2026-08-11 (Tue) — ~3.5h
+**Prefacturación vertical slice (new `ventas` domain) + dev deploy**
+- Analyzed the legacy Angular 14 `prefacturacion` component + its `POST /preinvoice` Sequelize backend (`node-app-1`); brainstormed the migration and wrote a design spec + step-by-step implementation plan
+- Key redesign: replaced the legacy N-parallel-single-pedido requests with one **batch** `POST /api/prefacturacion` — each pedido in its own transaction, process-all-and-report per row (fits the `connectionLimit:1` Lambda pool; adds per-pedido atomicity + idempotency the legacy lacked)
+- Shared `@serfel/shared` Zod contract (`PrefacturaBatchInput`/`Result`, `PedidoPendienteDto`, `EmpresaDto`) + `ventas` authz module
+- New `ventas` Hono lambda: `GET /prefacturacion/pendientes` (active pedidos w/o non-anulada venta), `GET /prefacturacion/empresas` (DB lookup, latest-row-per-rut over the composite PK), `POST /prefacturacion` (`prefacturarBatch`) — money math (IVA/ESPEC/ILA rounding) ported byte-for-byte from legacy; deterministic central-bodega stock read (fixes legacy last-row-wins), skip/clamp warnings, internal-company stock-skip; rates preloaded once per batch
+- Frontend `prefacturacion` feature: api service, pure logic (+spec), signals store, page (empresa dropdown, search, sortable multi-select table, inline per-row facturado/error/warning status + summary counts), guarded `/prefacturacion` route + nav
+- No DB migration (all tables pre-existed). Executed subagent-driven (fresh implementer + task review per task, clean final whole-branch review); 164 tests green, typecheck clean
+- Fixed a regression the `ventas` module surfaced: 4 pre-existing admin module-list assertions (shared + products tests) now include `"ventas"`
+- Merged to `main` (ff), deployed to dev: `VentasFn` + 3 routes created, frontend rebuilt/invalidated; smoke-checked all 3 routes 401 (authorizer-gated, live)
+- Commits: 16 · Span: 15:17–21:30 (incl. ~2.8h idle on a session-limit pause)
+
 ## 2026-08-11 (Tue) — ~0.5h
 **Rehost — uncategorized stock in bodega listing**
 - `Lista.php` (Distribuidor + Coproad) inner-joined `20_p_tipo_producto` twice; the second join onto `tp.nivel_1` (parent category) silently dropped stock whose tipo has no `nivel_1` parent. Switched that join to `LEFT OUTER JOIN` so uncategorized/top-level stock appears in `getListaExistenciasPorBodega`
