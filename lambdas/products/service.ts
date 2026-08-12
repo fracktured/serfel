@@ -8,6 +8,7 @@ import {
   t99PImpuesto,
   t10MUsuario,
   t50MStock,
+  t50MStockLog,
   t40MPrecioProducto,
   t99PIva,
   t50MProductoRecepcion,
@@ -425,4 +426,50 @@ export async function getProductoDetalle(
     impuestoAdicional,
     proveedorUltCompra,
   };
+}
+
+export async function setStock(
+  db: Db,
+  idProducto: number,
+  cantidad: number,
+  idUsuario: number
+): Promise<ProductoDetalleDto> {
+  await db.transaction(async (tx) => {
+    const prod = await (tx as Db)
+      .select({ id: t20MProducto.idProducto })
+      .from(t20MProducto)
+      .where(eq(t20MProducto.idProducto, idProducto))
+      .limit(1);
+    if (prod.length === 0) {
+      throw new AppError("PRODUCTO_NO_ENCONTRADO", 404, `Producto ${idProducto} no existe`);
+    }
+
+    const existing = await (tx as Db)
+      .select({ cantidad: t50MStock.cantidad })
+      .from(t50MStock)
+      .where(and(eq(t50MStock.idBodega, BODEGA_CENTRAL), eq(t50MStock.idProducto, idProducto)))
+      .limit(1);
+    const antes = existing.length > 0 ? Number(existing[0].cantidad) : null;
+
+    if (existing.length > 0) {
+      await tx
+        .update(t50MStock)
+        .set({ cantidad: String(cantidad) })
+        .where(and(eq(t50MStock.idBodega, BODEGA_CENTRAL), eq(t50MStock.idProducto, idProducto)));
+    } else {
+      await tx.insert(t50MStock).values({ idBodega: BODEGA_CENTRAL, idProducto, cantidad: String(cantidad) });
+    }
+
+    await tx.insert(t50MStockLog).values({
+      idBodega: BODEGA_CENTRAL,
+      idProducto,
+      cantidadAntes: antes === null ? null : String(antes),
+      cantidadNueva: String(cantidad),
+      diferencia: String(cantidad - (antes ?? 0)),
+      fecha: nowDateTime(),
+      idUsuario,
+    });
+  });
+
+  return getProductoDetalle(db, idProducto);
 }

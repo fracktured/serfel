@@ -1,8 +1,9 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import type { Pool } from "mysql2/promise";
-import { t20MProducto, t50MStock, t40MPrecioProducto, t50MRecepcionCompra, t50MProductoRecepcion, type Db } from "@serfel/db";
+import { eq } from "drizzle-orm";
+import { t20MProducto, t50MStock, t50MStockLog, t40MPrecioProducto, t50MRecepcionCompra, t50MProductoRecepcion, type Db } from "@serfel/db";
 import { setupTestDb, SEED } from "./helpers";
-import { getLookups, listProducts, createProduct, updateProduct, deactivateProduct, restoreProduct, getUserTipo, getMe, getProductoDetalle } from "../service";
+import { getLookups, listProducts, createProduct, updateProduct, deactivateProduct, restoreProduct, getUserTipo, getMe, getProductoDetalle, setStock } from "../service";
 
 let db: Db;
 let pool: Pool;
@@ -312,5 +313,45 @@ describe("getProductoDetalle", () => {
 
   it("throws PRODUCTO_NO_ENCONTRADO for an unknown id", async () => {
     await expect(getProductoDetalle(db, 999999)).rejects.toMatchObject({ code: "PRODUCTO_NO_ENCONTRADO", status: 404 });
+  });
+});
+
+describe("setStock", () => {
+  let idProd: number;
+
+  beforeAll(async () => {
+    const [h] = await db.insert(t20MProducto).values({
+      ...productRow({ nomProducto: "STK PROD", codSerfel: 910 }),
+      costoProm: "50.00",
+    });
+    idProd = h.insertId;
+  });
+
+  it("inserts stock when none exists and logs cantidad_antes = NULL", async () => {
+    const dto = await setStock(db, idProd, 25, SEED.idUsuario);
+    expect(dto.cantidadStock).toBe(25);
+    const logs = await db.select().from(t50MStockLog).where(eq(t50MStockLog.idProducto, idProd));
+    expect(logs).toHaveLength(1);
+    expect(logs[0].cantidadAntes).toBeNull();
+    expect(Number(logs[0].cantidadNueva)).toBe(25);
+    expect(Number(logs[0].diferencia)).toBe(25);
+    expect(logs[0].idUsuario).toBe(SEED.idUsuario);
+    expect(logs[0].idBodega).toBe(SEED.bodegaCentral);
+  });
+
+  it("updates existing stock and logs the before/after/difference", async () => {
+    const dto = await setStock(db, idProd, 10, SEED.idUsuario);
+    expect(dto.cantidadStock).toBe(10);
+    const logs = await db.select().from(t50MStockLog).where(eq(t50MStockLog.idProducto, idProd));
+    const last = logs[logs.length - 1];
+    expect(Number(last.cantidadAntes)).toBe(25);
+    expect(Number(last.cantidadNueva)).toBe(10);
+    expect(Number(last.diferencia)).toBe(-15);
+  });
+
+  it("throws PRODUCTO_NO_ENCONTRADO for an unknown id and writes no log", async () => {
+    await expect(setStock(db, 888888, 5, SEED.idUsuario)).rejects.toMatchObject({ code: "PRODUCTO_NO_ENCONTRADO", status: 404 });
+    const logs = await db.select().from(t50MStockLog).where(eq(t50MStockLog.idProducto, 888888));
+    expect(logs).toHaveLength(0);
   });
 });
