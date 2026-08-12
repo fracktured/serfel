@@ -16,6 +16,7 @@ import {
   t99PIva,
   t10PTipoDocto,
   t70MProveedor,
+  t40MListaPrecio,
 } from "@serfel/db";
 
 const ROOT = { host: "127.0.0.1", port: 3307, user: "root", password: "serfel" };
@@ -119,6 +120,10 @@ export async function setupTestDb(
   await db.insert(t70MProveedor).values({
     rutProveedor: SEED.proveedorRut, dvProveedor: "9", razonSocial: "PROV TEST SA",
     nomFantasia: "ProvTest", direccionProveedor: "-",
+    idUsuarioMod: SEED.idUsuario, ultFechaMod: "2026-01-01 00:00:00", idEstado: 1,
+  });
+  await db.insert(t40MListaPrecio).values({
+    idListaPrecio: 1, nomListaPrecio: "GENERAL",
     idUsuarioMod: SEED.idUsuario, ultFechaMod: "2026-01-01 00:00:00", idEstado: 1,
   });
 

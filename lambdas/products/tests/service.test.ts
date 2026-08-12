@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import type { Pool } from "mysql2/promise";
-import { t20MProducto, type Db } from "@serfel/db";
+import { t20MProducto, t50MStock, t40MPrecioProducto, t50MRecepcionCompra, t50MProductoRecepcion, type Db } from "@serfel/db";
 import { setupTestDb, SEED } from "./helpers";
-import { getLookups, listProducts, createProduct, updateProduct, deactivateProduct, restoreProduct, getUserTipo, getMe } from "../service";
+import { getLookups, listProducts, createProduct, updateProduct, deactivateProduct, restoreProduct, getUserTipo, getMe, getProductoDetalle } from "../service";
 
 let db: Db;
 let pool: Pool;
@@ -242,5 +242,75 @@ describe("getMe", () => {
       code: "NO_AUTORIZADO",
       status: 403,
     });
+  });
+});
+
+describe("getProductoDetalle", () => {
+  let idConImp: number;
+  let idSinImp: number;
+
+  beforeAll(async () => {
+    // product WITH additional tax (IABA), price, stock, and a purchase.
+    // costoProm/ultFechaCompra are not part of `base`, so spread them onto the
+    // insert object (the Drizzle insert type accepts them).
+    const [h1] = await db.insert(t20MProducto).values({
+      ...productRow({ nomProducto: "DET IABA", codSerfel: 900, impuesto: SEED.impIaba }),
+      costoProm: "100.00",
+      ultFechaCompra: "2026-02-01 00:00:00",
+    });
+    idConImp = h1.insertId;
+    await db.insert(t40MPrecioProducto).values({ idListaPrecio: 1, idProducto: idConImp, precioNeto: 200, precio: 0, porcenDesc: 0 });
+    await db.insert(t50MStock).values({ idBodega: SEED.bodegaCentral, idProducto: idConImp, cantidad: "10.000" });
+    await db.insert(t50MRecepcionCompra).values({
+      idRecepcion: 500, rutProveedor: SEED.proveedorRut, rutEmpresa: 76000000, idTipoDocto: SEED.tipoDoctoFactura,
+      numDocto: 1, fechaEmisionDocto: "2026-02-01 00:00:00", idBodega: SEED.bodegaCentral,
+      idUsuarioRecepcion: SEED.idUsuario, idEstado: 1,
+    });
+    await db.insert(t50MProductoRecepcion).values({ idRecepcion: 500, idProducto: idConImp, cantidad: "10.000", valor: "1000.000" });
+
+    // product WITHOUT price, stock, or purchase (costoProm defaults to 0.00)
+    const [h2] = await db.insert(t20MProducto).values(
+      productRow({ nomProducto: "DET SIN", codSerfel: 901, impuesto: 0 })
+    );
+    idSinImp = h2.insertId;
+  });
+
+  it("assembles the full detail with computed money fields and IABA tax", async () => {
+    const d = await getProductoDetalle(db, idConImp);
+    expect(d).toMatchObject({
+      codSerfel: 900,
+      nomProducto: "DET IABA",
+      nomMarca: "SOPROLE",
+      nomUm: "UNI",
+      tipoProducto: "YOGURT",
+      costoProm: 100,
+      cantidadStock: 10,
+      precioNeto: 200,
+    });
+    // costoConIva = 100 * (1 + 19/100) = 119
+    expect(d.costoConIva).toBeCloseTo(119, 5);
+    // costoTotalStock = 10 * 100 = 1000
+    expect(d.costoTotalStock).toBeCloseTo(1000, 5);
+    // valorMargen = 200 - 100 = 100 ; porcenMargen = 100/200*100 = 50
+    expect(d.valorMargen).toBeCloseTo(100, 5);
+    expect(d.porcenMargen).toBeCloseTo(50, 5);
+    // impuesto adicional IABA 18% of neto 200 = 36
+    expect(d.impuestoAdicional).toEqual({ nombre: "IABA", porcentaje: 18, monto: 36 });
+    // precio_base = 200 + iva(38) + iaba(36) = 274 ; porcen_desc 0 -> venta cliente 274
+    expect(d.precioVentaCliente).toBeCloseTo(274, 5);
+    expect(d.proveedorUltCompra).toEqual({ rut: "76000000-9", razonSocial: "PROV TEST SA" });
+  });
+
+  it("defaults missing price/stock/purchase to zero and null tax/proveedor", async () => {
+    const d = await getProductoDetalle(db, idSinImp);
+    expect(d).toMatchObject({
+      precioNeto: 0, cantidadStock: 0, costoTotalStock: 0,
+      costoConIva: 0, precioVentaCliente: 0, valorMargen: 0, porcenMargen: 0,
+      impuestoAdicional: null, proveedorUltCompra: null,
+    });
+  });
+
+  it("throws PRODUCTO_NO_ENCONTRADO for an unknown id", async () => {
+    await expect(getProductoDetalle(db, 999999)).rejects.toMatchObject({ code: "PRODUCTO_NO_ENCONTRADO", status: 404 });
   });
 });

@@ -1,4 +1,5 @@
-import { asc, eq, and, ne, or } from "drizzle-orm";
+import { asc, eq, and, ne, or, sql } from "drizzle-orm";
+import { alias } from "drizzle-orm/mysql-core";
 import {
   t20MProducto,
   t20PMarca,
@@ -6,6 +7,12 @@ import {
   t20PUnidadMedida,
   t99PImpuesto,
   t10MUsuario,
+  t50MStock,
+  t40MPrecioProducto,
+  t99PIva,
+  t50MProductoRecepcion,
+  t50MRecepcionCompra,
+  t70MProveedor,
   type Db,
 } from "@serfel/db";
 import {
@@ -17,12 +24,16 @@ import {
   type MeDto,
   type ProductoDto,
   type ProductoInput,
+  type ProductoDetalleDto,
 } from "@serfel/shared";
 import { AppError } from "./errors";
 
 /** drizzle transaction object — same query API as Db for our purposes. */
 export type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
 type DbOrTx = Db | Tx;
+
+const BODEGA_CENTRAL = 1;
+const LISTA_PRECIO_DEFAULT = 1;
 
 const productoDtoColumns = {
   idProducto: t20MProducto.idProducto,
@@ -298,5 +309,120 @@ export async function getMe(db: Db, idUsuario: number): Promise<MeDto> {
     idTipoUsuario,
     nomUsuario,
     modulos: modulesForTipo(idTipoUsuario),
+  };
+}
+
+export async function getProductoDetalle(
+  db: Db,
+  idProducto: number
+): Promise<ProductoDetalleDto> {
+  const padre = alias(t20PTipoProducto, "padre");
+  const baseRows = await db
+    .select({
+      idProducto: t20MProducto.idProducto,
+      codSerfel: t20MProducto.codSerfel,
+      nomProducto: t20MProducto.nomProducto,
+      nomMarca: t20PMarca.nomMarca,
+      nomUm: t20PUnidadMedida.nomUm,
+      tipoProducto: t20PTipoProducto.nomTipoProducto,
+      tipoProductoPadre: padre.nomTipoProducto,
+      costoProm: t20MProducto.costoProm,
+      ultFechaCompra: t20MProducto.ultFechaCompra,
+      impuesto: t20MProducto.impuesto,
+    })
+    .from(t20MProducto)
+    .innerJoin(t20PMarca, eq(t20MProducto.idMarca, t20PMarca.idMarca))
+    .innerJoin(t20PUnidadMedida, eq(t20MProducto.idUm, t20PUnidadMedida.idUm))
+    .innerJoin(t20PTipoProducto, eq(t20MProducto.idTipoProducto, t20PTipoProducto.idTipoProducto))
+    .leftJoin(padre, eq(t20PTipoProducto.nivel1, padre.idTipoProducto))
+    .where(eq(t20MProducto.idProducto, idProducto));
+
+  if (baseRows.length === 0) {
+    throw new AppError("PRODUCTO_NO_ENCONTRADO", 404, `Producto ${idProducto} no existe`);
+  }
+  const base = baseRows[0];
+  const costoProm = Number(base.costoProm ?? 0);
+
+  const [stockRow] = await db
+    .select({ total: sql<string>`COALESCE(SUM(${t50MStock.cantidad}), 0)` })
+    .from(t50MStock)
+    .where(eq(t50MStock.idProducto, idProducto));
+  const cantidadStock = Number(stockRow?.total ?? 0);
+
+  const [precioRow] = await db
+    .select({ precioNeto: t40MPrecioProducto.precioNeto, porcenDesc: t40MPrecioProducto.porcenDesc })
+    .from(t40MPrecioProducto)
+    .where(and(
+      eq(t40MPrecioProducto.idProducto, idProducto),
+      eq(t40MPrecioProducto.idListaPrecio, LISTA_PRECIO_DEFAULT)
+    ))
+    .limit(1);
+  const precioNeto = Number(precioRow?.precioNeto ?? 0);
+  const porcenDesc = Number(precioRow?.porcenDesc ?? 0);
+
+  const [ivaRow] = await db.select({ iva: t99PIva.iva }).from(t99PIva).limit(1);
+  const iva = Number(ivaRow?.iva ?? 0);
+
+  let impuestoAdicional: ProductoDetalleDto["impuestoAdicional"] = null;
+  if (base.impuesto > 0) {
+    const [impRow] = await db
+      .select({ nombre: t99PImpuesto.nomImpuesto, valor: t99PImpuesto.valor })
+      .from(t99PImpuesto)
+      .where(eq(t99PImpuesto.idImpuesto, base.impuesto))
+      .limit(1);
+    if (impRow) {
+      impuestoAdicional = {
+        nombre: impRow.nombre,
+        porcentaje: Number(impRow.valor),
+        monto: (precioNeto * Number(impRow.valor)) / 100,
+      };
+    }
+  }
+
+  const [recRow] = await db
+    .select({ maxId: sql<number | null>`MAX(${t50MProductoRecepcion.idRecepcion})` })
+    .from(t50MProductoRecepcion)
+    .where(eq(t50MProductoRecepcion.idProducto, idProducto));
+  let proveedorUltCompra: ProductoDetalleDto["proveedorUltCompra"] = null;
+  if (recRow?.maxId != null) {
+    const [prov] = await db
+      .select({
+        rut: t70MProveedor.rutProveedor,
+        dv: t70MProveedor.dvProveedor,
+        razonSocial: t70MProveedor.razonSocial,
+      })
+      .from(t50MRecepcionCompra)
+      .innerJoin(t70MProveedor, eq(t50MRecepcionCompra.rutProveedor, t70MProveedor.rutProveedor))
+      .where(eq(t50MRecepcionCompra.idRecepcion, recRow.maxId))
+      .limit(1);
+    if (prov) {
+      proveedorUltCompra = { rut: `${prov.rut}-${prov.dv}`, razonSocial: prov.razonSocial };
+    }
+  }
+
+  const ivaMonto = (precioNeto * iva) / 100;
+  const impMonto = impuestoAdicional?.monto ?? 0;
+  const precioBase = precioNeto + ivaMonto + impMonto;
+  const precioVentaCliente = precioBase * (1 - porcenDesc / 100);
+
+  return {
+    idProducto: base.idProducto,
+    codSerfel: base.codSerfel,
+    nomProducto: base.nomProducto,
+    nomMarca: base.nomMarca,
+    nomUm: base.nomUm,
+    tipoProductoPadre: base.tipoProductoPadre ?? null,
+    tipoProducto: base.tipoProducto,
+    costoProm,
+    costoConIva: costoProm * (1 + iva / 100),
+    ultFechaCompra: base.ultFechaCompra ?? null,
+    cantidadStock,
+    costoTotalStock: cantidadStock * costoProm,
+    precioNeto,
+    precioVentaCliente,
+    valorMargen: precioNeto - costoProm,
+    porcenMargen: precioNeto > 0 ? ((precioNeto - costoProm) / precioNeto) * 100 : 0,
+    impuestoAdicional,
+    proveedorUltCompra,
   };
 }
