@@ -667,6 +667,23 @@ export const t50MStock = mysqlTable("50_m_stock", {
 	foreignKey({ name: "stock_prod", columns: [table.idProducto], foreignColumns: [t20MProducto.idProducto] }).onDelete("restrict").onUpdate("restrict"),
 ]);
 
+export const t50MStockLog = mysqlTable("50_m_stock_log", {
+	idStockLog: int("id_stock_log").autoincrement().notNull(),
+	idBodega: int("id_bodega").notNull(),
+	idProducto: int("id_producto").notNull(),
+	cantidadAntes: decimal("cantidad_antes", { precision: 18, scale: 3 }),
+	cantidadNueva: decimal("cantidad_nueva", { precision: 18, scale: 3 }).notNull(),
+	diferencia: decimal("diferencia", { precision: 18, scale: 3 }).notNull(),
+	fecha: datetime("fecha", { mode: 'string' }).notNull(),
+	idUsuario: int("id_usuario").notNull(),
+},
+(table) => [
+	primaryKey({ columns: [table.idStockLog], name: "PRIMARY" }),
+	foreignKey({ name: "stock_log_bod", columns: [table.idBodega], foreignColumns: [t50MBodega.idBodega] }).onDelete("restrict").onUpdate("restrict"),
+	foreignKey({ name: "stock_log_prod", columns: [table.idProducto], foreignColumns: [t20MProducto.idProducto] }).onDelete("restrict").onUpdate("restrict"),
+	foreignKey({ name: "stock_log_usu", columns: [table.idUsuario], foreignColumns: [t10MUsuario.idUsuario] }).onDelete("restrict").onUpdate("restrict"),
+]);
+
 export const t50MCierreMensualBodegaProducto = mysqlTable("50_m_cierre_mensual_bodega_producto", {
 	// JS property "anio" maps to SQL column "año" — same as above
 	anio: int("año").notNull(),

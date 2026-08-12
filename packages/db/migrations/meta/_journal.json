@@ -71,6 +71,13 @@
       "when": 1786459750104,
       "tag": "0009_update_producto_categoria",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1786560412077,
+      "tag": "0010_freezing_exodus",
+      "breakpoints": true
     }
   ]
 }
