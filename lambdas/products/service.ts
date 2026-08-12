@@ -428,6 +428,14 @@ export async function getProductoDetalle(
   };
 }
 
+/**
+ * Sets absolute stock for the product in the CENTRAL bodega (id 1) and writes
+ * an audit row. NOTE: getProductoDetalle sums stock across ALL bodegas (legacy-
+ * faithful), while this write targets only the central bodega. Serfel operates a
+ * single central bodega, so the read sum and the central row are equal; if
+ * multiple bodegas ever hold stock for one product, the modal's "Cantidad Stock"
+ * (an all-bodega sum) would no longer match what this absolute write sets.
+ */
 export async function setStock(
   db: Db,
   idProducto: number,

@@ -225,4 +225,32 @@ describe("detalle + stock routes", () => {
     expect(res.status).toBe(400);
     expect((await res.json()).error.code).toBe("VALIDACION");
   });
+
+  it("403 PROHIBIDO when a vendedor hits GET /api/products/:id/detalle", async () => {
+    const app = await appPromise;
+    currentUser = SEED.idUsuarioVendedor;
+    try {
+      const res = await app.request(`/api/products/${idProd}/detalle`);
+      expect(res.status).toBe(403);
+      expect((await res.json()).error.code).toBe("PROHIBIDO");
+    } finally {
+      currentUser = SEED.idUsuario;
+    }
+  });
+
+  it("403 PROHIBIDO when a vendedor hits PUT /api/products/:id/stock", async () => {
+    const app = await appPromise;
+    currentUser = SEED.idUsuarioVendedor;
+    try {
+      const res = await app.request(`/api/products/${idProd}/stock`, {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ cantidad: 5 }),
+      });
+      expect(res.status).toBe(403);
+      expect((await res.json()).error.code).toBe("PROHIBIDO");
+    } finally {
+      currentUser = SEED.idUsuario;
+    }
+  });
 });

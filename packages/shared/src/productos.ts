@@ -118,7 +118,7 @@ export const StockInputSchema = z.object({
   cantidad: z
     .number()
     .nonnegative()
-    .refine((n) => Number.isInteger(Math.round(n * 1000)) && Math.abs(n * 1000 - Math.round(n * 1000)) < 1e-9, {
+    .refine((n) => Math.abs(n * 1000 - Math.round(n * 1000)) < 1e-9, {
       message: "cantidad admite máximo 3 decimales",
     }),
 });
