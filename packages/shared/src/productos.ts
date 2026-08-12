@@ -73,3 +73,53 @@ export type ApiErrorCode =
 export interface ApiErrorBody {
   error: { code: ApiErrorCode; message: string };
 }
+
+/** Additional-tax breakdown shown when producto.impuesto > 0. */
+export interface ImpuestoAdicionalDto {
+  nombre: string;
+  porcentaje: number;
+  monto: number;
+}
+
+/** Last-purchase supplier, null when the product was never received. */
+export interface ProveedorUltCompraDto {
+  rut: string; // "12345678-9"
+  razonSocial: string;
+}
+
+/**
+ * Read model for the "$" detail modal, mirroring legacy consultaProductos
+ * minus IVA Costo and IVA Precio Venta. All monetary/quantity fields are raw
+ * numbers; the frontend formats for display.
+ */
+export interface ProductoDetalleDto {
+  idProducto: number;
+  codSerfel: number;
+  nomProducto: string;
+  nomMarca: string;
+  nomUm: string;
+  tipoProductoPadre: string | null;
+  tipoProducto: string;
+  costoProm: number;
+  costoConIva: number;
+  ultFechaCompra: string | null;
+  cantidadStock: number;
+  costoTotalStock: number;
+  precioNeto: number;
+  precioVentaCliente: number;
+  valorMargen: number;
+  porcenMargen: number;
+  impuestoAdicional: ImpuestoAdicionalDto | null;
+  proveedorUltCompra: ProveedorUltCompraDto | null;
+}
+
+/** Absolute new stock quantity for PUT /products/:id/stock. */
+export const StockInputSchema = z.object({
+  cantidad: z
+    .number()
+    .nonnegative()
+    .refine((n) => Number.isInteger(Math.round(n * 1000)) && Math.abs(n * 1000 - Math.round(n * 1000)) < 1e-9, {
+      message: "cantidad admite máximo 3 decimales",
+    }),
+});
+export type StockInput = z.infer<typeof StockInputSchema>;
