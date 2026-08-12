@@ -6,6 +6,8 @@ import {
   paginate,
   toCsv,
   computeStats,
+  formatMoney,
+  formatQty,
 } from "./productos-logic";
 
 function p(over: Partial<ProductoDto>): ProductoDto {
@@ -82,5 +84,25 @@ describe("computeStats", () => {
   it("counts totals and distincts; filtrados null when nothing filtered", () => {
     expect(computeStats(rows, rows)).toEqual({ total: 3, marcas: 3, tipos: 1, filtrados: null });
     expect(computeStats(rows, rows.slice(0, 1)).filtrados).toBe(1);
+  });
+});
+
+describe("formatMoney", () => {
+  it("formats integers with Chilean thousands separators, no decimals by default", () => {
+    expect(formatMoney(1234567)).toBe("1.234.567");
+    expect(formatMoney(0)).toBe("0");
+  });
+  it("supports a fixed number of decimals", () => {
+    expect(formatMoney(100.5, 2)).toBe("100,50");
+  });
+  it("rounds to the requested precision", () => {
+    expect(formatMoney(273.6)).toBe("274");
+  });
+});
+
+describe("formatQty", () => {
+  it("formats quantities with up to 3 decimals and no trailing zeros", () => {
+    expect(formatQty(10)).toBe("10");
+    expect(formatQty(2.5)).toBe("2,5");
   });
 });

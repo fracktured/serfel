@@ -137,3 +137,15 @@ export function brandBadgeStyle(idMarca: number): {
 } {
   return BADGE_PALETTE[idMarca % BADGE_PALETTE.length];
 }
+
+/** Chilean peso / number formatting for the detail modal (display only). */
+export function formatMoney(n: number, decimals = 0): string {
+  return new Intl.NumberFormat("es-CL", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  }).format(n);
+}
+
+export function formatQty(n: number): string {
+  return new Intl.NumberFormat("es-CL", { maximumFractionDigits: 3 }).format(n);
+}
