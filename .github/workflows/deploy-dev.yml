@@ -39,6 +39,12 @@ jobs:
           # reconciles it. Build output is deterministic (same content hash).
           npm install
           npx ng build --configuration production
+          # Coproad variant (Fase 3.5): same Angular app, `coproad` configuration
+          # (base-href /coproad/, environment.coproad.ts) -> dist/coproad-ang/coproad.
+          # infra/rehost/coproad-frontend.ts's StaticSite points at dist/coproad-ang,
+          # also gitignored, so CI must produce it or sst deploy fails with
+          # "No site found at .../dist/coproad-ang".
+          npx ng build --configuration coproad
 
       # --- Main toolchain: Node 22 + pnpm (SST) ---
       - name: Setup Node.js
