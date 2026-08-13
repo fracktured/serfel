@@ -69,9 +69,9 @@ npx ng build --configuration coproad      # -> dist/coproad-ang/coproad (base-hr
 
 # 2. Descubrir los buckets (nombre generado por SST) y la distribucion.
 SERFEL_BUCKET=$(aws s3api list-buckets \
-  --query "Buckets[?starts_with(Name, 'serfel-dev-rehostlegacyfrontendbucket-')].Name | [0]" --output text)
+  --query "Buckets[?starts_with(Name, 'serfel-dev-rehostlegacyfrontendbucketbucket-')].Name | [0]" --output text)
 COPROAD_BUCKET=$(aws s3api list-buckets \
-  --query "Buckets[?starts_with(Name, 'serfel-dev-rehostcoproadfrontendbucket-')].Name | [0]" --output text)
+  --query "Buckets[?starts_with(Name, 'serfel-dev-rehostcoproadfrontendbucketbucket-')].Name | [0]" --output text)
 DIST_ID=$(aws cloudfront list-distributions \
   --query "DistributionList.Items[?Comment=='serfel-dev-rehost-router'].Id | [0]" --output text)
 
