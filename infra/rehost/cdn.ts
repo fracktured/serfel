@@ -1,10 +1,10 @@
 import type { input as awsInputs } from "@pulumi/aws/types";
 import { nodeApiUrl } from "./node-api";
-import { legacySite } from "./legacy-frontend";
+import { legacyBucket } from "./legacy-frontend";
 import { albDnsName, originVerifySecret } from "./alb";
 import { stackTags } from "../tags";
 import { webAclArn } from "../waf";
-import { coproadSite } from "./coproad-frontend";
+import { coproadBucket } from "./coproad-frontend";
 
 // --- Task 8, Branch B -------------------------------------------------------
 // CloudFront reaches the (now internet-facing, CloudFront-locked) ALB via a
@@ -53,11 +53,29 @@ const router = new sst.aws.Router("RehostRouter", {
   routes: {
     "/coproad/sales/*": nodeApiUrl,
     "/coproad/orders/*": nodeApiUrl,
-    "/coproad/*": coproadSite.url,
+    "/coproad/*": {
+      bucket: coproadBucket,
+      // SPA deep-link fallback, scoped to THIS behavior only (a distribution-wide
+      // customErrorResponses would also rewrite PHP/ALB 404s). Extensionless
+      // paths (e.g. /coproad/ruta/1) -> the coproad index; real files pass through.
+      edge: {
+        viewerRequest: {
+          injection: `if (event.request.uri.split('/').pop().indexOf('.') === -1) { event.request.uri = '/coproad/index.html'; }`,
+        },
+      },
+    },
     "/api/node/*": nodeApiUrl,
     "/sales/*": nodeApiUrl, // ported node-app-1 (sales) Lambda, app-level Basic Auth
     "/orders/*": nodeApiUrl, // ported node-app-2 (orders) Lambda, app-level Basic Auth
-    "/*": legacySite.url,
+    "/*": {
+      bucket: legacyBucket,
+      // SPA deep-link fallback for serfel, scoped to the default S3 behavior.
+      edge: {
+        viewerRequest: {
+          injection: `if (event.request.uri.split('/').pop().indexOf('.') === -1) { event.request.uri = '/index.html'; }`,
+        },
+      },
+    },
   },
   transform: {
     cdn: (args) => {
