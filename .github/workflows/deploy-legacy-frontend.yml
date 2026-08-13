@@ -1,0 +1,96 @@
+name: Deploy legacy frontend (manual)
+
+# Manual-only. The legacy Angular 14 app (serfel + coproad) is NOT built or
+# deployed on push to main. Trigger this from the Actions tab -> "Run workflow".
+# Job 1 builds (Node 16); Job 2 syncs the pre-built dist to the SST-owned S3
+# buckets and invalidates the rehost CloudFront distribution.
+on:
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: "Sync + invalidate after building (uncheck for build-only)"
+        type: boolean
+        default: true
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+    name: Build Angular 14 (serfel + coproad)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 16 (Angular 14 toolchain)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "16"
+
+      - name: Build both configurations
+        working-directory: apps/legacy-frontend
+        run: |
+          # SST regenerates sst-env.d.ts and it breaks the Angular tsc build.
+          find . -name "sst-env.d.ts" -not -path "./node_modules/*" -delete || true
+          # npm install (not npm ci): this vendored app's lockfile is rejected by
+          # npm ci; npm install reconciles it. Output is content-hash stable.
+          npm install
+          npx ng build --configuration production
+          npx ng build --configuration coproad
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: legacy-frontend-dist
+          path: apps/legacy-frontend/dist
+          retention-days: 1
+
+  deploy:
+    name: Sync to S3 + invalidate CloudFront
+    if: ${{ inputs.deploy }}
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: legacy-frontend-dist
+          path: dist
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::146476548567:role/serfel-github-actions-role
+          aws-region: us-east-1
+
+      - name: Discover buckets + distribution
+        id: disc
+        run: |
+          SERFEL_BUCKET=$(aws s3api list-buckets \
+            --query "Buckets[?starts_with(Name, 'serfel-dev-rehostlegacyfrontendbucket-')].Name | [0]" \
+            --output text)
+          COPROAD_BUCKET=$(aws s3api list-buckets \
+            --query "Buckets[?starts_with(Name, 'serfel-dev-rehostcoproadfrontendbucket-')].Name | [0]" \
+            --output text)
+          DIST_ID=$(aws cloudfront list-distributions \
+            --query "DistributionList.Items[?Comment=='serfel-dev-rehost-router'].Id | [0]" \
+            --output text)
+          if [ "$SERFEL_BUCKET" = "None" ] || [ "$COPROAD_BUCKET" = "None" ] || [ "$DIST_ID" = "None" ]; then
+            echo "::error::Could not resolve buckets or distribution. Run 'sst deploy' (Deploy 1) first."
+            exit 1
+          fi
+          echo "serfel_bucket=$SERFEL_BUCKET" >> "$GITHUB_OUTPUT"
+          echo "coproad_bucket=$COPROAD_BUCKET" >> "$GITHUB_OUTPUT"
+          echo "dist_id=$DIST_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Sync serfel
+        run: aws s3 sync dist/serfel-ang "s3://${{ steps.disc.outputs.serfel_bucket }}" --delete
+
+      - name: Sync coproad
+        run: aws s3 sync dist/coproad-ang "s3://${{ steps.disc.outputs.coproad_bucket }}" --delete
+
+      - name: Invalidate CloudFront
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "${{ steps.disc.outputs.dist_id }}" --paths "/*"
