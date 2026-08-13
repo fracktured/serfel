@@ -24,3 +24,16 @@ export const legacySite = new sst.aws.StaticSite("RehostLegacyFrontend", {
 });
 
 export const legacyFrontendUrl = legacySite.url;
+
+// Manual-deploy migration (Deploy 1): SST owns this empty bucket; content is
+// pushed manually (see apps/legacy-frontend/README.md). The Router flips its
+// `/*` route from the StaticSite to this bucket in Deploy 2. `access: cloudfront`
+// grants the CloudFront service principal GetObject via the Router's OAC.
+export const legacyBucket = new sst.aws.Bucket("RehostLegacyFrontendBucket", {
+  access: "cloudfront",
+  transform: {
+    bucket: (bArgs) => {
+      bArgs.tags = { ...(bArgs.tags as Record<string, string> | undefined), ...stackTags("serfel-rehost") };
+    },
+  },
+});
