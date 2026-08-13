@@ -15,37 +15,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      # --- Legacy Angular 14 build (Fase 3.5 rehost) ---
-      # Angular 14 requires Node 16 (not 22). Build it FIRST with Node 16; the
-      # StaticSite (infra/rehost/legacy-frontend.ts) points at the pre-built
-      # dist/, which is gitignored, so CI must produce it. Use the production
-      # configuration so bundles are content-hashed (index.html is served
-      # no-cache; assets are immutable — hashed names avoid stale caches).
-      - name: Setup Node 16 (for the Angular 14 build)
-        uses: actions/setup-node@v4
-        with:
-          node-version: '16'
-
-      - name: Build legacy Angular frontend
-        working-directory: apps/legacy-frontend
-        run: |
-          # SST regenerates sst-env.d.ts here on deploy; it breaks the Angular
-          # tsc build. Defensive delete (no-op on a fresh checkout).
-          find . -name "sst-env.d.ts" -not -path "./node_modules/*" -delete || true
-          # `npm install` (not `npm ci`): this vendored Angular 14 app's dep tree
-          # produces a lockfile that npm 8's `npm ci` rejects as out-of-sync
-          # (ajv/postcss-selector-parser transitive conflicts). npm install
-          # reconciles it. Build output is deterministic (same content hash).
-          npm install
-          npx ng build --configuration production
-          # Coproad variant (Fase 3.5): same Angular app, `coproad` configuration
-          # (base-href /coproad/, environment.coproad.ts) -> dist/coproad-ang/coproad.
-          # infra/rehost/coproad-frontend.ts's StaticSite points at dist/coproad-ang,
-          # also gitignored, so CI must produce it or sst deploy fails with
-          # "No site found at .../dist/coproad-ang".
-          npx ng build --configuration coproad
-
       # --- Main toolchain: Node 22 + pnpm (SST) ---
       - name: Setup Node.js
         uses: actions/setup-node@v4

@@ -1,25 +1,13 @@
 import { stackTags } from "../tags";
-import { webAclArn } from "../waf";
 
-// Coproad legacy Angular build, served under /coproad/* by the RehostRouter.
-// Built with --base-href=/coproad/ and nested under a coproad/ dir so bucket
-// paths (/coproad/index.html, /coproad/main.js) match the routed prefix.
-export const coproadSite = new sst.aws.StaticSite("RehostCoproadFrontend", {
-  path: "apps/legacy-frontend/dist/coproad-ang",
-  // Deep-link/refresh under /coproad/* falls back to the nested index.
-  errorPage: "coproad/index.html",
+// SST owns this empty bucket; the coproad variant (dist/coproad-ang, nested
+// under coproad/) is pushed manually — see apps/legacy-frontend/README.md. The
+// rehost Router serves it at `/coproad/*` with a per-route SPA fallback.
+export const coproadBucket = new sst.aws.Bucket("RehostCoproadFrontendBucket", {
+  access: "cloudfront",
   transform: {
-    assets: {
-      transform: {
-        bucket: (bArgs) => {
-          bArgs.tags = { ...(bArgs.tags as Record<string, string> | undefined), ...stackTags("coproad-rehost") };
-        },
-      },
-    },
-    cdn: (cdnArgs) => {
-      cdnArgs.webAclArn = webAclArn;
+    bucket: (bArgs) => {
+      bArgs.tags = { ...(bArgs.tags as Record<string, string> | undefined), ...stackTags("coproad-rehost") };
     },
   },
 });
-
-export const coproadFrontendUrl = coproadSite.url;
