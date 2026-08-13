@@ -1,34 +1,8 @@
 import { stackTags } from "../tags";
-import { webAclArn } from "../waf";
 
-export const legacySite = new sst.aws.StaticSite("RehostLegacyFrontend", {
-  // Pre-built Angular 14 output (built with Node 16 — SST runs on Node 22, so
-  // no SST-run build command here; CI must build with Node 16 for prod, Fase 6).
-  path: "apps/legacy-frontend/dist/serfel-ang",
-  // SPA fallback for the Angular router (matches infra/frontend.ts).
-  errorPage: "index.html",
-  transform: {
-    // See infra/frontend.ts: tag the raw S3 bucket via the Bucket component's
-    // own `transform.bucket`, not the component args (which is a no-op).
-    assets: {
-      transform: {
-        bucket: (bArgs) => {
-          bArgs.tags = { ...(bArgs.tags as Record<string, string> | undefined), ...stackTags("serfel-rehost") };
-        },
-      },
-    },
-    cdn: (cdnArgs) => {
-      cdnArgs.webAclArn = webAclArn;
-    },
-  },
-});
-
-export const legacyFrontendUrl = legacySite.url;
-
-// Manual-deploy migration (Deploy 1): SST owns this empty bucket; content is
-// pushed manually (see apps/legacy-frontend/README.md). The Router flips its
-// `/*` route from the StaticSite to this bucket in Deploy 2. `access: cloudfront`
-// grants the CloudFront service principal GetObject via the Router's OAC.
+// SST owns this empty bucket; the legacy Angular 14 serfel app (dist/serfel-ang)
+// is pushed manually — see apps/legacy-frontend/README.md. The rehost Router
+// (infra/rehost/cdn.ts) serves it at `/*` with a per-route SPA fallback.
 export const legacyBucket = new sst.aws.Bucket("RehostLegacyFrontendBucket", {
   access: "cloudfront",
   transform: {
