@@ -1,4 +1,4 @@
-import { and, asc, eq, ne, gt } from "drizzle-orm";
+import { and, asc, eq, ne, gt, sql } from "drizzle-orm";
 import {
   t10MCliente, t40MListaPrecio, t40MRuta, t40MRutaLocalCliente, t10MLocalCliente,
   t40MVenta, t40MNotaCredito, t10MUsuario, type Db,
@@ -121,15 +121,18 @@ export async function listClientes(db: Db, estado: EstadoFilter): Promise<Client
     .from(t40MRuta)
     .innerJoin(t40MRutaLocalCliente, eq(t40MRuta.idRuta, t40MRutaLocalCliente.idRuta))
     .innerJoin(t10MLocalCliente, eq(t40MRutaLocalCliente.idLocalCliente, t10MLocalCliente.idLocalCliente))
-    .where(gt(t40MRuta.idEstado, 0));
+    .where(gt(t40MRuta.idEstado, 0))
+    .groupBy(t10MLocalCliente.rutCliente, t40MRuta.numDia);
   const factRows = await db
-    .select({ rut: t40MVenta.rutCliente, num: t40MVenta.numDoctoEmitido })
-    .from(t40MVenta).where(gt(t40MVenta.idEstado, 0));
+    .select({ rut: t40MVenta.rutCliente, num: sql<number>`MAX(${t40MVenta.numDoctoEmitido})` })
+    .from(t40MVenta).where(gt(t40MVenta.idEstado, 0))
+    .groupBy(t40MVenta.rutCliente);
   const ncRows = await db
-    .select({ rut: t40MVenta.rutCliente, num: t40MNotaCredito.numNotaCredito })
+    .select({ rut: t40MVenta.rutCliente, num: sql<number>`MAX(${t40MNotaCredito.numNotaCredito})` })
     .from(t40MNotaCredito)
     .innerJoin(t40MVenta, eq(t40MNotaCredito.idVenta, t40MVenta.idVenta))
-    .where(gt(t40MNotaCredito.idEstado, 0));
+    .where(gt(t40MNotaCredito.idEstado, 0))
+    .groupBy(t40MVenta.rutCliente);
 
   const dias = new Map<number, Set<number>>();
   for (const r of diasRows) (dias.get(r.rut) ?? dias.set(r.rut, new Set()).get(r.rut)!).add(r.numDia);

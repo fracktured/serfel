@@ -211,7 +211,7 @@ export class ClientesPageComponent implements OnInit {
             this.modal()?.resetBusy();
           }
         } else {
-          this.modal()?.setServerError("RUT_EN_USO", "RUT inactivo");
+          this.modal()?.setServerError("RUT_EN_USO", "El RUT existe pero está inactivo");
         }
         return;
       }
