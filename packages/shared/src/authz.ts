@@ -9,6 +9,7 @@ export const MODULE_ROLES = {
   rutas: [1], // 1 = Administrador
   usuarios: [1], // 1 = Administrador
   ventas: [1], // 1 = Administrador
+  clientes: [1], // 1 = Administrador
 } as const;
 
 export type ModuleName = keyof typeof MODULE_ROLES;
