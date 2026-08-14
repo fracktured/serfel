@@ -124,7 +124,7 @@ export class ClienteModalComponent implements OnInit {
     const common = {
       razonSocial: this.razonSocial, nomFantasia: this.nomFantasia,
       telefono: this.telefono.trim() || null, direccion: this.direccion,
-      comuna: this.comuna, cidade: this.ciudad, email: this.email.trim() || null,
+      comuna: this.comuna, ciudad: this.ciudad, email: this.email.trim() || null,
       idListaPrecio: this.idListaPrecio, permiteVentaDeuda: this.permiteVentaDeuda,
     };
     if (this.cliente) {
