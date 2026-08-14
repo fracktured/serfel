@@ -78,6 +78,22 @@ const usuariosFn = new sst.aws.Function("UsuariosFn", {
   },
 });
 
+const clientesFn = new sst.aws.Function("ClientesFn", {
+  handler: "lambdas/clientes/index.handler",
+  runtime: "nodejs22.x",
+  architecture: "arm64",
+  timeout: "20 seconds",
+  memory: "256 MB",
+  vpc: { privateSubnets: privateSubnetIds, securityGroups: [sgLambdaId] },
+  environment: { DB_SECRET_ARN: dbSecretArn },
+  permissions: [{ actions: ["secretsmanager:GetSecretValue"], resources: [dbSecretArn] }],
+  copyFiles: [{ from: "packages/db/rds-global-bundle.pem", to: "rds-global-bundle.pem" }],
+  transform: {
+    function: { name: `serfel-${$app.stage}-clientes`, tags: stackTags("serfel-aws") },
+    logGroup: { tags: stackTags("serfel-aws") },
+  },
+});
+
 const ventasFn = new sst.aws.Function("VentasFn", {
   handler: "lambdas/ventas/index.handler",
   runtime: "nodejs22.x",
@@ -153,6 +169,18 @@ const usuariosRoutes = [
 ] as const;
 for (const route of usuariosRoutes) {
   api.route(route, usuariosFn.arn, { auth: { jwt: { authorizer: jwtAuthorizer.id } } });
+}
+
+const clientesRoutes = [
+  "GET /api/clientes",
+  "GET /api/clientes/lookups",
+  "POST /api/clientes",
+  "PUT /api/clientes/{rut}",
+  "POST /api/clientes/{rut}/activate",
+  "POST /api/clientes/{rut}/deactivate",
+] as const;
+for (const route of clientesRoutes) {
+  api.route(route, clientesFn.arn, { auth: { jwt: { authorizer: jwtAuthorizer.id } } });
 }
 
 const ventasRoutes = [
