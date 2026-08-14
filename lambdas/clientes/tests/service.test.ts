@@ -62,6 +62,24 @@ describe("updateCliente", () => {
     await expect(updateCliente(db, 99999999, baseInput, SEED.idAdmin))
       .rejects.toMatchObject({ code: "CLIENTE_NO_ENCONTRADO" });
   });
+
+  it("allows re-submitting the client's own current razon social (excludes self from the uniqueness check)", async () => {
+    const created = await createCliente(
+      db,
+      { ...baseInput, rut: "9999999-3", razonSocial: "Dueño De Su Propio Nombre SpA", email: "self@serfel.cl" },
+      SEED.idAdmin,
+    );
+    if (created.kind !== "created") throw new Error("expected created");
+
+    const dto = await updateCliente(
+      db,
+      created.dto.rutCliente,
+      { ...baseInput, razonSocial: "Dueño De Su Propio Nombre SpA", email: "self@serfel.cl", ciudad: "Valparaíso" },
+      SEED.idAdmin,
+    );
+    expect(dto.razonSocial).toBe("Dueño De Su Propio Nombre SpA");
+    expect(dto.ciudad).toBe("Valparaíso");
+  });
 });
 
 describe("activateCliente", () => {
