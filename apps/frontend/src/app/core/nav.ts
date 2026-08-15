@@ -10,4 +10,5 @@ export const NAV_ITEMS: Record<ModuleName, { label: string; path: string }> = {
   rutas: { label: "Listado Carga", path: "/listado-carga" },
   usuarios: { label: "Usuarios", path: "/usuarios" },
   ventas: { label: "Prefacturación", path: "/prefacturacion" },
+  clientes: { label: "Clientes", path: "/clientes" },
 };

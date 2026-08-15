@@ -6,6 +6,7 @@ import { ListadoCargaPageComponent } from './features/listado-carga/listado-carg
 import { UsuariosPageComponent } from './features/usuarios/usuarios-page.component';
 import { SinAccesoComponent } from './features/sin-acceso/sin-acceso.component';
 import { PrefacturacionPageComponent } from './features/prefacturacion/prefacturacion-page.component';
+import { ClientesPageComponent } from './features/clientes/clientes-page.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -15,5 +16,6 @@ export const routes: Routes = [
   { path: 'listado-carga', component: ListadoCargaPageComponent, canActivate: [moduleGuard('rutas')] },
   { path: 'usuarios', component: UsuariosPageComponent, canActivate: [moduleGuard('usuarios')] },
   { path: 'prefacturacion', component: PrefacturacionPageComponent, canActivate: [moduleGuard('ventas')] },
+  { path: 'clientes', component: ClientesPageComponent, canActivate: [moduleGuard('clientes')] },
   { path: '**', redirectTo: 'productos' },
 ];

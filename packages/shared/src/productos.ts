@@ -68,7 +68,10 @@ export type ApiErrorCode =
   | "USUARIO_CON_VENTAS_PENDIENTES"
   | "USUARIO_SIN_EMAIL"
   | "COGNITO_YA_EXISTE"
-  | "COGNITO_ERROR";
+  | "COGNITO_ERROR"
+  | "RAZON_SOCIAL_EN_USO"
+  | "CLIENTE_NO_ENCONTRADO"
+  | "CLIENTE_CON_VENTAS_PENDIENTES";
 
 export interface ApiErrorBody {
   error: { code: ApiErrorCode; message: string };
