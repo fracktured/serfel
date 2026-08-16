@@ -271,6 +271,7 @@ function localToDto(r: Record<string, unknown>): LocalDto {
     nomContacto: (r.nomContacto as string | null) ?? "",
     apellPatContacto: (r.apellPatContacto as string | null) ?? "",
     apellMatContacto: (r.apellMatContacto as string | null) ?? "",
+    direccion: (r.direccion as string | null) ?? "",
     permiteVentaTopeMensual: (r.permiteVentaTopeMensual as number) === 1,
   } as LocalDto;
 }

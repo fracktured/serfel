@@ -161,6 +161,7 @@ export class ClienteModalComponent implements OnInit {
   private localesLoadedFor: number | null = null;
 
   ngOnInit(): void {
+    this.locales.reset();
     if (this.cliente) {
       this.rut = this.cliente.rut;
       this.razonSocial = this.cliente.razonSocial;
