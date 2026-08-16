@@ -1,4 +1,4 @@
-import { and, asc, eq, ne, gt, sql } from "drizzle-orm";
+import { and, asc, eq, ne, gt, or, like, inArray, exists, sql } from "drizzle-orm";
 import {
   t10MCliente, t40MListaPrecio, t40MRuta, t40MRutaLocalCliente, t10MLocalCliente,
   t40MVenta, t40MNotaCredito, t10MUsuario, t40PFormaPago, type Db,
@@ -6,7 +6,7 @@ import {
 import {
   ESTADO_ACTIVO, ESTADO_INACTIVO, formatRut, parseRut,
   type EstadoFilter, type ClienteCreateInput, type ClienteUpdateInput,
-  type ClienteDto, type ClienteLookupsDto,
+  type ClienteDto, type ClienteLookupsDto, type ClienteSearchParams,
   type LocalDto, type LocalLookupsDto, type LocalCreateInput, type LocalUpdateInput,
 } from "@serfel/shared";
 import { AppError } from "./errors";
@@ -109,37 +109,80 @@ export async function getClienteLookups(db: Db): Promise<ClienteLookupsDto> {
   return { listasPrecio };
 }
 
-export async function listClientes(db: Db, estado: EstadoFilter): Promise<ClienteDto[]> {
-  const q = clienteQuery(db);
-  const rows = (await (estado === "todos"
-    ? q
-    : q.where(eq(t10MCliente.idEstado, estado === "activos" ? ESTADO_ACTIVO : ESTADO_INACTIVO))
-  ).orderBy(asc(t10MCliente.razonSocial))) as Row[];
+/** Build the ANDed WHERE for a search. Returns undefined when unconstrained. */
+function buildClienteWhere(db: DbOrTx, params: ClienteSearchParams) {
+  const conds = [];
+  if (params.estado !== "todos") {
+    conds.push(eq(t10MCliente.idEstado, params.estado === "activos" ? ESTADO_ACTIVO : ESTADO_INACTIVO));
+  }
+  if (params.rut) {
+    conds.push(sql`CAST(${t10MCliente.rutCliente} AS CHAR) LIKE ${`%${params.rut}%`}`);
+  }
+  if (params.razonSocial) {
+    for (const tok of params.razonSocial.split(/\s+/).filter(Boolean)) {
+      const pat = `%${tok}%`;
+      conds.push(or(like(t10MCliente.razonSocial, pat), like(t10MCliente.nomFantasia, pat)));
+    }
+  }
+  if (params.direccion) {
+    const pat = `%${params.direccion}%`;
+    const localMatch = (db as Db)
+      .select({ x: sql`1` })
+      .from(t10MLocalCliente)
+      .where(and(
+        eq(t10MLocalCliente.rutCliente, t10MCliente.rutCliente),
+        like(t10MLocalCliente.direccionLocalCliente, pat),
+      ));
+    conds.push(or(like(t10MCliente.direccionCliente, pat), exists(localMatch)));
+  }
+  return conds.length ? and(...conds) : undefined;
+}
 
-  // Derived columns as 3 grouped queries, merged in JS by rut_cliente.
+export async function searchClientes(db: Db, params: ClienteSearchParams): Promise<ClienteDto[]> {
+  const where = buildClienteWhere(db, params);
+  const base = clienteQuery(db);
+  const rows = (await (where ? base.where(where) : base).orderBy(asc(t10MCliente.razonSocial))) as Row[];
+  if (rows.length === 0) return [];
+
+  // When any text filter narrows the set, scope the derived-column aggregates to
+  // the matched ruts; on an unfiltered ("all") search they run unbounded as before.
+  const hasText = !!(params.rut || params.razonSocial || params.direccion);
+  const scope = hasText ? rows.map((r) => r.rutCliente) : null;
+
+  const diasWhere = scope
+    ? and(gt(t40MRuta.idEstado, 0), inArray(t10MLocalCliente.rutCliente, scope))
+    : gt(t40MRuta.idEstado, 0);
   const diasRows = await db
     .select({ rut: t10MLocalCliente.rutCliente, numDia: t40MRuta.numDia })
     .from(t40MRuta)
     .innerJoin(t40MRutaLocalCliente, eq(t40MRuta.idRuta, t40MRutaLocalCliente.idRuta))
     .innerJoin(t10MLocalCliente, eq(t40MRutaLocalCliente.idLocalCliente, t10MLocalCliente.idLocalCliente))
-    .where(gt(t40MRuta.idEstado, 0))
+    .where(diasWhere)
     .groupBy(t10MLocalCliente.rutCliente, t40MRuta.numDia);
+
+  const factWhere = scope
+    ? and(gt(t40MVenta.idEstado, 0), inArray(t40MVenta.rutCliente, scope))
+    : gt(t40MVenta.idEstado, 0);
   const factRows = await db
     .select({ rut: t40MVenta.rutCliente, num: sql<number>`MAX(${t40MVenta.numDoctoEmitido})` })
-    .from(t40MVenta).where(gt(t40MVenta.idEstado, 0))
+    .from(t40MVenta).where(factWhere)
     .groupBy(t40MVenta.rutCliente);
+
+  const ncWhere = scope
+    ? and(gt(t40MNotaCredito.idEstado, 0), inArray(t40MVenta.rutCliente, scope))
+    : gt(t40MNotaCredito.idEstado, 0);
   const ncRows = await db
     .select({ rut: t40MVenta.rutCliente, num: sql<number>`MAX(${t40MNotaCredito.numNotaCredito})` })
     .from(t40MNotaCredito)
     .innerJoin(t40MVenta, eq(t40MNotaCredito.idVenta, t40MVenta.idVenta))
-    .where(gt(t40MNotaCredito.idEstado, 0))
+    .where(ncWhere)
     .groupBy(t40MVenta.rutCliente);
 
   const dias = new Map<number, Set<number>>();
   for (const r of diasRows) (dias.get(r.rut) ?? dias.set(r.rut, new Set()).get(r.rut)!).add(r.numDia);
-  const maxBy = (rows: { rut: number; num: number }[]) => {
+  const maxBy = (rs: { rut: number; num: number }[]) => {
     const m = new Map<number, number>();
-    for (const r of rows) m.set(r.rut, Math.max(m.get(r.rut) ?? 0, r.num));
+    for (const r of rs) m.set(r.rut, Math.max(m.get(r.rut) ?? 0, r.num));
     return m;
   };
   const fact = maxBy(factRows);
