@@ -57,6 +57,7 @@ Two deliverables:
 | Vendedor / forma de pago inputs | **Both dropdowns from lookups** |
 | Vendedor lookup source | `10_m_usuario` where `id_estado = 1 AND id_tipo_usuario = 2` |
 | comuna consolidation | New stack uses **`comuna`** only; **keep** `comuna_local_cliente` column and **write it in sync** on save so legacy keeps working. Physical column drop deferred to a later legacy-retirement cleanup. |
+| id_local_cliente assignment | Make the column **`AUTO_INCREMENT`** and remove the legacy `MAX(id)+1` from both `legacy-php/{Distribuidor,Coproad}/Clases/LocalCliente.php`. New lambda reads `ResultSetHeader.insertId`. |
 
 ## 1. Data model & migration
 
@@ -64,8 +65,13 @@ Edit `packages/db/src/schema.ts`:
 
 - Add a `foreignKey(...)` to `t10MLocalCliente`'s constraint array:
   `id_forma_pago → t40PFormaPago.idFormaPago`, `ON DELETE RESTRICT ON UPDATE
-  RESTRICT`. (No schema change to columns — both `comuna` and
-  `comuna_local_cliente` stay.)
+  RESTRICT`. (No column drops — both `comuna` and `comuna_local_cliente` stay.)
+- Add `.autoincrement()` to the `idLocalCliente` column so the DB assigns new
+  IDs. `10_m_local_cliente` is an **FK parent** (referenced by `30_m_pedido`
+  `ped_loc_clie`, `40_m_venta`, `40_m_ruta_local_cliente`), so the generated
+  `MODIFY COLUMN ... AUTO_INCREMENT` ALTER must be wrapped in
+  `SET FOREIGN_KEY_CHECKS=0; ... SET FOREIGN_KEY_CHECKS=1;` to avoid errno 1834
+  on populated RDS.
 
 Then `pnpm --filter @serfel/db generate` to produce the versioned migration,
 and hand-add the data seed to the generated SQL:
@@ -120,11 +126,11 @@ New file mirroring `clientes.ts`:
 - `listLocales(db, rutCliente, includeInactive)` — join to `40_p_forma_pago`
   (nomFormaPago) and `10_m_usuario` (nomVendedor); filter by `id_estado`
   unless `includeInactive`.
-- `createLocal(db, input, idUsuarioMod)` — insert; **write both `comuna` and
+- `createLocal(db, input, idUsuarioMod)` — insert without an explicit
+  `id_local_cliente` and read the assigned ID from `ResultSetHeader.insertId`
+  (the column is now AUTO_INCREMENT). **Write both `comuna` and
   `comuna_local_cliente` from the single `comuna` input** so legacy stays
-  consistent. PK `id_local_cliente` is not AUTO_INCREMENT in schema — confirm
-  how IDs are assigned (max+1 vs sequence) and follow existing legacy behavior;
-  read `insertId` only if the column is auto-increment.
+  consistent.
 - `updateLocal(db, id, input, idUsuarioMod)` — same comuna sync.
 - `deactivateLocal(db, id)` / `activateLocal(db, id, input)` — soft delete /
   restore via `id_estado`, mirroring cliente deactivate/activate.
@@ -150,6 +156,26 @@ browser.
 
 Authz: same module as clientes (child entity), via the existing
 `requireModule` gate.
+
+## 3b. Legacy PHP — drop the MAX+1 id assignment
+
+Both `legacy-php/Distribuidor/Clases/LocalCliente.php` and
+`legacy-php/Coproad/Clases/LocalCliente.php` assign the new id via
+`obtNuevoIdLocalCliente()` (`SELECT MAX(id_local_cliente)+1`) and pass it
+explicitly in the `INSERT`. With the column now AUTO_INCREMENT:
+
+- Remove the `id_local_cliente` column (and its VALUES entry) from the `INSERT`
+  in `ingLocalCliente()` so the DB assigns the id.
+- Replace `$idLocalCliente = $this->obtNuevoIdLocalCliente();` — after the
+  insert, set `$idLocalCliente = mysql_insert_id($db);` and `return $idLocalCliente;`.
+- Remove the now-unused `obtNuevoIdLocalCliente()` method from both files.
+
+**Sequencing:** the DB AUTO_INCREMENT migration must be deployed **before** the
+legacy code stops sending an explicit id (otherwise the NOT NULL column has no
+default and inserts fail). These are rehost Fargate images — **rebuild the PHP
+images manually** per `legacy-php/README.md` after the edit (PHP is not built in
+CI). Only the live `Clases/LocalCliente.php` in each app is touched; the many
+`restServiceClass_*_OLD`/dated backups are dead and left alone.
 
 ## 4. Frontend — Locales tab in the cliente modal
 
@@ -195,11 +221,8 @@ The tab only loads locales when first opened (lazy), keyed by the open cliente.
 
 ## Open items / to confirm at implementation
 
-- **id_local_cliente assignment:** the PK is not AUTO_INCREMENT in `schema.ts`.
-  Confirm how new locales get their ID (legacy max+1 pattern vs sequence) before
-  writing `createLocal`.
-- **Lookups delivery:** reuse the cliente lookups endpoint (extended) vs a new
-  `/locales/lookups` — decide during implementation, preferring reuse.
+- **Lookups delivery:** a dedicated `GET /locales/lookups` (rut-independent),
+  gated by the added `/locales/*` module gate.
 
 ## Out of scope
 

@@ -13,7 +13,7 @@
 - Node >= 22; pnpm workspaces; run commands from repo root unless noted.
 - Lambda/DB tests need local MariaDB: `docker compose -f packages/db/docker-compose.yml up -d --wait` first.
 - **Every new API route MUST be registered in `infra/api.ts`** — the gateway uses an explicit route array, not a catch-all; an unregistered route returns a CORS 404 in the browser.
-- Never hand-assign auto-increment PKs; but `id_local_cliente` is **NOT** auto-increment — legacy assigns it via `SELECT MAX(id_local_cliente)+1`. Follow that pattern.
+- `id_local_cliente` becomes **AUTO_INCREMENT** in this work (Task 1). Never hand-assign it — insert without the column and read `ResultSetHeader.insertId`. The legacy `MAX(id)+1` is removed from both PHP apps (Task 1B).
 - DB schema changes: edit `packages/db/src/schema.ts`, then `pnpm --filter @serfel/db generate` to produce a versioned migration in `packages/db/migrations/`.
 - `ESTADO_ACTIVO = 1`, `ESTADO_INACTIVO = 0` (from `@serfel/shared`).
 - Do not surface `comuna_local_cliente` in the new stack; write it in sync with `comuna` on every local insert/update so the live legacy rehost keeps working. Do NOT drop the column.
@@ -25,8 +25,9 @@
 
 ## File Structure
 
-- `packages/db/src/schema.ts` — add FK `loc_clie_forma_pago` to `t10MLocalCliente`.
-- `packages/db/migrations/00NN_*.sql` — generated; hand-add the forma_pago seed INSERT before the FK ALTER.
+- `packages/db/src/schema.ts` — add FK `loc_clie_forma_pago` to `t10MLocalCliente` + make `idLocalCliente` AUTO_INCREMENT.
+- `packages/db/migrations/00NN_*.sql` — generated; hand-add the forma_pago seed INSERT before the FK ALTER, and wrap the AUTO_INCREMENT MODIFY in `FOREIGN_KEY_CHECKS=0`.
+- `legacy-php/Distribuidor/Clases/LocalCliente.php` + `legacy-php/Coproad/Clases/LocalCliente.php` — drop the `MAX(id)+1` id assignment (Task 1B).
 - `packages/shared/src/locales.ts` — **new**: `LocalCreateSchema`, `LocalUpdateSchema`, `LocalDto`, `LocalLookupsDto`.
 - `packages/shared/src/index.ts` — export `./locales`.
 - `packages/shared/src/locales.spec.ts` — **new**: schema tests.
@@ -51,11 +52,17 @@
 - Create: `packages/db/migrations/00NN_*.sql` (generated, then hand-edited)
 
 **Interfaces:**
-- Produces: table `40_p_forma_pago` seeded with tipo_docto IDs 3-8; FK `loc_clie_forma_pago` on `10_m_local_cliente.id_forma_pago → 40_p_forma_pago.id_forma_pago`.
+- Produces: table `40_p_forma_pago` seeded with tipo_docto IDs 3-8; FK `loc_clie_forma_pago` on `10_m_local_cliente.id_forma_pago → 40_p_forma_pago.id_forma_pago`; `id_local_cliente` column is AUTO_INCREMENT.
 
-- [ ] **Step 1: Add the FK to the schema**
+- [ ] **Step 1: Add the FK + autoincrement to the schema**
 
-In `packages/db/src/schema.ts`, `t10MLocalCliente`'s constraint array (currently ends with `loc_clie_est`), add:
+In `packages/db/src/schema.ts`, change the `idLocalCliente` column definition (line ~265) to add `.autoincrement()`:
+
+```ts
+	idLocalCliente: int("id_local_cliente").autoincrement().notNull(),
+```
+
+Then in `t10MLocalCliente`'s constraint array (currently ends with `loc_clie_est`), add:
 
 ```ts
 	foreignKey({ name: "loc_clie_forma_pago", columns: [table.idFormaPago], foreignColumns: [t40PFormaPago.idFormaPago] }).onDelete("restrict").onUpdate("restrict"),
@@ -66,11 +73,13 @@ Note: `t40PFormaPago` is declared at line ~150, before `t10MLocalCliente` (~264)
 - [ ] **Step 2: Generate the migration**
 
 Run: `pnpm --filter @serfel/db generate`
-Expected: a new file `packages/db/migrations/00NN_<name>.sql` containing an `ALTER TABLE \`10_m_local_cliente\` ADD CONSTRAINT \`loc_clie_forma_pago\` ...` statement, plus a new journal entry.
+Expected: a new file `packages/db/migrations/00NN_<name>.sql` containing a `MODIFY COLUMN \`id_local_cliente\` ... AUTO_INCREMENT` statement and an `ADD CONSTRAINT \`loc_clie_forma_pago\`` statement, plus a new journal entry.
 
-- [ ] **Step 3: Hand-add the forma_pago seed before the FK ALTER**
+- [ ] **Step 3: Hand-edit the generated SQL (seed + FK-checks wrapper)**
 
-Edit the generated `00NN_*.sql`. **Before** the `ADD CONSTRAINT loc_clie_forma_pago` statement (the FK needs its parent rows to exist first), insert:
+Edit the generated `00NN_*.sql`:
+
+a) **Before** the `ADD CONSTRAINT loc_clie_forma_pago` statement (the FK needs its parent rows first), insert the forma_pago seed:
 
 ```sql
 INSERT INTO `40_p_forma_pago` (id_forma_pago, nom_forma_pago, desc_forma_pago)
@@ -81,19 +90,79 @@ ON DUPLICATE KEY UPDATE nom_forma_pago = VALUES(nom_forma_pago), desc_forma_pago
 --> statement-breakpoint
 ```
 
-Keep drizzle's `--> statement-breakpoint` separators between statements. Leave `10_p_tipo_docto` and `60_m_pago`'s FK untouched.
+b) **Wrap the AUTO_INCREMENT `MODIFY` statement** in a FK-checks guard — `10_m_local_cliente` is an FK parent (`ped_loc_clie`, venta, ruta_local_cliente), so a bare `MODIFY ... AUTO_INCREMENT` fails with errno 1834 on populated RDS. Turn the single MODIFY line into:
+
+```sql
+SET FOREIGN_KEY_CHECKS=0;
+--> statement-breakpoint
+ALTER TABLE `10_m_local_cliente` MODIFY COLUMN `id_local_cliente` int AUTO_INCREMENT NOT NULL;
+--> statement-breakpoint
+SET FOREIGN_KEY_CHECKS=1;
+--> statement-breakpoint
+```
+
+(Use whatever exact column type drizzle emitted; only add the `SET FOREIGN_KEY_CHECKS` bookends around it.) Keep drizzle's `--> statement-breakpoint` separators. Leave `10_p_tipo_docto` and `60_m_pago`'s FK untouched.
 
 - [ ] **Step 4: Verify the schema-only migration path still builds**
 
 Run: `pnpm --filter @serfel/db build` (or `pnpm typecheck`)
-Expected: PASS. This migration is a schema migration — it is NOT added to `SKIP_DATA_MIGRATIONS` in `packages/db/src/test-migrate.ts`, so it runs in tests. (In tests, `10_p_tipo_docto` has no rows 3-8 at migration time, so the INSERT seeds 0 rows and the FK ALTER still succeeds because no local rows exist yet.)
+Expected: PASS. This migration is a schema migration — it is NOT added to `SKIP_DATA_MIGRATIONS` in `packages/db/src/test-migrate.ts`, so it runs in tests. (In tests, `10_p_tipo_docto` has no rows 3-8 at migration time, so the INSERT seeds 0 rows; the AUTO_INCREMENT MODIFY and the FK ALTER still succeed because no local rows exist yet.)
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add packages/db/src/schema.ts packages/db/migrations/
-git commit -m "feat(db): normalize forma_pago into 40_p_forma_pago + local FK"
+git commit -m "feat(db): forma_pago table + local FK + id_local_cliente autoincrement"
 ```
+
+---
+
+## Task 1B: Legacy PHP — drop the MAX+1 id assignment
+
+**Files:**
+- Modify: `legacy-php/Distribuidor/Clases/LocalCliente.php`
+- Modify: `legacy-php/Coproad/Clases/LocalCliente.php`
+
+**Interfaces:**
+- Consumes: the AUTO_INCREMENT column from Task 1 (must be deployed first).
+- Produces: `ingLocalCliente()` in both apps inserts without an explicit id and returns `mysql_insert_id()`.
+
+> **Sequencing:** deploy Task 1's migration to the target DB **before** shipping this change — otherwise the NOT NULL column has no default and inserts fail. The edits are identical in both files (they are near-duplicate copies).
+
+- [ ] **Step 1: Remove the explicit id from the INSERT (both files)**
+
+In each `Clases/LocalCliente.php`, in `ingLocalCliente()`'s `INSERT INTO 10_m_local_cliente (...)`:
+- Delete `id_local_cliente,` from the column list (the first column).
+- Delete the corresponding first VALUES entry `" . $idLocalCliente . ",` so the remaining values line up with `rut_cliente` onward.
+
+- [ ] **Step 2: Replace the id source with `mysql_insert_id` (both files)**
+
+- Delete the line `$idLocalCliente = $this->obtNuevoIdLocalCliente();`.
+- After the insert `mysql_query($query, $db) or die(mysql_error());`, add before `mysql_close($db);`:
+
+```php
+                $idLocalCliente = mysql_insert_id($db);
+```
+
+The existing `return $idLocalCliente;` then returns the DB-assigned id (still `>0`, preserving the documented `>0 = success` contract).
+
+- [ ] **Step 3: Remove the now-unused `obtNuevoIdLocalCliente()` method (both files)**
+
+Delete the `private function obtNuevoIdLocalCliente() { ... }` method (the block containing `SELECT (MAX(id_local_cliente) + 1)`).
+
+- [ ] **Step 4: PHP lint both files**
+
+Run: `php -l legacy-php/Distribuidor/Clases/LocalCliente.php && php -l legacy-php/Coproad/Clases/LocalCliente.php`
+Expected: `No syntax errors detected` for both. (If `php` is unavailable locally, visually verify brace balance.)
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add legacy-php/Distribuidor/Clases/LocalCliente.php legacy-php/Coproad/Clases/LocalCliente.php
+git commit -m "refactor(legacy): let DB auto-assign id_local_cliente (drop MAX+1)"
+```
+
+> **Deploy note:** these live in the PHP 5.6 Fargate rehost images, which are NOT built in CI. Rebuild + redeploy both images manually per `legacy-php/README.md` once the DB migration (Task 1) is live. This is a deploy-time action, not part of the code verification in Task 13.
 
 ---
 
@@ -462,7 +531,7 @@ git commit -m "feat(clientes): local lookups and list service"
 - Test: `lambdas/clientes/tests/service.test.ts`
 
 **Interfaces:**
-- Consumes: `LocalCreateInput`, `sql` (already imported), `getRow`-style helpers.
+- Consumes: `LocalCreateInput`, `getRow`-style helpers.
 - Produces: `createLocal(db: Db, input: LocalCreateInput, idUsuario: number): Promise<LocalDto>`; internal `getLocalDto(db, id)` and `localWriteValues(input, idUsuario)`.
 
 - [ ] **Step 1: Write the failing test**
@@ -471,7 +540,7 @@ Add to `service.test.ts`:
 
 ```ts
 describe("createLocal", () => {
-  it("assigns MAX(id)+1, writes comuna to both columns, returns the DTO", async () => {
+  it("auto-assigns the id, writes comuna to both columns, returns the DTO", async () => {
     const input = {
       rutCliente: SEED.rutClienteConVenta, nombre: "Sucursal Norte",
       telefono: "911112222", direccion: "Calle 9 #9", comuna: "Quilpue",
@@ -481,7 +550,8 @@ describe("createLocal", () => {
       idFormaPago: SEED.idFormaPago, observaciones: "", permiteVentaTopeMensual: false,
     };
     const dto = await createLocal(db, input, SEED.idAdmin);
-    expect(dto.idLocalCliente).toBe(SEED.idLocalConVenta + 1); // MAX was idLocalConVenta (10)
+    // seeded row has explicit id 10, so the auto-increment counter yields 11 next
+    expect(dto.idLocalCliente).toBe(SEED.idLocalConVenta + 1);
     expect(dto.nombre).toBe("Sucursal Norte");
     expect(dto.comuna).toBe("Quilpue");
     expect(dto.nomFormaPago).toBe("CREDITO");
@@ -540,15 +610,13 @@ export async function createLocal(db: Db, input: LocalCreateInput, idUsuario: nu
   return db.transaction(async (tx) => {
     // Verify the parent cliente exists (FK + clearer error).
     await getRow(tx, input.rutCliente);
-    const maxRows = await (tx as Db)
-      .select({ maxId: sql<number>`COALESCE(MAX(${t10MLocalCliente.idLocalCliente}), 0)` })
-      .from(t10MLocalCliente);
-    const nextId = Number(maxRows[0].maxId) + 1;
-    await tx.insert(t10MLocalCliente).values({
-      idLocalCliente: nextId, rutCliente: input.rutCliente,
+    // id_local_cliente is AUTO_INCREMENT — insert without it and read insertId
+    // from mysql2's ResultSetHeader (same pattern as lambdas/products/service.ts:193).
+    const [header] = await tx.insert(t10MLocalCliente).values({
+      rutCliente: input.rutCliente,
       ...localWriteValues(input, idUsuario), idEstado: ESTADO_ACTIVO,
     });
-    return getLocalDto(tx, nextId);
+    return getLocalDto(tx, header.insertId);
   });
 }
 ```
@@ -1427,7 +1495,7 @@ git commit -m "test(locales): full verification pass" --allow-empty
 
 ## Self-Review notes
 
-- **Spec coverage:** migration + FK (Task 1), shared contracts (Task 2), lambda lookups/list/create/update/deactivate/activate (Tasks 4-6), routes + infra registration (Tasks 7-8), frontend api/store/logic/editor/tab (Tasks 9-12), inactivos + Restaurar (Tasks 6, 10, 12), vendedor filter tipo 2 & activos (Task 4), comuna sync (Tasks 5-6), full-width in-place editor (Tasks 11-12). All spec sections mapped.
+- **Spec coverage:** migration + FK + autoincrement (Task 1), legacy PHP MAX+1 removal (Task 1B), shared contracts (Task 2), lambda lookups/list/create/update/deactivate/activate (Tasks 4-6), routes + infra registration (Tasks 7-8), frontend api/store/logic/editor/tab (Tasks 9-12), inactivos + Restaurar (Tasks 6, 10, 12), vendedor filter tipo 2 & activos (Task 4), comuna sync (Tasks 5-6), full-width in-place editor (Tasks 11-12). All spec sections mapped.
 - **Deferred/out-of-scope (per spec):** no DROP of `comuna_local_cliente`, no repointing of `60_m_pago` FK, no changes to `10_p_tipo_docto`.
-- **id_local_cliente:** confirmed NOT auto-increment; assigned via `MAX(id)+1` inside the create transaction (Task 5), matching legacy `LocalCliente::ingLocalCliente`.
+- **id_local_cliente:** changed to AUTO_INCREMENT (Task 1, FK-checks-wrapped); create reads `ResultSetHeader.insertId` (Task 5); legacy `MAX(id)+1` removed from both PHP apps (Task 1B). Sequencing: deploy Task 1 migration before shipping Task 1B; rebuild PHP rehost images manually.
 - **Lookups delivery:** dedicated `GET /api/locales/lookups` (rut-independent), gated by the added `/locales/*` module gate.
