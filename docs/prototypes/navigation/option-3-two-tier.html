@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Serfel · Opción 3 — Barra superior + lateral contextual</title>
+<style>
+  :root{
+    --grad-start:#7c3aed;--grad-end:#2563eb;
+    --grad:linear-gradient(135deg,var(--grad-start),var(--grad-end));
+    --bg:#f1f5f9;--surface:#fff;--border:#e2e8f0;--text:#0f172a;--muted:#64748b;
+    --accent:#7c3aed;--green:#059669;--red:#dc2626;--radius:14px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+  a{text-decoration:none;color:inherit}
+
+  /* tier 1: top bar */
+  .header{background:var(--grad);position:sticky;top:0;z-index:100;padding:0 32px}
+  .header-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;height:66px;gap:20px}
+  .logo{font-size:20px;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px;letter-spacing:-.5px}
+  .logo-badge{background:rgba(255,255,255,.2);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center}
+  .logo-badge svg{width:18px;height:18px;color:#fff}
+  .tabs{display:flex;gap:4px;margin-left:14px}
+  .tab{padding:8px 16px;border-radius:999px;font-size:13.5px;font-weight:600;color:rgba(255,255,255,.78);cursor:pointer;display:flex;align-items:center;gap:7px;transition:all .18s;user-select:none}
+  .tab .ti{width:17px;height:17px;opacity:.9}
+  .tab:hover{color:#fff;background:rgba(255,255,255,.12)}
+  .tab.active{color:#fff;background:rgba(255,255,255,.2)}
+  .spacer{flex:1}
+  .h-search{display:flex;align-items:center;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:7px 15px;gap:8px;width:220px}
+  .h-search svg{width:15px;height:15px;color:rgba(255,255,255,.75)}
+  .h-search input{background:none;border:none;outline:none;color:#fff;font-family:inherit;font-size:13px;width:100%}
+  .h-search input::placeholder{color:rgba(255,255,255,.6)}
+  .avatar{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.25);border:2px solid rgba(255,255,255,.4);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
+
+  .body{display:flex;max-width:1400px;margin:0 auto;align-items:flex-start}
+
+  /* tier 2: contextual sidebar */
+  .subnav{width:236px;flex-shrink:0;background:#fff;border-right:1px solid var(--border);min-height:calc(100vh - 66px);padding:16px 12px;position:sticky;top:66px}
+  .subnav-title{font-size:15px;font-weight:800;letter-spacing:-.3px;padding:6px 12px 4px;display:flex;align-items:center;gap:9px}
+  .subnav-title .st{width:20px;height:20px;color:var(--accent)}
+  .subnav-sub{font-size:11px;color:var(--muted);padding:0 12px 12px;font-weight:500}
+  .panel{display:none;flex-direction:column;gap:2px}
+  .panel.show{display:flex}
+  .s-link{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;color:#475569;font-weight:600;font-size:13.5px;cursor:pointer;transition:all .15s}
+  .s-link:hover{background:#f5f3ff;color:var(--accent)}
+  .s-link.active{background:var(--grad);color:#fff;box-shadow:0 4px 14px rgba(124,58,237,.28)}
+  .s-link .si{width:18px;height:18px;flex-shrink:0;opacity:.9}
+  .s-link .si svg{width:18px;height:18px;display:block}
+  .s-group{margin-top:2px}
+  .s-head{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:10px;color:#475569;font-weight:700;font-size:13.5px;cursor:pointer}
+  .s-head:hover{background:#f8fafc}
+  .s-head .car{margin-left:auto;width:15px;height:15px;transition:transform .2s;opacity:.7}
+  .s-group.open .s-head .car{transform:rotate(90deg)}
+  .s-children{max-height:0;overflow:hidden;transition:max-height .22s ease;padding-left:14px}
+  .s-group.open .s-children{max-height:260px}
+  .s-child{display:block;padding:7px 12px 7px 20px;border-radius:8px;color:#64748b;font-size:13px;font-weight:500;cursor:pointer;position:relative}
+  .s-child::before{content:"";position:absolute;left:9px;top:0;bottom:0;width:2px;background:#e2e8f0}
+  .s-child:hover{background:#f8fafc;color:var(--accent)}
+
+  .main{flex:1;min-width:0}
+</style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+        Serfel
+      </div>
+      <nav class="tabs">
+        <div class="tab active" data-tab="mant"><span class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>Mantenedores</div>
+        <div class="tab" data-tab="log"><span class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 3h15v13H1zM16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></span>Logística</div>
+        <div class="tab" data-tab="vta"><span class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 2h11l5 5v15H4z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span>Ventas</div>
+        <div class="tab" data-tab="rep"><span class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg></span>Reportes</div>
+      </nav>
+      <div class="spacer"></div>
+      <div class="h-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" placeholder="Buscar…" />
+      </div>
+      <div class="avatar">CC</div>
+    </div>
+  </header>
+
+  <div class="body">
+    <aside class="subnav">
+      <div class="subnav-title" id="sn-title"><span class="st"></span><span id="sn-name">Mantenedores</span></div>
+      <div class="subnav-sub" id="sn-sub">Catálogos y datos maestros</div>
+
+      <!-- Mantenedores -->
+      <div class="panel show" data-panel="mant">
+        <a class="s-link">Usuarios</a>
+        <a class="s-link">Clientes</a>
+        <a class="s-link active">Productos</a>
+        <a class="s-link">Marcas</a>
+      </div>
+      <!-- Logística (nested Documentos) -->
+      <div class="panel" data-panel="log">
+        <div class="s-group open">
+          <div class="s-head" data-acc>Documentos <svg class="car" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg></div>
+          <div class="s-children">
+            <a class="s-child">Listado de Carga</a>
+            <a class="s-child">Guías de Despacho</a>
+          </div>
+        </div>
+        <a class="s-link">Rutas</a>
+        <a class="s-link">Vehículos</a>
+      </div>
+      <!-- Ventas -->
+      <div class="panel" data-panel="vta">
+        <a class="s-link">Prefacturación</a>
+        <a class="s-link">Facturación</a>
+        <a class="s-link">Notas de Crédito</a>
+      </div>
+      <!-- Reportes -->
+      <div class="panel" data-panel="rep">
+        <a class="s-link">Ventas por Cliente</a>
+        <a class="s-link">Stock</a>
+      </div>
+    </aside>
+
+    <div class="main">
+      <div id="canvas"></div>
+    </div>
+  </div>
+
+<script>
+  var META = {
+    mant:{name:'Mantenedores', sub:'Catálogos y datos maestros'},
+    log:{name:'Logística',    sub:'Documentos y distribución'},
+    vta:{name:'Ventas',       sub:'Facturación y cobranza'},
+    rep:{name:'Reportes',     sub:'Análisis e indicadores'}
+  };
+  var tabs = document.querySelectorAll('.tab');
+  var panels = document.querySelectorAll('.panel');
+  tabs.forEach(function(tab){
+    tab.addEventListener('click', function(){
+      var key = tab.dataset.tab;
+      tabs.forEach(function(t){ t.classList.toggle('active', t===tab); });
+      panels.forEach(function(p){ p.classList.toggle('show', p.dataset.panel===key); });
+      document.getElementById('sn-name').textContent = META[key].name;
+      document.getElementById('sn-sub').textContent = META[key].sub;
+    });
+  });
+  // sub-accordion (Documentos)
+  document.querySelectorAll('[data-acc]').forEach(function(h){
+    h.addEventListener('click', function(){ h.closest('.s-group').classList.toggle('open'); });
+  });
+</script>
+<script src="products-canvas.js"></script>
+</body>
+</html>

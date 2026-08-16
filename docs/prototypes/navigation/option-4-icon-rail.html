@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Serfel · Opción 4 — Riel de iconos expandible</title>
+<style>
+  :root{
+    --grad-start:#7c3aed;--grad-end:#2563eb;
+    --grad:linear-gradient(135deg,var(--grad-start),var(--grad-end));
+    --bg:#f1f5f9;--surface:#fff;--border:#e2e8f0;--text:#0f172a;--muted:#64748b;
+    --accent:#7c3aed;--green:#059669;--red:#dc2626;--radius:14px;--rail:76px;--rail-open:258px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+  a{text-decoration:none;color:inherit}
+  .layout{display:flex;min-height:100vh}
+
+  /* rail: gradient, collapsed to icons, expands on hover or when pinned */
+  .rail{width:var(--rail);flex-shrink:0;background:var(--grad);color:#fff;position:sticky;top:0;height:100vh;
+    display:flex;flex-direction:column;transition:width .22s ease;overflow:hidden;z-index:50}
+  .rail:hover,.rail.pinned{width:var(--rail-open)}
+  .rail-head{height:66px;display:flex;align-items:center;gap:12px;padding:0 22px;flex-shrink:0}
+  .logo-badge{background:rgba(255,255,255,.22);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .logo-badge svg{width:18px;height:18px;color:#fff}
+  .logo-txt{font-size:19px;font-weight:800;letter-spacing:-.5px;white-space:nowrap;opacity:0;transition:opacity .18s}
+  .rail:hover .logo-txt,.rail.pinned .logo-txt{opacity:1}
+  .pin{margin-left:auto;background:rgba(255,255,255,.15);border:none;color:#fff;width:26px;height:26px;border-radius:7px;cursor:pointer;display:none;align-items:center;justify-content:center;flex-shrink:0}
+  .rail:hover .pin,.rail.pinned .pin{display:flex}
+  .pin svg{width:15px;height:15px}
+  .rail.pinned .pin{background:rgba(255,255,255,.32)}
+
+  .rmenu{flex:1;overflow-y:auto;overflow-x:hidden;padding:10px 14px}
+  .rmenu::-webkit-scrollbar{width:0}
+  .r-group{margin-bottom:3px}
+  .r-link{display:flex;align-items:center;gap:0;padding:11px;border-radius:12px;color:rgba(255,255,255,.85);font-weight:600;font-size:13.5px;cursor:pointer;transition:background .15s;white-space:nowrap}
+  .r-link:hover{background:rgba(255,255,255,.14);color:#fff}
+  .r-link.active{background:rgba(255,255,255,.22);color:#fff}
+  .r-ico{width:26px;height:26px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  .r-ico svg{width:21px;height:21px;display:block}
+  .r-lbl{margin-left:12px;opacity:0;transition:opacity .18s;flex:1}
+  .r-car{width:15px;height:15px;opacity:0;transition:opacity .18s,transform .2s}
+  .rail:hover .r-lbl,.rail.pinned .r-lbl,
+  .rail:hover .r-car,.rail.pinned .r-car{opacity:.85}
+  .r-group.open .r-car{transform:rotate(90deg)}
+  .r-sub{max-height:0;overflow:hidden;transition:max-height .24s ease;padding-left:20px}
+  .rail:hover .r-group.open .r-sub,.rail.pinned .r-group.open .r-sub{max-height:340px}
+  .r-slink{display:block;padding:8px 12px;border-radius:9px;color:rgba(255,255,255,.72);font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;opacity:0;transition:opacity .18s,background .15s}
+  .rail:hover .r-slink,.rail.pinned .r-slink{opacity:1}
+  .r-slink:hover{background:rgba(255,255,255,.12);color:#fff}
+  .r-slink.active{background:rgba(255,255,255,.2);color:#fff;font-weight:700}
+  .r-sub-sub{padding-left:14px}
+
+  /* main */
+  .main{flex:1;min-width:0;display:flex;flex-direction:column}
+  .topbar{height:66px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;padding:0 26px;position:sticky;top:0;z-index:30}
+  .crumbs{font-size:13px;color:var(--muted);font-weight:600}
+  .crumbs b{color:var(--text)}
+  .hint{font-size:12px;color:#94a3b8;font-weight:500;display:flex;align-items:center;gap:6px}
+  .hint svg{width:15px;height:15px}
+  .topbar-search{margin-left:auto;display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:999px;padding:7px 15px;width:230px}
+  .topbar-search svg{width:15px;height:15px;color:var(--muted)}
+  .topbar-search input{background:none;border:none;outline:none;font-family:inherit;font-size:13px;width:100%;color:var(--text)}
+  .avatar{width:36px;height:36px;border-radius:50%;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="rail" id="rail">
+    <div class="rail-head">
+      <div class="logo-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+      <span class="logo-txt">Serfel</span>
+      <button class="pin" id="pin" title="Fijar menú abierto">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 4v6l-2 4h10l-2-4V4"/><path d="M12 14v7M8 4h8"/></svg>
+      </button>
+    </div>
+    <nav class="rmenu">
+      <div class="r-group open">
+        <div class="r-link" data-acc>
+          <span class="r-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
+          <span class="r-lbl">Mantenedores</span>
+          <svg class="r-car" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+        </div>
+        <div class="r-sub">
+          <a class="r-slink">Usuarios</a>
+          <a class="r-slink">Clientes</a>
+          <a class="r-slink active">Productos</a>
+          <a class="r-slink">Marcas</a>
+        </div>
+      </div>
+
+      <div class="r-group">
+        <div class="r-link" data-acc>
+          <span class="r-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 3h15v13H1zM16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></span>
+          <span class="r-lbl">Logística</span>
+          <svg class="r-car" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+        </div>
+        <div class="r-sub">
+          <div class="r-group open">
+            <div class="r-slink" data-acc style="display:flex;align-items:center">Documentos<svg class="r-car" style="margin-left:auto;opacity:1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg></div>
+            <div class="r-sub r-sub-sub">
+              <a class="r-slink">Listado de Carga</a>
+              <a class="r-slink">Guías de Despacho</a>
+            </div>
+          </div>
+          <a class="r-slink">Rutas</a>
+        </div>
+      </div>
+
+      <div class="r-group">
+        <div class="r-link" data-acc>
+          <span class="r-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 2h11l5 5v15H4z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span>
+          <span class="r-lbl">Ventas</span>
+          <svg class="r-car" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+        </div>
+        <div class="r-sub">
+          <a class="r-slink">Prefacturación</a>
+          <a class="r-slink">Facturación</a>
+          <a class="r-slink">Notas de Crédito</a>
+        </div>
+      </div>
+
+      <div class="r-group">
+        <div class="r-link" data-acc>
+          <span class="r-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg></span>
+          <span class="r-lbl">Reportes</span>
+          <svg class="r-car" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+        </div>
+        <div class="r-sub">
+          <a class="r-slink">Ventas por Cliente</a>
+          <a class="r-slink">Stock</a>
+        </div>
+      </div>
+
+      <div class="r-group">
+        <a class="r-link">
+          <span class="r-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-2.82 1.17V21a2 2 0 11-4 0v-.09A1.65 1.65 0 007 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9c.24.58.78.98 1.42 1H21a2 2 0 110 4h-.09c-.64.02-1.18.42-1.51 1z"/></svg></span>
+          <span class="r-lbl">Configuración</span>
+        </a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="crumbs">Mantenedores / <b>Productos</b></div>
+      <div class="hint">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9z"/></svg>
+        Pase el mouse sobre el menú para expandirlo, o fíjelo con el botón
+      </div>
+      <div class="topbar-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" placeholder="Buscar…" />
+      </div>
+      <div class="avatar">CC</div>
+    </div>
+    <div id="canvas"></div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('[data-acc]').forEach(function(el){
+    el.addEventListener('click', function(e){
+      e.preventDefault(); e.stopPropagation();
+      el.closest('.r-group').classList.toggle('open');
+    });
+  });
+  document.getElementById('pin').addEventListener('click', function(e){
+    e.stopPropagation();
+    document.getElementById('rail').classList.toggle('pinned');
+  });
+</script>
+<script src="products-canvas.js"></script>
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Serfel · Opción 1 — Menú lateral plegable</title>
+<style>
+  :root{
+    --grad-start:#7c3aed;--grad-end:#2563eb;
+    --grad:linear-gradient(135deg,var(--grad-start),var(--grad-end));
+    --bg:#f1f5f9;--surface:#fff;--border:#e2e8f0;--text:#0f172a;--muted:#64748b;
+    --accent:#7c3aed;--green:#059669;--red:#dc2626;--radius:14px;--sb:264px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+  a{text-decoration:none;color:inherit}
+  .layout{display:flex;min-height:100vh}
+
+  /* ── Sidebar ── */
+  .sidebar{width:var(--sb);flex-shrink:0;background:#fff;border-right:1px solid var(--border);
+    display:flex;flex-direction:column;position:sticky;top:0;height:100vh;transition:width .22s ease;overflow:hidden}
+  .sidebar-head{height:68px;display:flex;align-items:center;gap:10px;padding:0 18px;background:var(--grad);color:#fff;flex-shrink:0}
+  .logo-badge{background:rgba(255,255,255,.2);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .logo-badge svg{width:18px;height:18px;color:#fff}
+  .logo-txt{font-size:19px;font-weight:800;letter-spacing:-.5px;white-space:nowrap}
+  .menu{flex:1;overflow-y:auto;padding:12px 10px}
+  .menu-section{font-size:10px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.12em;padding:14px 12px 6px;white-space:nowrap}
+  .nav-group{margin-bottom:2px}
+  .nav-link{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:10px;color:#475569;font-weight:600;font-size:13.5px;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s;position:relative}
+  .nav-link:hover{background:#f5f3ff;color:var(--accent)}
+  .nav-link.active{background:var(--grad);color:#fff;box-shadow:0 4px 14px rgba(124,58,237,.28)}
+  .nav-link .ico{width:20px;height:20px;flex-shrink:0}
+  .nav-link .ico svg{width:20px;height:20px;display:block}
+  .nav-link .lbl{flex:1}
+  .caret{width:15px;height:15px;transition:transform .2s;flex-shrink:0;opacity:.7}
+  .nav-group.open>.nav-link .caret{transform:rotate(90deg)}
+  .submenu{max-height:0;overflow:hidden;transition:max-height .25s ease;padding-left:12px}
+  .nav-group.open>.submenu{max-height:520px}
+  .sublink{display:flex;align-items:center;gap:8px;padding:7px 12px 7px 22px;border-radius:8px;color:#64748b;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;position:relative}
+  .sublink::before{content:"";position:absolute;left:10px;top:0;bottom:0;width:2px;background:#e2e8f0}
+  .sublink:hover{background:#f8fafc;color:var(--accent)}
+  .sublink.active{color:var(--accent);font-weight:700}
+  .sublink.active::before{background:var(--accent)}
+  .sub-sub .sublink{padding-left:34px}
+
+  /* collapsed state: icon-only */
+  .sidebar.collapsed{width:74px}
+  .sidebar.collapsed .logo-txt,
+  .sidebar.collapsed .menu-section,
+  .sidebar.collapsed .nav-link .lbl,
+  .sidebar.collapsed .nav-link .caret,
+  .sidebar.collapsed .submenu{display:none}
+  .sidebar.collapsed .nav-link{justify-content:center;padding:11px}
+  .sidebar.collapsed .sidebar-head{justify-content:center;padding:0}
+
+  /* ── Main column ── */
+  .main{flex:1;min-width:0;display:flex;flex-direction:column}
+  .topbar{height:68px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;padding:0 26px;position:sticky;top:0;z-index:30}
+  .burger{width:40px;height:40px;border-radius:10px;border:1px solid var(--border);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#475569;transition:all .15s}
+  .burger:hover{background:#f5f3ff;color:var(--accent);border-color:var(--accent)}
+  .burger svg{width:20px;height:20px}
+  .crumbs{font-size:13px;color:var(--muted);font-weight:600}
+  .crumbs b{color:var(--text)}
+  .topbar-search{margin-left:auto;display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:999px;padding:7px 15px;width:240px}
+  .topbar-search svg{width:15px;height:15px;color:var(--muted)}
+  .topbar-search input{background:none;border:none;outline:none;font-family:inherit;font-size:13px;width:100%;color:var(--text)}
+  .avatar{width:36px;height:36px;border-radius:50%;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
+</style>
+</head>
+<body>
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-head">
+      <div class="logo-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+      <span class="logo-txt">Serfel</span>
+    </div>
+    <nav class="menu" id="menu">
+      <div class="menu-section">Principal</div>
+
+      <div class="nav-group open">
+        <div class="nav-link" data-toggle>
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
+          <span class="lbl">Mantenedores</span>
+          <svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+        </div>
+        <div class="submenu">
+          <a class="sublink">Usuarios</a>
+          <a class="sublink">Clientes</a>
+          <a class="sublink active">Productos</a>
+          <a class="sublink">Marcas</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-link" data-toggle>
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 3h15v13H1zM16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></span>
+          <span class="lbl">Logística</span>
+          <svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+        </div>
+        <div class="submenu">
+          <div class="nav-group sub-group">
+            <a class="sublink" data-toggle style="justify-content:space-between">
+              <span>Documentos</span>
+              <svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+            </a>
+            <div class="submenu sub-sub">
+              <a class="sublink">Listado de Carga</a>
+              <a class="sublink">Guías de Despacho</a>
+            </div>
+          </div>
+          <a class="sublink">Rutas</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-link" data-toggle>
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 2h11l5 5v15H4z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span>
+          <span class="lbl">Ventas</span>
+          <svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+        </div>
+        <div class="submenu">
+          <a class="sublink">Prefacturación</a>
+          <a class="sublink">Facturación</a>
+          <a class="sublink">Notas de Crédito</a>
+        </div>
+      </div>
+
+      <div class="menu-section">Análisis</div>
+
+      <div class="nav-group">
+        <div class="nav-link" data-toggle>
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg></span>
+          <span class="lbl">Reportes</span>
+          <svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+        </div>
+        <div class="submenu">
+          <a class="sublink">Ventas por Cliente</a>
+          <a class="sublink">Stock</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <a class="nav-link">
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-2.82 1.17V21a2 2 0 11-4 0v-.09A1.65 1.65 0 007 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9c.24.58.78.98 1.42 1H21a2 2 0 110 4h-.09c-.64.02-1.18.42-1.51 1z"/></svg></span>
+          <span class="lbl">Configuración</span>
+        </a>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <button class="burger" id="burger" title="Abrir / cerrar menú">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+      </button>
+      <div class="crumbs">Mantenedores / <b>Productos</b></div>
+      <div class="topbar-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" placeholder="Buscar…" />
+      </div>
+      <div class="avatar">CC</div>
+    </div>
+    <!-- PRODUCTS CANVAS -->
+    <div id="canvas"></div>
+  </div>
+</div>
+
+<script>
+  // accordion toggles (works for groups and sub-groups)
+  document.querySelectorAll('[data-toggle]').forEach(function(el){
+    el.addEventListener('click', function(e){
+      e.preventDefault();
+      el.closest('.nav-group').classList.toggle('open');
+    });
+  });
+  // collapse / expand sidebar
+  document.getElementById('burger').addEventListener('click', function(){
+    document.getElementById('sidebar').classList.toggle('collapsed');
+  });
+</script>
+<script src="products-canvas.js"></script>
+</body>
+</html>

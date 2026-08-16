@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Serfel · Prototipos de navegación</title>
+<style>
+  :root{
+    --grad-start:#7c3aed;--grad-end:#2563eb;
+    --grad:linear-gradient(135deg,var(--grad-start),var(--grad-end));
+    --bg:#f1f5f9;--surface:#fff;--border:#e2e8f0;--text:#0f172a;--muted:#64748b;--accent:#7c3aed;--radius:14px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+  .top{background:var(--grad);padding:0 40px}
+  .top-inner{max-width:1080px;margin:0 auto;display:flex;align-items:center;height:68px;gap:10px}
+  .logo{font-size:20px;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px;letter-spacing:-.5px}
+  .logo-badge{background:rgba(255,255,255,.2);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center}
+  .logo-badge svg{width:18px;height:18px;color:#fff}
+  .hero{background:var(--grad);padding:28px 40px 64px}
+  .hero-inner{max-width:1080px;margin:0 auto}
+  .hero h1{font-size:32px;font-weight:800;color:#fff;letter-spacing:-.5px}
+  .hero p{color:rgba(255,255,255,.8);font-size:15px;margin-top:8px;max-width:640px}
+  .wrap{max-width:1080px;margin:-36px auto 0;padding:0 40px 60px;position:relative}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;
+    box-shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.05);text-decoration:none;color:inherit;
+    display:flex;flex-direction:column;gap:14px;transition:transform .2s,box-shadow .2s}
+  .card:hover{transform:translateY(-3px);box-shadow:0 10px 32px rgba(0,0,0,.12)}
+  .card-top{display:flex;align-items:center;gap:14px}
+  .thumb{width:112px;height:74px;border-radius:10px;border:1px solid var(--border);overflow:hidden;flex-shrink:0;background:#fff;position:relative}
+  .num{position:absolute;top:6px;left:6px;z-index:2;width:22px;height:22px;border-radius:6px;background:var(--grad);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .card h2{font-size:17px;font-weight:800;letter-spacing:-.3px}
+  .card .tag{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-top:3px}
+  .card p{font-size:13px;color:var(--muted);line-height:1.55}
+  .open{margin-top:auto;font-size:13px;font-weight:700;color:var(--accent);display:inline-flex;align-items:center;gap:6px}
+  .note{margin-top:26px;font-size:12px;color:var(--muted);text-align:center}
+  /* mini thumbnails (pure CSS) */
+  .mini{position:absolute;inset:0;display:flex}
+  .mini .bar-top{position:absolute;top:0;left:0;right:0;height:12px;background:var(--grad)}
+  .mini .side{width:30%;background:#faf5ff;border-right:1px solid var(--border);margin-top:12px}
+  .mini .side.right{margin-left:auto;border-left:1px solid var(--border);border-right:none}
+  .mini .rail{width:16%;background:var(--grad);margin-top:12px}
+  .mini .lines{flex:1;margin-top:16px;padding:5px 6px;display:flex;flex-direction:column;gap:4px}
+  .mini .lines i{height:5px;border-radius:3px;background:#e2e8f0;display:block}
+  .mini .lines i:first-child{width:70%;background:#ddd6fe}
+  @media(max-width:720px){.grid{grid-template-columns:1fr}.hero h1{font-size:26px}}
+</style>
+</head>
+<body>
+  <div class="top">
+    <div class="top-inner">
+      <div class="logo">
+        <div class="logo-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+        Serfel
+      </div>
+    </div>
+  </div>
+  <div class="hero">
+    <div class="hero-inner">
+      <h1>Prototipos de navegación</h1>
+      <p>Cuatro alternativas de menú sobre la misma pantalla real (Catálogo de Productos). Revíselas y elija la que prefiera para el sistema. Cada opción es interactiva: abra menús, expanda submenús y navegue.</p>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="grid">
+      <a class="card" href="option-1-sidebar.html">
+        <div class="card-top">
+          <div class="thumb"><span class="num">1</span><div class="mini"><div class="side"></div><div class="bar-top"></div><div class="lines"><i></i><i></i><i></i></div></div></div>
+          <div><h2>Menú lateral plegable</h2><div class="tag">Recomendado · sidebar</div></div>
+        </div>
+        <p>Menú a la izquierda con botón para abrir y cerrar. Submenús de varios niveles que se despliegan en acordeón. Ideal cuando hay muchos módulos.</p>
+        <span class="open">Ver prototipo →</span>
+      </a>
+      <a class="card" href="option-2-topbar-mega.html">
+        <div class="card-top">
+          <div class="thumb"><span class="num">2</span><div class="mini"><div class="bar-top"></div><div class="lines"><i></i><i></i><i></i></div></div></div>
+          <div><h2>Barra superior + mega menú</h2><div class="tag">Top bar</div></div>
+        </div>
+        <p>Menú horizontal arriba; cada grupo abre un panel desplegable con sus subniveles. Deja el contenido a lo ancho completo.</p>
+        <span class="open">Ver prototipo →</span>
+      </a>
+      <a class="card" href="option-3-two-tier.html">
+        <div class="card-top">
+          <div class="thumb"><span class="num">3</span><div class="mini"><div class="bar-top"></div><div class="side"></div><div class="lines"><i></i><i></i><i></i></div></div></div>
+          <div><h2>Dos niveles: barra + lateral</h2><div class="tag">Two-tier</div></div>
+        </div>
+        <p>La barra superior elige la sección; un menú lateral secundario muestra los subitems de esa sección. Habitual en sistemas ERP.</p>
+        <span class="open">Ver prototipo →</span>
+      </a>
+      <a class="card" href="option-4-icon-rail.html">
+        <div class="card-top">
+          <div class="thumb"><span class="num">4</span><div class="mini"><div class="rail"></div><div class="bar-top"></div><div class="lines"><i></i><i></i><i></i></div></div></div>
+          <div><h2>Riel de iconos expandible</h2><div class="tag">Icon rail</div></div>
+        </div>
+        <p>Franja delgada de iconos a la izquierda que se expande al pasar el mouse o hacer clic, revelando las etiquetas y submenús. Muy compacto.</p>
+        <span class="open">Ver prototipo →</span>
+      </a>
+    </div>
+    <p class="note">Prototipos de demostración con datos ficticios · Serfel</p>
+  </div>
+</body>
+</html>

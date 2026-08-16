@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Serfel · Opción 2 — Barra superior + mega menú</title>
+<style>
+  :root{
+    --grad-start:#7c3aed;--grad-end:#2563eb;
+    --grad:linear-gradient(135deg,var(--grad-start),var(--grad-end));
+    --bg:#f1f5f9;--surface:#fff;--border:#e2e8f0;--text:#0f172a;--muted:#64748b;
+    --accent:#7c3aed;--green:#059669;--red:#dc2626;--radius:14px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+  a{text-decoration:none;color:inherit}
+
+  .header{background:var(--grad);position:sticky;top:0;z-index:100;padding:0 32px}
+  .header-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;height:66px;gap:20px}
+  .logo{font-size:20px;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px;letter-spacing:-.5px}
+  .logo-badge{background:rgba(255,255,255,.2);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center}
+  .logo-badge svg{width:18px;height:18px;color:#fff}
+  .nav{display:flex;gap:2px;margin-left:14px}
+  .nav-item{padding:8px 15px;border-radius:999px;font-size:13.5px;font-weight:600;color:rgba(255,255,255,.78);cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .18s;user-select:none}
+  .nav-item:hover{color:#fff;background:rgba(255,255,255,.12)}
+  .nav-item.open{color:#fff;background:rgba(255,255,255,.2)}
+  .nav-item .car{width:13px;height:13px;transition:transform .2s;opacity:.85}
+  .nav-item.open .car{transform:rotate(180deg)}
+  .spacer{flex:1}
+  .h-search{display:flex;align-items:center;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:7px 15px;gap:8px;width:230px}
+  .h-search svg{width:15px;height:15px;color:rgba(255,255,255,.75)}
+  .h-search input{background:none;border:none;outline:none;color:#fff;font-family:inherit;font-size:13px;width:100%}
+  .h-search input::placeholder{color:rgba(255,255,255,.6)}
+  .avatar{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.25);border:2px solid rgba(255,255,255,.4);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
+
+  /* mega dropdown */
+  .mega-host{position:relative}
+  .mega{position:absolute;top:calc(100% + 10px);left:0;background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 20px 50px rgba(15,23,42,.18);padding:16px;min-width:300px;opacity:0;visibility:hidden;transform:translateY(-6px);transition:all .18s;z-index:120}
+  .mega-host.open .mega{opacity:1;visibility:visible;transform:translateY(0)}
+  .mega::before{content:"";position:absolute;top:-6px;left:26px;width:12px;height:12px;background:#fff;border-left:1px solid var(--border);border-top:1px solid var(--border);transform:rotate(45deg)}
+  .mega-title{font-size:10px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.12em;padding:4px 12px 8px}
+  .mcol{display:flex;flex-direction:column;gap:2px}
+  .m-link{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:10px;color:#475569;font-weight:600;font-size:13.5px;cursor:pointer;transition:all .15s;white-space:nowrap}
+  .m-link:hover{background:#f5f3ff;color:var(--accent)}
+  .m-link.active{background:var(--grad);color:#fff}
+  .m-link .mi{width:18px;height:18px;flex-shrink:0;opacity:.9}
+  .m-link .mi svg{width:18px;height:18px;display:block}
+  /* nested column (two-column mega for Logística) */
+  .mega.wide{min-width:520px}
+  .mega-cols{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .subhead{font-size:11px;font-weight:800;color:#64748b;padding:8px 12px 4px;display:flex;align-items:center;gap:7px}
+  .subhead svg{width:15px;height:15px;color:var(--accent)}
+  .mcard{background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:8px}
+
+  .content{max-width:1280px;margin:0 auto}
+</style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+        Serfel
+      </div>
+      <nav class="nav">
+        <!-- Mantenedores -->
+        <div class="mega-host">
+          <div class="nav-item" data-mega>Mantenedores <svg class="car" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+          <div class="mega">
+            <div class="mega-title">Mantenedores</div>
+            <div class="mcol">
+              <a class="m-link"><span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/></svg></span>Usuarios</a>
+              <a class="m-link"><span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>Clientes</a>
+              <a class="m-link active"><span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg></span>Productos</a>
+              <a class="m-link"><span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/></svg></span>Marcas</a>
+            </div>
+          </div>
+        </div>
+        <!-- Logística (two-column, nested Documentos) -->
+        <div class="mega-host">
+          <div class="nav-item" data-mega>Logística <svg class="car" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+          <div class="mega wide">
+            <div class="mega-title">Logística</div>
+            <div class="mega-cols">
+              <div class="mcard">
+                <div class="subhead"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 2h11l5 5v15H4z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>Documentos</div>
+                <div class="mcol">
+                  <a class="m-link">Listado de Carga</a>
+                  <a class="m-link">Guías de Despacho</a>
+                </div>
+              </div>
+              <div class="mcard">
+                <div class="subhead"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 3h15v13H1zM16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Distribución</div>
+                <div class="mcol">
+                  <a class="m-link">Rutas</a>
+                  <a class="m-link">Vehículos</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Ventas -->
+        <div class="mega-host">
+          <div class="nav-item" data-mega>Ventas <svg class="car" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+          <div class="mega">
+            <div class="mega-title">Ventas</div>
+            <div class="mcol">
+              <a class="m-link">Prefacturación</a>
+              <a class="m-link">Facturación</a>
+              <a class="m-link">Notas de Crédito</a>
+            </div>
+          </div>
+        </div>
+        <!-- Reportes -->
+        <div class="mega-host">
+          <div class="nav-item" data-mega>Reportes <svg class="car" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+          <div class="mega">
+            <div class="mega-title">Reportes</div>
+            <div class="mcol">
+              <a class="m-link">Ventas por Cliente</a>
+              <a class="m-link">Stock</a>
+            </div>
+          </div>
+        </div>
+        <div class="nav-item" style="opacity:.9">Configuración</div>
+      </nav>
+      <div class="spacer"></div>
+      <div class="h-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" placeholder="Buscar en catálogo…" />
+      </div>
+      <div class="avatar">CC</div>
+    </div>
+  </header>
+
+  <div class="content">
+    <div id="canvas"></div>
+  </div>
+
+<script>
+  var hosts = Array.prototype.slice.call(document.querySelectorAll('.mega-host'));
+  hosts.forEach(function(host){
+    host.querySelector('[data-mega]').addEventListener('click', function(e){
+      e.stopPropagation();
+      var wasOpen = host.classList.contains('open');
+      hosts.forEach(function(h){ h.classList.remove('open'); h.querySelector('.nav-item').classList.remove('open'); });
+      if(!wasOpen){ host.classList.add('open'); host.querySelector('.nav-item').classList.add('open'); }
+    });
+  });
+  document.addEventListener('click', function(){
+    hosts.forEach(function(h){ h.classList.remove('open'); h.querySelector('.nav-item').classList.remove('open'); });
+  });
+</script>
+<script src="products-canvas.js"></script>
+</body>
+</html>
