@@ -1,12 +1,13 @@
 import { and, asc, eq, ne, gt, sql } from "drizzle-orm";
 import {
   t10MCliente, t40MListaPrecio, t40MRuta, t40MRutaLocalCliente, t10MLocalCliente,
-  t40MVenta, t40MNotaCredito, t10MUsuario, type Db,
+  t40MVenta, t40MNotaCredito, t10MUsuario, t40PFormaPago, type Db,
 } from "@serfel/db";
 import {
   ESTADO_ACTIVO, ESTADO_INACTIVO, formatRut, parseRut,
   type EstadoFilter, type ClienteCreateInput, type ClienteUpdateInput,
   type ClienteDto, type ClienteLookupsDto,
+  type LocalDto, type LocalLookupsDto, type LocalCreateInput, type LocalUpdateInput,
 } from "@serfel/shared";
 import { AppError } from "./errors";
 
@@ -234,4 +235,158 @@ export async function getUserTipo(db: Db, idUsuario: number): Promise<number | n
   const rows = await db.select({ idTipoUsuario: t10MUsuario.idTipoUsuario })
     .from(t10MUsuario).where(eq(t10MUsuario.idUsuario, idUsuario)).limit(1);
   return rows.length > 0 ? rows[0].idTipoUsuario : null;
+}
+
+const localDtoColumns = {
+  idLocalCliente: t10MLocalCliente.idLocalCliente,
+  rutCliente: t10MLocalCliente.rutCliente,
+  nombre: t10MLocalCliente.nomLocalCliente,
+  telefono: t10MLocalCliente.telefonoLocalCliente,
+  direccion: t10MLocalCliente.direccionLocalCliente,
+  comuna: t10MLocalCliente.comuna,
+  email: t10MLocalCliente.emailLocalCliente,
+  giro: t10MLocalCliente.giro,
+  nomContacto: t10MLocalCliente.nomContacto,
+  apellPatContacto: t10MLocalCliente.apellPatContacto,
+  apellMatContacto: t10MLocalCliente.apellMatContacto,
+  telefonoContacto: t10MLocalCliente.telefonoContacto,
+  emailContacto: t10MLocalCliente.emailContacto,
+  topeVenta: t10MLocalCliente.topeVenta,
+  topeCredito: t10MLocalCliente.topeCredito,
+  idVendedor: t10MLocalCliente.idVendedor,
+  nomVendedor: t10MUsuario.nomUsuario,
+  idFormaPago: t10MLocalCliente.idFormaPago,
+  nomFormaPago: t40PFormaPago.nomFormaPago,
+  observaciones: t10MLocalCliente.observaciones,
+  permiteVentaTopeMensual: t10MLocalCliente.permiteVentaTopeMensual,
+  idEstado: t10MLocalCliente.idEstado,
+};
+
+function localToDto(r: Record<string, unknown>): LocalDto {
+  return {
+    ...(r as Omit<LocalDto, "permiteVentaTopeMensual" | "giro" | "comuna" | "observaciones" | "nomContacto" | "apellPatContacto" | "apellMatContacto">),
+    giro: (r.giro as string | null) ?? "",
+    comuna: (r.comuna as string | null) ?? "",
+    observaciones: (r.observaciones as string | null) ?? "",
+    nomContacto: (r.nomContacto as string | null) ?? "",
+    apellPatContacto: (r.apellPatContacto as string | null) ?? "",
+    apellMatContacto: (r.apellMatContacto as string | null) ?? "",
+    direccion: (r.direccion as string | null) ?? "",
+    permiteVentaTopeMensual: (r.permiteVentaTopeMensual as number) === 1,
+  } as LocalDto;
+}
+
+function localQuery(db: DbOrTx) {
+  return (db as Db)
+    .select(localDtoColumns)
+    .from(t10MLocalCliente)
+    .leftJoin(t40PFormaPago, eq(t10MLocalCliente.idFormaPago, t40PFormaPago.idFormaPago))
+    .leftJoin(t10MUsuario, eq(t10MLocalCliente.idVendedor, t10MUsuario.idUsuario));
+}
+
+export async function getLocalLookups(db: Db): Promise<LocalLookupsDto> {
+  const formasPago = await db
+    .select({ id: t40PFormaPago.idFormaPago, nombre: t40PFormaPago.nomFormaPago })
+    .from(t40PFormaPago)
+    .orderBy(asc(t40PFormaPago.nomFormaPago));
+  const vendedorRows = await db
+    .select({
+      id: t10MUsuario.idUsuario, nom: t10MUsuario.nomUsuario,
+      apPat: t10MUsuario.apellPatUsuario, apMat: t10MUsuario.apellMatUsuario,
+    })
+    .from(t10MUsuario)
+    .where(and(eq(t10MUsuario.idEstado, ESTADO_ACTIVO), eq(t10MUsuario.idTipoUsuario, 2)))
+    .orderBy(asc(t10MUsuario.nomUsuario));
+  const vendedores = vendedorRows.map((v) => ({
+    id: v.id, nombre: `${v.nom} ${v.apPat} ${v.apMat}`.trim(),
+  }));
+  return { formasPago, vendedores };
+}
+
+export async function listLocales(db: Db, rutCliente: number, estado: EstadoFilter): Promise<LocalDto[]> {
+  const base = localQuery(db).where(
+    estado === "todos"
+      ? eq(t10MLocalCliente.rutCliente, rutCliente)
+      : and(
+          eq(t10MLocalCliente.rutCliente, rutCliente),
+          eq(t10MLocalCliente.idEstado, estado === "activos" ? ESTADO_ACTIVO : ESTADO_INACTIVO),
+        ),
+  );
+  const rows = await base.orderBy(asc(t10MLocalCliente.nomLocalCliente));
+  return rows.map((r) => localToDto(r as Record<string, unknown>));
+}
+
+function localWriteValues(input: LocalUpdateInput, idUsuario: number) {
+  return {
+    nomLocalCliente: input.nombre,
+    telefonoLocalCliente: input.telefono,
+    direccionLocalCliente: input.direccion,
+    comuna: input.comuna,
+    comunaLocalCliente: input.comuna, // keep legacy column in sync
+    emailLocalCliente: input.email,
+    giro: input.giro,
+    nomContacto: input.nomContacto,
+    apellPatContacto: input.apellPatContacto,
+    apellMatContacto: input.apellMatContacto,
+    telefonoContacto: input.telefonoContacto,
+    emailContacto: input.emailContacto,
+    topeVenta: input.topeVenta,
+    topeCredito: input.topeCredito,
+    idVendedor: input.idVendedor,
+    idFormaPago: input.idFormaPago,
+    observaciones: input.observaciones,
+    permiteVentaTopeMensual: input.permiteVentaTopeMensual ? 1 : 0,
+    idUsuarioMod: idUsuario,
+    ultFechaMod: nowDateTime(),
+  };
+}
+
+async function getLocalDto(db: DbOrTx, id: number): Promise<LocalDto> {
+  const rows = await localQuery(db).where(eq(t10MLocalCliente.idLocalCliente, id));
+  if (rows.length === 0) throw new AppError("LOCAL_NO_ENCONTRADO", 404, `Local ${id} no existe`);
+  return localToDto(rows[0] as Record<string, unknown>);
+}
+
+export async function createLocal(db: Db, input: LocalCreateInput, idUsuario: number): Promise<LocalDto> {
+  return db.transaction(async (tx) => {
+    // Verify the parent cliente exists (FK + clearer error).
+    await getRow(tx, input.rutCliente);
+    // id_local_cliente is AUTO_INCREMENT — insert without it and read insertId
+    // from mysql2's ResultSetHeader (same pattern as lambdas/products/service.ts:193).
+    const [header] = await tx.insert(t10MLocalCliente).values({
+      rutCliente: input.rutCliente,
+      ...localWriteValues(input, idUsuario), idEstado: ESTADO_ACTIVO,
+    });
+    return getLocalDto(tx, header.insertId);
+  });
+}
+
+export async function updateLocal(db: Db, id: number, input: LocalUpdateInput, idUsuario: number): Promise<LocalDto> {
+  return db.transaction(async (tx) => {
+    await getLocalDto(tx, id); // 404 if missing
+    await tx.update(t10MLocalCliente).set(localWriteValues(input, idUsuario))
+      .where(eq(t10MLocalCliente.idLocalCliente, id));
+    return getLocalDto(tx, id);
+  });
+}
+
+export async function deactivateLocal(db: Db, id: number, idUsuario: number): Promise<LocalDto> {
+  return db.transaction(async (tx) => {
+    const current = await getLocalDto(tx, id);
+    if (current.idEstado === ESTADO_INACTIVO) return current;
+    await tx.update(t10MLocalCliente)
+      .set({ idEstado: ESTADO_INACTIVO, idUsuarioMod: idUsuario, ultFechaMod: nowDateTime() })
+      .where(eq(t10MLocalCliente.idLocalCliente, id));
+    return getLocalDto(tx, id);
+  });
+}
+
+export async function activateLocal(db: Db, id: number, input: LocalUpdateInput, idUsuario: number): Promise<LocalDto> {
+  return db.transaction(async (tx) => {
+    await getLocalDto(tx, id);
+    await tx.update(t10MLocalCliente)
+      .set({ ...localWriteValues(input, idUsuario), idEstado: ESTADO_ACTIVO })
+      .where(eq(t10MLocalCliente.idLocalCliente, id));
+    return getLocalDto(tx, id);
+  });
 }

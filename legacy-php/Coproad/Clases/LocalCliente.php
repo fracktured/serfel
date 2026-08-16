@@ -172,29 +172,6 @@
         }
         //</editor-fold>
         
-        private function obtNuevoIdLocalCliente() {
-        /************************************************************
-         * Autor: Christian Castro                                  *
-         * Fecha: 23-11-2011                                        *
-         * Desc : Devuelve el siguiente Id Clientes del sistema.    *
-         *        Esta funcionalidad solo trabaja si la tabla de    *
-         *        Clientes tiene por lo menos un registro           *
-         ************************************************************/
-            $db = conectarse();
-
-            $query = "SELECT (MAX(id_local_cliente) + 1) as id_local_cliente
-                          FROM 10_m_local_cliente";
-            
-            $resDB = mysql_query($query, $db) or die(mysql_error());
-            
-            while ($filaDB = mysql_fetch_assoc($resDB)) $idLocalCliente = $filaDB["id_local_cliente"];
-            
-            if($idLocalCliente == "") $idLocalCliente = 1;
-
-            mysql_close($db);
-            return $idLocalCliente;
-        }
-        
         function ingLocalCliente($rutCliente, $nomLocalCliente, $direLocalClie, $fonoLocalClie, $emailLocalClie, 
                                  $nomContacto, $apellPatContacto, $apellMatContacto, $fonoContacto, $emailContacto, 
                                  $topeVenta, $topeCredito, $idVendedor, $idFormaPago, $observaciones, $giro, $comuna,
@@ -219,8 +196,6 @@
             $totRes = mysql_num_rows($resDB);
             
             if($totRes == 0) {
-                $idLocalCliente = $this->obtNuevoIdLocalCliente();
-
                 $db = conectarse();
                 
                 if($topeCredito == "") $topeCredito = 0;
@@ -231,8 +206,7 @@
                     $iPermiteVentaTopeMensual = 1;
                 }
 
-                $query = "INSERT INTO 10_m_local_cliente (id_local_cliente,
-                                                          rut_cliente,
+                $query = "INSERT INTO 10_m_local_cliente (rut_cliente,
                                                           nom_local_cliente,
                                                           telefono_local_cliente,
                                                           direccion_local_cliente,
@@ -252,8 +226,7 @@
                                                           id_usuario_mod,
                                                           ult_fecha_mod,
                                                           permite_venta_tope_mensual)
-                            VALUES (" . $idLocalCliente . ",
-                                    " . $rutCliente . ",
+                            VALUES (" . $rutCliente . ",
                                     '" . $nomLocalCliente . "',
                                     '" . $fonoLocalClie . "',
                                     '" . $direLocalClie . "',
@@ -274,7 +247,9 @@
                                     NOW(),
                                     " . $iPermiteVentaTopeMensual . ")";
                 mysql_query($query, $db) or die(mysql_error());
-                
+
+                $idLocalCliente = mysql_insert_id($db);
+
                 mysql_close($db);
                 return $idLocalCliente;
             } else if($totRes > 0) {

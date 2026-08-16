@@ -4,7 +4,7 @@ import {
   createDb, migrateSchemaOnly, type Db,
   t99PEstado, t10PTipoUsuario, t10MUsuario, t40MListaPrecio, t10MCliente,
   t10MLocalCliente, t10PTipoDocto, t10MEmpresa, t40MRuta, t40MRutaLocalCliente,
-  t40MVenta, t40MNotaCredito,
+  t40MVenta, t40MNotaCredito, t40PFormaPago,
 } from "@serfel/db";
 
 const ROOT = { host: "127.0.0.1", port: 3307, user: "root", password: "serfel" };
@@ -16,6 +16,9 @@ export const SEED = {
   tipoVendedor: 2,
   idListaPrecio: 1,
   idTipoDocto: 1,
+  /** matches t10MLocalCliente.idFormaPago's schema default (7). */
+  idFormaPago: 7,
+  idVendedor: 30, // active user, id_tipo_usuario = 2 (Vendedor)
   rutEmpresa: 1,
   /** client with routes (Mon+Wed) + a venta + a nota de crédito, used for derived columns. */
   rutClienteConVenta: 5000000,
@@ -52,12 +55,21 @@ export async function setupTestDb(dbName: string): Promise<{ db: Db; pool: Pool;
     telefonoUsuario: "1", direccionUsuario: "-", emailUsuario: "admin@serfel.cl", numUsuario: 0,
     idUsuarioMod: SEED.idAdmin, ultFechaMod: now, idEstado: 1,
   }]);
+  await db.insert(t10MUsuario).values([{
+    idUsuario: SEED.idVendedor, rutUsuario: 22222222, dvUsuario: "2", nomUsuario: "Vera",
+    apellPatUsuario: "Vendedora", apellMatUsuario: "Test", password: "seed", idTipoUsuario: SEED.tipoVendedor,
+    telefonoUsuario: "2", direccionUsuario: "-", emailUsuario: "vera@serfel.cl", numUsuario: 0,
+    idUsuarioMod: SEED.idAdmin, ultFechaMod: now, idEstado: 1,
+  }]);
   await db.insert(t40MListaPrecio).values({
     idListaPrecio: SEED.idListaPrecio, nomListaPrecio: "Base",
     idUsuarioMod: SEED.idAdmin, ultFechaMod: now, idEstado: 1,
   });
   await db.insert(t10PTipoDocto).values({
     idTipoDocto: SEED.idTipoDocto, nomTipoDocto: "Factura", descTipoDocto: "Factura",
+  });
+  await db.insert(t40PFormaPago).values({
+    idFormaPago: SEED.idFormaPago, nomFormaPago: "CREDITO", descFormaPago: "Pago a crédito",
   });
   await db.insert(t10MEmpresa).values({
     rutEmpresa: SEED.rutEmpresa, dvEmpresa: "9", razonSocial: "Empresa Test",

@@ -178,6 +178,12 @@ const clientesRoutes = [
   "PUT /api/clientes/{rut}",
   "POST /api/clientes/{rut}/activate",
   "POST /api/clientes/{rut}/deactivate",
+  "GET /api/locales/lookups",
+  "GET /api/clientes/{rut}/locales",
+  "POST /api/clientes/{rut}/locales",
+  "PUT /api/locales/{id}",
+  "DELETE /api/locales/{id}",
+  "POST /api/locales/{id}/activate",
 ] as const;
 for (const route of clientesRoutes) {
   api.route(route, clientesFn.arn, { auth: { jwt: { authorizer: jwtAuthorizer.id } } });

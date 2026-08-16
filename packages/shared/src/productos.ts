@@ -71,7 +71,8 @@ export type ApiErrorCode =
   | "COGNITO_ERROR"
   | "RAZON_SOCIAL_EN_USO"
   | "CLIENTE_NO_ENCONTRADO"
-  | "CLIENTE_CON_VENTAS_PENDIENTES";
+  | "CLIENTE_CON_VENTAS_PENDIENTES"
+  | "LOCAL_NO_ENCONTRADO";
 
 export interface ApiErrorBody {
   error: { code: ApiErrorCode; message: string };
