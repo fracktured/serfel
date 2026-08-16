@@ -212,7 +212,7 @@ export class NavbarComponent {
   /** Any click outside a group button/panel closes the open desktop panel. */
   @HostListener("document:click")
   onDocumentClick(): void {
-    this.openGroup.set(null);
+    this.closeAll();
   }
 
   async logout(): Promise<void> {
