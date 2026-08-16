@@ -70,7 +70,7 @@ export async function setupTestDb(dbName: string): Promise<{ db: Db; pool: Pool;
   });
   await db.insert(t40PFormaPago).values({
     idFormaPago: SEED.idFormaPago, nomFormaPago: "CREDITO", descFormaPago: "Pago a crédito",
-  });
+  }).onDuplicateKeyUpdate({ set: { nomFormaPago: "CREDITO" } });
   await db.insert(t10MEmpresa).values({
     rutEmpresa: SEED.rutEmpresa, dvEmpresa: "9", razonSocial: "Empresa Test",
     nomFantasia: "Empresa Test", direccionEmpresa: "Calle 1", idUsuarioMod: SEED.idAdmin,

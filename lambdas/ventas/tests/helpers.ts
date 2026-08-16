@@ -100,7 +100,7 @@ export async function setupTestDb(
   ]);
   await db.insert(t40MListaPrecio).values({ idListaPrecio: 1, nomListaPrecio: "GENERAL", idUsuarioMod: SEED.usuarioAdmin, ultFechaMod: NOW, idEstado: 1 });
   await db.insert(t10PTipoDocto).values({ idTipoDocto: 1, nomTipoDocto: "FACTURA", descTipoDocto: "Factura" });
-  await db.insert(t40PFormaPago).values({ idFormaPago: 7, nomFormaPago: "CREDITO", descFormaPago: "Pago a credito" });
+  await db.insert(t40PFormaPago).values({ idFormaPago: 7, nomFormaPago: "CREDITO", descFormaPago: "Pago a credito" }).onDuplicateKeyUpdate({ set: { nomFormaPago: "CREDITO" } });
 
   const empresa = (rutEmpresa: number, razon: string) => ({
     rutEmpresa, dvEmpresa: "0", razonSocial: razon, nomFantasia: razon, direccionEmpresa: "-",
