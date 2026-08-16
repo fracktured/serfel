@@ -6,6 +6,7 @@ import { setupTestDb, SEED } from "./helpers";
 import {
   getClienteLookups, listClientes, createCliente,
   updateCliente, deactivateCliente, activateCliente,
+  getLocalLookups, listLocales,
 } from "../service";
 
 let db: Db; let pool: Pool; let teardown: () => Promise<void>;
@@ -123,5 +124,22 @@ describe("listClientes derived columns", () => {
   it("getClienteLookups returns the price lists", async () => {
     const lk = await getClienteLookups(db);
     expect(lk.listasPrecio).toEqual([{ id: SEED.idListaPrecio, nombre: "Base" }]);
+  });
+});
+
+describe("locales lookups + list", () => {
+  it("getLocalLookups returns forma_pago and vendedores (only tipo 2 & activos)", async () => {
+    const lk = await getLocalLookups(db);
+    expect(lk.formasPago.map((f) => f.id)).toContain(SEED.idFormaPago);
+    expect(lk.vendedores.map((v) => v.id)).toContain(SEED.idVendedor);
+    // admin (tipo 1) must NOT be listed as a vendedor
+    expect(lk.vendedores.map((v) => v.id)).not.toContain(SEED.idAdmin);
+  });
+
+  it("listLocales returns the seeded local for the client with joins", async () => {
+    const rows = await listLocales(db, SEED.rutClienteConVenta, "activos");
+    expect(rows.length).toBeGreaterThan(0);
+    expect(rows[0].idLocalCliente).toBe(SEED.idLocalConVenta);
+    expect(rows[0].nombre).toBe("Local Principal");
   });
 });
