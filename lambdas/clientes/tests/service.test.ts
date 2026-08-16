@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import type { Pool } from "mysql2/promise";
-import { t10MCliente, type Db } from "@serfel/db";
+import { t10MCliente, t10MLocalCliente, type Db } from "@serfel/db";
 import { eq } from "drizzle-orm";
 import { setupTestDb, SEED } from "./helpers";
 import {
   getClienteLookups, listClientes, createCliente,
   updateCliente, deactivateCliente, activateCliente,
-  getLocalLookups, listLocales,
+  getLocalLookups, listLocales, createLocal,
 } from "../service";
 
 let db: Db; let pool: Pool; let teardown: () => Promise<void>;
@@ -141,5 +141,28 @@ describe("locales lookups + list", () => {
     expect(rows.length).toBeGreaterThan(0);
     expect(rows[0].idLocalCliente).toBe(SEED.idLocalConVenta);
     expect(rows[0].nombre).toBe("Local Principal");
+  });
+});
+
+describe("createLocal", () => {
+  it("auto-assigns the id, writes comuna to both columns, returns the DTO", async () => {
+    const input = {
+      rutCliente: SEED.rutClienteConVenta, nombre: "Sucursal Norte",
+      telefono: "911112222", direccion: "Calle 9 #9", comuna: "Quilpue",
+      email: null, giro: "Kiosko", nomContacto: "Ana", apellPatContacto: "Rojas",
+      apellMatContacto: "Diaz", telefonoContacto: null, emailContacto: null,
+      topeVenta: 0, topeCredito: 0, idVendedor: SEED.idVendedor,
+      idFormaPago: SEED.idFormaPago, observaciones: "", permiteVentaTopeMensual: false,
+    };
+    const dto = await createLocal(db, input, SEED.idAdmin);
+    // seeded row has explicit id 10, so the auto-increment counter yields 11 next
+    expect(dto.idLocalCliente).toBe(SEED.idLocalConVenta + 1);
+    expect(dto.nombre).toBe("Sucursal Norte");
+    expect(dto.comuna).toBe("Quilpue");
+    expect(dto.nomFormaPago).toBe("CREDITO");
+    // legacy column kept in sync
+    const raw = await db.select({ c: t10MLocalCliente.comunaLocalCliente })
+      .from(t10MLocalCliente).where(eq(t10MLocalCliente.idLocalCliente, dto.idLocalCliente));
+    expect(raw[0].c).toBe("Quilpue");
   });
 });

@@ -7,7 +7,7 @@ import {
   ESTADO_ACTIVO, ESTADO_INACTIVO, formatRut, parseRut,
   type EstadoFilter, type ClienteCreateInput, type ClienteUpdateInput,
   type ClienteDto, type ClienteLookupsDto,
-  type LocalDto, type LocalLookupsDto,
+  type LocalDto, type LocalLookupsDto, type LocalCreateInput, type LocalUpdateInput,
 } from "@serfel/shared";
 import { AppError } from "./errors";
 
@@ -313,4 +313,49 @@ export async function listLocales(db: Db, rutCliente: number, estado: EstadoFilt
   );
   const rows = await base.orderBy(asc(t10MLocalCliente.nomLocalCliente));
   return rows.map((r) => localToDto(r as Record<string, unknown>));
+}
+
+function localWriteValues(input: LocalUpdateInput, idUsuario: number) {
+  return {
+    nomLocalCliente: input.nombre,
+    telefonoLocalCliente: input.telefono,
+    direccionLocalCliente: input.direccion,
+    comuna: input.comuna,
+    comunaLocalCliente: input.comuna, // keep legacy column in sync
+    emailLocalCliente: input.email,
+    giro: input.giro,
+    nomContacto: input.nomContacto,
+    apellPatContacto: input.apellPatContacto,
+    apellMatContacto: input.apellMatContacto,
+    telefonoContacto: input.telefonoContacto,
+    emailContacto: input.emailContacto,
+    topeVenta: input.topeVenta,
+    topeCredito: input.topeCredito,
+    idVendedor: input.idVendedor,
+    idFormaPago: input.idFormaPago,
+    observaciones: input.observaciones,
+    permiteVentaTopeMensual: input.permiteVentaTopeMensual ? 1 : 0,
+    idUsuarioMod: idUsuario,
+    ultFechaMod: nowDateTime(),
+  };
+}
+
+async function getLocalDto(db: DbOrTx, id: number): Promise<LocalDto> {
+  const rows = await localQuery(db).where(eq(t10MLocalCliente.idLocalCliente, id));
+  if (rows.length === 0) throw new AppError("LOCAL_NO_ENCONTRADO", 404, `Local ${id} no existe`);
+  return localToDto(rows[0] as Record<string, unknown>);
+}
+
+export async function createLocal(db: Db, input: LocalCreateInput, idUsuario: number): Promise<LocalDto> {
+  return db.transaction(async (tx) => {
+    // Verify the parent cliente exists (FK + clearer error).
+    await getRow(tx, input.rutCliente);
+    // id_local_cliente is AUTO_INCREMENT — insert without it and read insertId
+    // from mysql2's ResultSetHeader (same pattern as lambdas/products/service.ts:193).
+    const [header] = await tx.insert(t10MLocalCliente).values({
+      rutCliente: input.rutCliente,
+      ...localWriteValues(input, idUsuario), idEstado: ESTADO_ACTIVO,
+    });
+    return getLocalDto(tx, header.insertId);
+  });
 }
