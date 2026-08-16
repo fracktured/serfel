@@ -78,6 +78,13 @@
       "when": 1786560412077,
       "tag": "0010_freezing_exodus",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1786851897285,
+      "tag": "0011_pink_vision",
+      "breakpoints": true
     }
   ]
 }

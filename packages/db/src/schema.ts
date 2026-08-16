@@ -262,7 +262,7 @@ export const t10MCliente = mysqlTable("10_m_cliente", {
 ]);
 
 export const t10MLocalCliente = mysqlTable("10_m_local_cliente", {
-	idLocalCliente: int("id_local_cliente").notNull(),
+	idLocalCliente: int("id_local_cliente").autoincrement().notNull(),
 	rutCliente: int("rut_cliente").notNull(),
 	nomLocalCliente: varchar("nom_local_cliente", { length: 30 }).notNull(),
 	telefonoLocalCliente: varchar("telefono_local_cliente", { length: 15 }),
@@ -290,6 +290,7 @@ export const t10MLocalCliente = mysqlTable("10_m_local_cliente", {
 	primaryKey({ columns: [table.idLocalCliente], name: "PRIMARY" }),
 	foreignKey({ name: "loc_clie_clie", columns: [table.rutCliente], foreignColumns: [t10MCliente.rutCliente] }).onDelete("restrict").onUpdate("restrict"),
 	foreignKey({ name: "loc_clie_est", columns: [table.idEstado], foreignColumns: [t99PEstado.idEstado] }).onDelete("restrict").onUpdate("restrict"),
+	foreignKey({ name: "loc_clie_forma_pago", columns: [table.idFormaPago], foreignColumns: [t40PFormaPago.idFormaPago] }).onDelete("restrict").onUpdate("restrict"),
 ]);
 
 export const t10MEmpresa = mysqlTable("10_m_empresa", {
