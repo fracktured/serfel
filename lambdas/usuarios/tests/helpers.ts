@@ -11,6 +11,7 @@ import {
   t10MCliente,
   t10MLocalCliente,
   t10PTipoDocto,
+  t40PFormaPago,
   t10MEmpresa,
 } from "@serfel/db";
 
@@ -81,6 +82,7 @@ export async function setupTestDb(
     idListaPrecio: SEED.idListaPrecio, idUsuarioMod: SEED.idAdmin,
     ultFechaMod: "2026-01-01 00:00:00", idEstado: 1,
   });
+  await db.insert(t40PFormaPago).values({ idFormaPago: 7, nomFormaPago: "CREDITO", descFormaPago: "Pago a credito" });
   await db.insert(t10MLocalCliente).values({
     idLocalCliente: SEED.idLocalCliente, rutCliente: SEED.rutCliente, nomLocalCliente: "Local Test",
     idUsuarioMod: SEED.idAdmin, ultFechaMod: "2026-01-01 00:00:00", idEstado: 1,
