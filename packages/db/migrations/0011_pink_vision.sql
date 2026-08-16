@@ -10,7 +10,13 @@ UPDATE `10_m_local_cliente` l LEFT JOIN `40_p_forma_pago` f ON l.id_forma_pago =
 --> statement-breakpoint
 ALTER TABLE `30_m_pedido` DROP FOREIGN KEY IF EXISTS `ped_loc_clie`;
 --> statement-breakpoint
+SET @serfel_old_sql_mode = @@SESSION.sql_mode;
+--> statement-breakpoint
+SET SESSION sql_mode = CONCAT(@@SESSION.sql_mode, ',NO_AUTO_VALUE_ON_ZERO');
+--> statement-breakpoint
 ALTER TABLE `10_m_local_cliente` MODIFY COLUMN `id_local_cliente` int AUTO_INCREMENT NOT NULL;
+--> statement-breakpoint
+SET SESSION sql_mode = @serfel_old_sql_mode;
 --> statement-breakpoint
 ALTER TABLE `30_m_pedido` ADD CONSTRAINT `ped_loc_clie` FOREIGN KEY (`id_local_cliente`) REFERENCES `10_m_local_cliente`(`id_local_cliente`) ON DELETE restrict ON UPDATE restrict;
 --> statement-breakpoint
