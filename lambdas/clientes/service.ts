@@ -359,3 +359,33 @@ export async function createLocal(db: Db, input: LocalCreateInput, idUsuario: nu
     return getLocalDto(tx, header.insertId);
   });
 }
+
+export async function updateLocal(db: Db, id: number, input: LocalUpdateInput, idUsuario: number): Promise<LocalDto> {
+  return db.transaction(async (tx) => {
+    await getLocalDto(tx, id); // 404 if missing
+    await tx.update(t10MLocalCliente).set(localWriteValues(input, idUsuario))
+      .where(eq(t10MLocalCliente.idLocalCliente, id));
+    return getLocalDto(tx, id);
+  });
+}
+
+export async function deactivateLocal(db: Db, id: number, idUsuario: number): Promise<LocalDto> {
+  return db.transaction(async (tx) => {
+    const current = await getLocalDto(tx, id);
+    if (current.idEstado === ESTADO_INACTIVO) return current;
+    await tx.update(t10MLocalCliente)
+      .set({ idEstado: ESTADO_INACTIVO, idUsuarioMod: idUsuario, ultFechaMod: nowDateTime() })
+      .where(eq(t10MLocalCliente.idLocalCliente, id));
+    return getLocalDto(tx, id);
+  });
+}
+
+export async function activateLocal(db: Db, id: number, input: LocalUpdateInput, idUsuario: number): Promise<LocalDto> {
+  return db.transaction(async (tx) => {
+    await getLocalDto(tx, id);
+    await tx.update(t10MLocalCliente)
+      .set({ ...localWriteValues(input, idUsuario), idEstado: ESTADO_ACTIVO })
+      .where(eq(t10MLocalCliente.idLocalCliente, id));
+    return getLocalDto(tx, id);
+  });
+}

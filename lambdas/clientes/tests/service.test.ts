@@ -7,6 +7,7 @@ import {
   getClienteLookups, listClientes, createCliente,
   updateCliente, deactivateCliente, activateCliente,
   getLocalLookups, listLocales, createLocal,
+  updateLocal, deactivateLocal, activateLocal,
 } from "../service";
 
 let db: Db; let pool: Pool; let teardown: () => Promise<void>;
@@ -164,5 +165,35 @@ describe("createLocal", () => {
     const raw = await db.select({ c: t10MLocalCliente.comunaLocalCliente })
       .from(t10MLocalCliente).where(eq(t10MLocalCliente.idLocalCliente, dto.idLocalCliente));
     expect(raw[0].c).toBe("Quilpue");
+  });
+});
+
+describe("update/deactivate/activate local", () => {
+  it("updates fields and syncs comuna", async () => {
+    const dto = await updateLocal(db, SEED.idLocalConVenta, {
+      nombre: "Local Renombrado", telefono: null, direccion: "Nueva Dir 1",
+      comuna: "Concon", email: null, giro: "", nomContacto: "", apellPatContacto: "",
+      apellMatContacto: "", telefonoContacto: null, emailContacto: null,
+      topeVenta: 0, topeCredito: 0, idVendedor: SEED.idVendedor,
+      idFormaPago: SEED.idFormaPago, observaciones: "", permiteVentaTopeMensual: true,
+    }, SEED.idAdmin);
+    expect(dto.nombre).toBe("Local Renombrado");
+    expect(dto.comuna).toBe("Concon");
+    expect(dto.permiteVentaTopeMensual).toBe(true);
+  });
+
+  it("deactivate then activate flips id_estado", async () => {
+    const off = await deactivateLocal(db, SEED.idLocalConVenta, SEED.idAdmin);
+    expect(off.idEstado).toBe(0);
+    const on = await activateLocal(db, SEED.idLocalConVenta, {
+      nombre: off.nombre, telefono: off.telefono, direccion: off.direccion,
+      comuna: off.comuna, email: off.email, giro: off.giro, nomContacto: off.nomContacto,
+      apellPatContacto: off.apellPatContacto, apellMatContacto: off.apellMatContacto,
+      telefonoContacto: off.telefonoContacto, emailContacto: off.emailContacto,
+      topeVenta: off.topeVenta, topeCredito: off.topeCredito, idVendedor: off.idVendedor,
+      idFormaPago: off.idFormaPago, observaciones: off.observaciones,
+      permiteVentaTopeMensual: off.permiteVentaTopeMensual,
+    }, SEED.idAdmin);
+    expect(on.idEstado).toBe(1);
   });
 });
