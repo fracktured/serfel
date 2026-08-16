@@ -1,12 +1,14 @@
 import { Hono, type Context } from "hono";
 import {
-  EstadoFilterSchema, ClienteCreateSchema, ClienteUpdateSchema, type ApiErrorBody,
+  EstadoFilterSchema, ClienteCreateSchema, ClienteUpdateSchema, LocalCreateSchema, LocalUpdateSchema,
+  type ApiErrorBody,
 } from "@serfel/shared";
 import { AppError, isDbUnreachable } from "./errors";
 import { requireModule } from "./authz";
 import {
   activateCliente, createCliente, deactivateCliente, getClienteLookups,
   listClientes, updateCliente,
+  activateLocal, createLocal, deactivateLocal, getLocalLookups, listLocales, updateLocal,
 } from "./service";
 import type { AppDeps, AppEnv } from "./types";
 
@@ -18,6 +20,12 @@ function parseRutParam(c: Context): number {
   const rut = Number(c.req.param("rut"));
   if (!Number.isInteger(rut) || rut <= 0) throw new AppError("VALIDACION", 400, "rut de cliente inválido");
   return rut;
+}
+
+function parseIdParam(c: Context): number {
+  const id = Number(c.req.param("id"));
+  if (!Number.isInteger(id) || id <= 0) throw new AppError("VALIDACION", 400, "id de local inválido");
+  return id;
 }
 
 async function parseBody<T>(c: Context, schema: { safeParse: (v: unknown) => any }): Promise<T> {
@@ -50,6 +58,8 @@ export function createApp(deps: AppDeps) {
   const gate = requireModule("clientes", deps);
   app.use("/clientes", gate);
   app.use("/clientes/*", gate);
+  app.use("/locales", gate);
+  app.use("/locales/*", gate);
 
   app.get("/clientes/lookups", async (c) => c.json(await getClienteLookups(await deps.getDb())));
 
@@ -83,6 +93,43 @@ export function createApp(deps: AppDeps) {
   app.post("/clientes/:rut/deactivate", async (c) => {
     const rut = parseRutParam(c);
     return c.json(await deactivateCliente(await deps.getDb(), rut, c.get("idUsuario")));
+  });
+
+  app.get("/locales/lookups", async (c) => c.json(await getLocalLookups(await deps.getDb())));
+
+  app.get("/clientes/:rut/locales", async (c) => {
+    const rut = parseRutParam(c);
+    const parsed = EstadoFilterSchema.safeParse(c.req.query("estado"));
+    if (!parsed.success) throw new AppError("VALIDACION", 400, "estado debe ser activos, inactivos o todos");
+    return c.json(await listLocales(await deps.getDb(), rut, parsed.data));
+  });
+
+  app.post("/clientes/:rut/locales", async (c) => {
+    const rut = parseRutParam(c);
+    const raw = await c.req.json().catch(() => { throw new AppError("VALIDACION", 400, "El cuerpo debe ser JSON válido"); });
+    const parsed = LocalCreateSchema.safeParse({ ...raw, rutCliente: rut });
+    if (!parsed.success) {
+      const detail = parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ");
+      throw new AppError("VALIDACION", 400, detail);
+    }
+    return c.json(await createLocal(await deps.getDb(), parsed.data, c.get("idUsuario")), 201);
+  });
+
+  app.put("/locales/:id", async (c) => {
+    const id = parseIdParam(c);
+    const input = await parseBody<import("@serfel/shared").LocalUpdateInput>(c, LocalUpdateSchema);
+    return c.json(await updateLocal(await deps.getDb(), id, input, c.get("idUsuario")));
+  });
+
+  app.delete("/locales/:id", async (c) => {
+    const id = parseIdParam(c);
+    return c.json(await deactivateLocal(await deps.getDb(), id, c.get("idUsuario")));
+  });
+
+  app.post("/locales/:id/activate", async (c) => {
+    const id = parseIdParam(c);
+    const input = await parseBody<import("@serfel/shared").LocalUpdateInput>(c, LocalUpdateSchema);
+    return c.json(await activateLocal(await deps.getDb(), id, input, c.get("idUsuario")));
   });
 
   return app;
