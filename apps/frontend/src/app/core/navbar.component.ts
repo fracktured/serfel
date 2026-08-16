@@ -98,6 +98,8 @@ import { visibleGroups, type NavGroup } from "./nav";
       background: transparent; border: none; font: inherit; cursor: pointer;
       display: flex; align-items: center; gap: 6px;
     }
+    .header-nav .nav-item:hover { background: rgba(255,255,255,.1); }
+    .header-nav .nav-item.active { background: rgba(255,255,255,.2); }
     .car { width: 13px; height: 13px; opacity: .85; transition: transform .2s; }
     .nav-item.open .car { transform: rotate(180deg); }
 
@@ -181,11 +183,18 @@ export class NavbarComponent {
     { initialValue: this.router.url },
   );
 
-  /** Trusted static SVG markup wrapped in a stroke svg for [innerHTML]. */
+  private readonly iconCache = new Map<string, SafeHtml>();
+
+  /** Trusted static SVG markup wrapped in a stroke svg for [innerHTML]. Memoized per icon string. */
   iconHtml(icon: string): SafeHtml {
-    return this.sanitizer.bypassSecurityTrustHtml(
-      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${icon}</svg>`,
-    );
+    let html = this.iconCache.get(icon);
+    if (!html) {
+      html = this.sanitizer.bypassSecurityTrustHtml(
+        `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${icon}</svg>`,
+      );
+      this.iconCache.set(icon, html);
+    }
+    return html;
   }
 
   isGroupActive(group: NavGroup): boolean {

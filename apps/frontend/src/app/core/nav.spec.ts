@@ -34,4 +34,16 @@ describe("visibleGroups", () => {
     for (const g of NAV_GROUPS)
       for (const l of g.children) expect(l.path.startsWith("/")).toBe(true);
   });
+
+  it("pins each leaf to its exact mandated route", () => {
+    const paths: Record<string, string> = {};
+    for (const g of NAV_GROUPS) for (const l of g.children) paths[l.module] = l.path;
+    expect(paths).toEqual({
+      usuarios: "/usuarios",
+      clientes: "/clientes",
+      productos: "/productos",
+      rutas: "/listado-carga",
+      ventas: "/prefacturacion",
+    });
+  });
 });
