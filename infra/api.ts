@@ -110,6 +110,22 @@ const ventasFn = new sst.aws.Function("VentasFn", {
   },
 });
 
+const marcasFn = new sst.aws.Function("MarcasFn", {
+  handler: "lambdas/marcas/index.handler",
+  runtime: "nodejs22.x",
+  architecture: "arm64",
+  timeout: "20 seconds",
+  memory: "256 MB",
+  vpc: { privateSubnets: privateSubnetIds, securityGroups: [sgLambdaId] },
+  environment: { DB_SECRET_ARN: dbSecretArn },
+  permissions: [{ actions: ["secretsmanager:GetSecretValue"], resources: [dbSecretArn] }],
+  copyFiles: [{ from: "packages/db/rds-global-bundle.pem", to: "rds-global-bundle.pem" }],
+  transform: {
+    function: { name: `serfel-${$app.stage}-marcas`, tags: stackTags("serfel-aws") },
+    logGroup: { tags: stackTags("serfel-aws") },
+  },
+});
+
 const api = new sst.aws.ApiGatewayV2("Api", {
   // dev-only wildcard CORS (JWT still required); tighten in Fase 5
   cors: {
@@ -196,6 +212,17 @@ const ventasRoutes = [
 ] as const;
 for (const route of ventasRoutes) {
   api.route(route, ventasFn.arn, { auth: { jwt: { authorizer: jwtAuthorizer.id } } });
+}
+
+const marcasRoutes = [
+  "GET /api/marcas",
+  "POST /api/marcas",
+  "PUT /api/marcas/{id}",
+  "DELETE /api/marcas/{id}",
+  "POST /api/marcas/{id}/restore",
+] as const;
+for (const route of marcasRoutes) {
+  api.route(route, marcasFn.arn, { auth: { jwt: { authorizer: jwtAuthorizer.id } } });
 }
 
 export const apiUrl = api.url;
