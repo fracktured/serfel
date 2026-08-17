@@ -39,4 +39,13 @@ describe("marcas-logic", () => {
     expect(csv.split("\n")[0]).toContain("Nombre");
     expect(csv.split("\n").length).toBe(4);
   });
+
+  it("toCsv escapes embedded double-quotes by doubling them", () => {
+    const rowsWithQuote: MarcaDto[] = [
+      { idMarca: 1, nomMarca: 'SOPROLE "Premium"', descMarca: 'Lacteos "Especial"', idEstado: 1 },
+    ];
+    const csv = toCsv(rowsWithQuote);
+    expect(csv).toContain('"SOPROLE ""Premium"""');
+    expect(csv).toContain('"Lacteos ""Especial"""');
+  });
 });

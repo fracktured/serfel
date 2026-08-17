@@ -38,7 +38,7 @@ export function paginate<T>(rows: T[], page: number, perPage: number) {
   };
 }
 
-export function computeStats(all: MarcaDto[], filtered: MarcaDto[]) {
+export function computeStats(all: MarcaDto[], filtered: MarcaDto[]): { total: number; filtrados: number | null } {
   return { total: all.length, filtrados: filtered.length };
 }
 
