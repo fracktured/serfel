@@ -41,9 +41,10 @@ export const t10PTipoUsuario = mysqlTable("10_p_tipo_usuario", {
 ]);
 
 export const t20PMarca = mysqlTable("20_p_marca", {
-	idMarca: int("id_marca").notNull(),
+	idMarca: int("id_marca").autoincrement().notNull(),
 	nomMarca: varchar("nom_marca", { length: 50 }).notNull(),
 	descMarca: varchar("desc_marca", { length: 200 }).default('').notNull(),
+	idEstado: int("id_estado").default(1).notNull(),
 },
 (table) => [
 	primaryKey({ columns: [table.idMarca], name: "PRIMARY" }),
