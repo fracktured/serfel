@@ -38,7 +38,7 @@ export const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    label: "Logística",
+    label: "Documentos",
     children: [
       { module: "rutas", label: "Listado Carga", path: "/listado-carga", icon: DOC_ICON },
     ],

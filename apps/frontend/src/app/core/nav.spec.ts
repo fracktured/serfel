@@ -7,7 +7,7 @@ const ALL: ModuleName[] = ["productos", "rutas", "usuarios", "ventas", "clientes
 describe("visibleGroups", () => {
   it("admin with every module sees all three groups with expected leaves", () => {
     const groups = visibleGroups(ALL);
-    expect(groups.map((g) => g.label)).toEqual(["Mantenedores", "Logística", "Ventas"]);
+    expect(groups.map((g) => g.label)).toEqual(["Mantenedores", "Documentos", "Ventas"]);
     const mantenedores = groups.find((g) => g.label === "Mantenedores")!;
     expect(mantenedores.children.map((l) => l.module)).toEqual(["usuarios", "clientes", "productos"]);
   });
