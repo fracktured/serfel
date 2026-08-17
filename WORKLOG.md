@@ -8,6 +8,19 @@ not stopwatch-precise. Newest entries on top.
 
 ---
 
+## 2026-08-17 (Sun) — ~4h
+**Marcas maintainer — full vertical slice (DB → shared → lambda → infra → nav → frontend), deployed to dev**
+- Brainstormed + wrote design spec and a bite-sized implementation plan (`docs/superpowers/specs` + `plans`); decided: soft-delete model (add `id_estado`), dedicated `marcas` lambda + authz module, 3-level Mantenedores nav with "(no disponible)" placeholders per the `option-2-topbar-mega` prototype
+- Executed as 10 subagent tasks with per-task spec+quality reviews and a final whole-branch review (approved for merge, no Critical/Important)
+- **DB**: migration `0012` — `id_marca` AUTO_INCREMENT (FK-parent 1834/1452/1062-safe) + `id_estado` soft-delete column; applied to populated dev DB cleanly
+- **Shared**: `MarcaInputSchema`/`MarcaDto`/`MARCA_NO_ENCONTRADA` + `marcas` module in `MODULE_ROLES`
+- **Lambda** `lambdas/marcas/`: Hono CRUD, soft-delete, uniqueness-among-active (`NOMBRE_EN_USO`)
+- **Infra**: `MarcasFn` + 5 API Gateway routes (`serfel-dev-marcas` Active)
+- **Frontend**: generalized nav model (sections + disabled placeholders), marcas logic/store/api/modal/page + `/marcas` route; no header-search (parameter maintainer)
+- Side-fixes: stale `modulesForTipo(admin)` fixtures in products **and** shared test suites (caused by the new `marcas` module)
+- Verified: `pnpm -r test` 281 passed, typecheck clean; `sst deploy --stage dev` + `db:migrate` OK (13 migrations journaled); merged to `main` (triggers CI deploy-dev)
+- Commits: 14 · Span: 00:13–14:14 (design/plan late night, build + deploy + merge morning)
+
 ## 2026-08-16 (Sun) — ~0.5h
 **Clientes maintainer: locales tab/modal layout polish**
 - Added `margin-bottom` below the Datos/Locales tab strip so both the client form and the locales content get breathing room under the tabs
