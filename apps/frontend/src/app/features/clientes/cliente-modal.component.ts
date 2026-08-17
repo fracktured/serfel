@@ -22,7 +22,7 @@ export type ClienteSavePayload =
   imports: [FormsModule, LocalFormComponent],
   template: `
     <div class="modal-bg" (click)="cancel.emit()">
-      <div class="modal" style="max-width:920px" (click)="$event.stopPropagation()">
+      <div class="modal" style="width:960px;max-width:95vw" (click)="$event.stopPropagation()">
         <div class="modal-head">
           <h2>{{ cliente ? 'Editar Cliente' : 'Nuevo Cliente' }}</h2>
           <button class="modal-close-btn" (click)="cancel.emit()">
@@ -104,11 +104,19 @@ export type ClienteSavePayload =
                 <button class="hero-btn hero-btn-white" (click)="newLocal()">+ Nuevo Local</button>
               </div>
               @if (locales.errorMsg(); as e) { <div class="login-error">{{ e }}</div> }
-              <table><thead><tr><th>Nombre</th><th>Comuna</th><th>Forma de pago</th><th>Acciones</th></tr></thead>
+              <table><thead><tr>
+                <th>Nombre Local</th><th>Teléfono</th><th>Contacto</th>
+                <th>Fono Contacto</th><th>Giro</th><th>Vendedor</th><th>Acciones</th>
+              </tr></thead>
               <tbody>
                 @for (l of locales.visible(); track l.idLocalCliente) {
                   <tr>
-                    <td>{{ l.nombre }}</td><td>{{ l.comuna }}</td><td>{{ l.nomFormaPago ?? '—' }}</td>
+                    <td>{{ l.nombre }}</td>
+                    <td>{{ l.telefono || '—' }}</td>
+                    <td>{{ l.nomContacto || '—' }}</td>
+                    <td>{{ l.telefonoContacto || '—' }}</td>
+                    <td>{{ l.giro || '—' }}</td>
+                    <td>{{ l.nomVendedor ?? '—' }}</td>
                     <td>
                       @if (l.idEstado === 1) {
                         <button class="t-btn t-btn-edit" (click)="editLocal(l)">Editar</button>
@@ -130,7 +138,7 @@ export type ClienteSavePayload =
     </div>
   `,
   styles: [`
-    .tab-strip { display: flex; gap: 4px; border-bottom: 1px solid #e2e2e2; padding: 0 20px; }
+    .tab-strip { display: flex; gap: 4px; border-bottom: 1px solid #e2e2e2; padding: 0 20px; margin-bottom: 24px; }
     .tab-strip button {
       background: none; border: none; padding: 10px 14px; cursor: pointer;
       font-weight: 500; color: #666; border-bottom: 2px solid transparent;

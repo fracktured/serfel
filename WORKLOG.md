@@ -9,6 +9,14 @@ not stopwatch-precise. Newest entries on top.
 ---
 
 ## 2026-08-16 (Sun) — ~0.5h
+**Clientes maintainer: locales tab/modal layout polish**
+- Added `margin-bottom` below the Datos/Locales tab strip so both the client form and the locales content get breathing room under the tabs
+- Locales list now shows the useful columns: **Nombre Local, Teléfono, Contacto, Fono Contacto, Giro, Vendedor** (was Nombre / Comuna / Forma de pago), with `—` fallbacks
+- Fixed the new/edit local form overflowing the modal: root cause was the base `.modal { width: 500px }` winning over the cliente-modal's inline `max-width:920px`, so it only ever rendered 500px wide. Set `width:960px; max-width:95vw` and switched the local form grid to **3 data columns** (component-scoped; the client Datos grid stays 2-col, full-width fields still span all columns)
+- Frontend typecheck green
+- Commits: 1
+
+## 2026-08-16 (Sun) — ~0.5h
 **Clientes search: full-RUT (with DV) query never matched**
 - Systematic-debugging: a search like `/api/clientes?rut=12452724-4` returned nothing for an existing client. Root cause in the shared `optDigits` transform (`ClienteSearchSchema`): it stripped **all** non-digits, so `12452724-4` became `124527244` — the DV digit glued onto the body. The lambda then ran `CAST(rut_cliente AS CHAR) LIKE '%124527244%'`, but `rut_cliente` stores only the **body** (DV lives in `dv_cliente`), so the LIKE never matched
 - Fix: split on `-` and keep only the body before stripping non-digits (`12.452.724-4` → `12452724`, `11.704.324-K` → `11704324`); partial/no-DV searches unchanged. Query needed no change once the param feeds it the body only. Fix lives in the shared Zod schema, so the Angular clientes search inherits it too

@@ -71,6 +71,9 @@ export type LocalSavePayload = { mode: "create" | "update"; data: unknown };
       </div>
     </div>
   `,
+  styles: [`
+    .form-grid { grid-template-columns: 1fr 1fr 1fr; }
+  `],
 })
 export class LocalFormComponent implements OnInit {
   @Input() local: LocalDto | null = null;
