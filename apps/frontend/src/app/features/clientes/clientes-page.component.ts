@@ -13,13 +13,7 @@ import { toCsv, WEEKDAYS, type SortKey } from "./clientes-logic";
   standalone: true,
   imports: [FormsModule, NavbarComponent, ClienteModalComponent, ToastComponent],
   template: `
-    <app-navbar>
-      <div class="header-search">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input type="text" placeholder="Buscar clientes…"
-               [ngModel]="store.filters().quick" (ngModelChange)="store.setFilter({ quick: $event })" />
-      </div>
-    </app-navbar>
+    <app-navbar></app-navbar>
 
     <div class="hero">
       <div class="hero-inner">
@@ -61,20 +55,23 @@ import { toCsv, WEEKDAYS, type SortKey } from "./clientes-logic";
       <div class="filter-dropdowns">
         <div class="fd-field"><label for="f-rut">RUT</label>
           <input id="f-rut" type="text" placeholder="12345678" style="width:150px"
-                 [ngModel]="store.filters().rut" (ngModelChange)="store.setFilter({ rut: $event })" /></div>
+                 [ngModel]="store.filters().rut" (ngModelChange)="store.setFilter({ rut: $event })"
+                 (keyup.enter)="onSearch()" /></div>
         <div class="fd-field" style="flex:1"><label for="f-rs">Razón Social</label>
           <input id="f-rs" type="text" placeholder="Buscar por razón social…"
-                 [ngModel]="store.filters().razonSocial" (ngModelChange)="store.setFilter({ razonSocial: $event })" /></div>
-        <div class="fd-field"><label for="f-lp">Lista de Precio</label>
-          <select id="f-lp" style="min-width:160px"
-                  [ngModel]="store.filters().idListaPrecio" (ngModelChange)="store.setFilter({ idListaPrecio: $event })">
-            <option [ngValue]="null">Todas</option>
-            @for (l of store.lookups()?.listasPrecio ?? []; track l.id) { <option [ngValue]="l.id">{{ l.nombre }}</option> }
-          </select></div>
+                 [ngModel]="store.filters().razonSocial" (ngModelChange)="store.setFilter({ razonSocial: $event })"
+                 (keyup.enter)="onSearch()" /></div>
+        <div class="fd-field" style="flex:1"><label for="f-dir">Dirección</label>
+          <input id="f-dir" type="text" placeholder="Buscar por dirección…"
+                 [ngModel]="store.filters().direccion" (ngModelChange)="store.setFilter({ direccion: $event })"
+                 (keyup.enter)="onSearch()" /></div>
         <div class="fd-field"><label for="f-estado">Estado</label>
           <select id="f-estado" [ngModel]="store.estadoFilter()" (ngModelChange)="setEstado($event)">
             <option value="activos">Activos</option><option value="inactivos">Inactivos</option><option value="todos">Todos</option>
           </select></div>
+        <button class="hero-btn hero-btn-white" style="align-self:flex-end" (click)="onSearch()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg> Buscar
+        </button>
         <button class="btn-clear" (click)="store.clearFilters()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg> Limpiar
         </button>
@@ -146,7 +143,11 @@ import { toCsv, WEEKDAYS, type SortKey } from "./clientes-logic";
           </div>
         </div>
       } @else if (!store.loading()) {
-        <div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No se encontraron clientes</div><div class="empty-sub">Intenta con otros filtros</div></div>
+        @if (store.hasSearched()) {
+          <div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No se encontraron clientes</div><div class="empty-sub">Intenta con otros filtros</div></div>
+        } @else {
+          <div class="empty-state"><div class="empty-icon">🔎</div><div class="empty-title">Busca clientes</div><div class="empty-sub">Ingresa un RUT, razón social o dirección y presiona Buscar</div></div>
+        }
       }
     </div>
 
@@ -175,6 +176,13 @@ export class ClientesPageComponent implements OnInit {
     return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   }
   setEstado(estado: EstadoFilter): void { void this.store.setEstado(estado); }
+
+  onSearch(): void {
+    const f = this.store.filters();
+    const empty = !f.rut.trim() && !f.razonSocial.trim() && !f.direccion.trim();
+    if (empty && !confirm("Esto cargará todos los clientes (~6k). ¿Continuar?")) return;
+    void this.store.search();
+  }
 
   openModal(cli: ClienteDto | null): void { if (!this.store.lookups()) return; this.editing.set(cli); this.modalOpen.set(true); }
 
