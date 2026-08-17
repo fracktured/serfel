@@ -43,13 +43,28 @@ import { visibleGroups, type NavGroup } from "./nav";
               </button>
               <div class="mega">
                 <div class="mega-title">{{ group.label }}</div>
-                <div class="mcol">
-                  @for (leaf of group.children; track leaf.path) {
-                    <a class="m-link" [routerLink]="leaf.path" routerLinkActive="active" (click)="openGroup.set(null)">
-                      <span class="mi" [innerHTML]="iconHtml(leaf.icon)"></span>{{ leaf.label }}
-                    </a>
+                @for (section of group.children; track $index) {
+                  @if (section.label) {
+                    <div class="subhead">
+                      @if (section.icon) { <span class="mi" [innerHTML]="iconHtml(section.icon)"></span> }
+                      {{ section.label }}
+                    </div>
                   }
-                </div>
+                  <div class="mcol">
+                    @for (leaf of section.children; track leaf.label) {
+                      @if (leaf.disabled || !leaf.path) {
+                        <span class="m-link disabled">
+                          <span class="mi">@if (leaf.icon) {<span [innerHTML]="iconHtml(leaf.icon)"></span>}</span>{{ leaf.label }}
+                          <span class="soon">no disponible</span>
+                        </span>
+                      } @else {
+                        <a class="m-link" [routerLink]="leaf.path" routerLinkActive="active" (click)="openGroup.set(null)">
+                          <span class="mi" [innerHTML]="iconHtml(leaf.icon ?? '')"></span>{{ leaf.label }}
+                        </a>
+                      }
+                    }
+                  </div>
+                }
               </div>
             </div>
           }
@@ -82,8 +97,15 @@ import { visibleGroups, type NavGroup } from "./nav";
                 <svg class="car" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
               </button>
               @if (openGroup() === group.label) {
-                @for (leaf of group.children; track leaf.path) {
-                  <a class="nav-item m-sub" [routerLink]="leaf.path" routerLinkActive="active" (click)="closeAll()">{{ leaf.label }}</a>
+                @for (section of group.children; track $index) {
+                  @if (section.label) { <div class="m-sub-head">{{ section.label }}</div> }
+                  @for (leaf of section.children; track leaf.label) {
+                    @if (leaf.disabled || !leaf.path) {
+                      <span class="nav-item m-sub disabled">{{ leaf.label }} <span class="soon">no disponible</span></span>
+                    } @else {
+                      <a class="nav-item m-sub" [routerLink]="leaf.path" routerLinkActive="active" (click)="closeAll()">{{ leaf.label }}</a>
+                    }
+                  }
                 }
               }
             </div>
@@ -164,6 +186,15 @@ import { visibleGroups, type NavGroup } from "./nav";
     @media (min-width: 901px) {
       .nav-mobile { display: none; }
     }
+
+    .subhead { font-size: 11px; font-weight: 800; color: #64748b; padding: 8px 12px 4px; display: flex; align-items: center; gap: 7px; }
+    .subhead .mi { width: 15px; height: 15px; opacity: .9; }
+    .subhead .mi ::ng-deep svg { width: 15px; height: 15px; color: var(--accent); display: block; }
+    .m-link.disabled { color: #cbd5e1; cursor: not-allowed; }
+    .m-link.disabled:hover { background: transparent; color: #cbd5e1; }
+    .m-link .soon, .nav-item.m-sub .soon { margin-left: auto; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: #94a3b8; background: #f1f5f9; border-radius: 6px; padding: 2px 6px; }
+    .nav-item.m-sub.disabled { color: rgba(255,255,255,.5); cursor: not-allowed; display: flex; align-items: center; }
+    .m-sub-head { font-size: 10px; font-weight: 800; color: rgba(255,255,255,.65); text-transform: uppercase; letter-spacing: .1em; padding: 8px 14px 2px; }
   `],
 })
 export class NavbarComponent {
@@ -199,7 +230,9 @@ export class NavbarComponent {
 
   isGroupActive(group: NavGroup): boolean {
     const url = this.currentUrl();
-    return group.children.some((l) => url === l.path || url.startsWith(l.path + "/"));
+    return group.children.some((s) =>
+      s.children.some((l) => l.path !== undefined && (url === l.path || url.startsWith(l.path + "/")))
+    );
   }
 
   toggle(label: string, ev: Event): void {
