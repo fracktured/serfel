@@ -4,7 +4,7 @@ import { t10MCliente, t10MLocalCliente, type Db } from "@serfel/db";
 import { eq } from "drizzle-orm";
 import { setupTestDb, SEED } from "./helpers";
 import {
-  getClienteLookups, listClientes, createCliente,
+  getClienteLookups, searchClientes, createCliente,
   updateCliente, deactivateCliente, activateCliente,
   getLocalLookups, listLocales, createLocal,
   updateLocal, deactivateLocal, activateLocal,
@@ -109,7 +109,7 @@ describe("deactivateCliente", () => {
 
 describe("listClientes derived columns", () => {
   it("reports route weekdays and last factura/NC for the seeded client", async () => {
-    const rows = await listClientes(db, "todos");
+    const rows = await searchClientes(db, { estado: "todos" });
     const seeded = rows.find((r) => r.rutCliente === SEED.rutClienteConVenta);
     expect(seeded).toBeDefined();
     expect(seeded!.dias).toEqual([1, 3]);            // lunes + miércoles seeded
@@ -118,7 +118,7 @@ describe("listClientes derived columns", () => {
   });
 
   it("filters by estado", async () => {
-    const activos = await listClientes(db, "activos");
+    const activos = await searchClientes(db, { estado: "activos" });
     expect(activos.every((r) => r.idEstado === 1)).toBe(true);
   });
 
@@ -195,5 +195,79 @@ describe("update/deactivate/activate local", () => {
       permiteVentaTopeMensual: off.permiteVentaTopeMensual,
     }, SEED.idAdmin);
     expect(on.idEstado).toBe(1);
+  });
+});
+
+describe("searchClientes", () => {
+  const now = "2026-02-01 00:00:00";
+  beforeAll(async () => {
+    await db.insert(t10MCliente).values([
+      { rutCliente: 7000000, dvCliente: "8", razonSocial: "Panaderia La Espiga SpA",
+        direccionCliente: "Av Manquehue 1200", idListaPrecio: SEED.idListaPrecio,
+        idUsuarioMod: SEED.idAdmin, ultFechaMod: now, idEstado: 1 },
+      { rutCliente: 7000001, dvCliente: "6", razonSocial: "Ferreteria El Clavo Ltda",
+        direccionCliente: "Los Militares 5000", idListaPrecio: SEED.idListaPrecio,
+        idUsuarioMod: SEED.idAdmin, ultFechaMod: now, idEstado: 1 },
+    ]);
+    // A local whose address differs from its client's own address.
+    await db.insert(t10MLocalCliente).values({
+      rutCliente: 7000001, nomLocalCliente: "Bodega Sur",
+      direccionLocalCliente: "Camino Melipilla 999",
+      idUsuarioMod: SEED.idAdmin, ultFechaMod: now, idEstado: 1,
+    });
+  });
+
+  const ruts = (rows: { rutCliente: number }[]) => rows.map((r) => r.rutCliente).sort((a, b) => a - b);
+
+  it("matches by razon social token", async () => {
+    const rows = await searchClientes(db, { estado: "activos", razonSocial: "espiga" });
+    expect(ruts(rows)).toEqual([7000000]);
+  });
+
+  it("matches by multiple razon social tokens (ANDed)", async () => {
+    const rows = await searchClientes(db, { estado: "activos", razonSocial: "el clavo" });
+    expect(ruts(rows)).toEqual([7000001]);
+  });
+
+  it("matches by rut substring", async () => {
+    const rows = await searchClientes(db, { estado: "activos", rut: "7000000" });
+    expect(ruts(rows)).toEqual([7000000]);
+  });
+
+  it("matches by the client's own direccion", async () => {
+    const rows = await searchClientes(db, { estado: "activos", direccion: "manquehue" });
+    expect(ruts(rows)).toEqual([7000000]);
+  });
+
+  it("matches by a local's direccion (not the client's own)", async () => {
+    const rows = await searchClientes(db, { estado: "activos", direccion: "melipilla" });
+    expect(ruts(rows)).toEqual([7000001]);
+  });
+
+  it("ANDs filters across fields", async () => {
+    const rows = await searchClientes(db, { estado: "activos", razonSocial: "ferreteria", direccion: "melipilla" });
+    expect(ruts(rows)).toEqual([7000001]);
+  });
+
+  it("returns [] when nothing matches", async () => {
+    const rows = await searchClientes(db, { estado: "activos", razonSocial: "zzzznomatch" });
+    expect(rows).toEqual([]);
+  });
+
+  it("keeps derived columns correct and scoped when filtering by rut", async () => {
+    const rows = await searchClientes(db, { estado: "activos", rut: String(SEED.rutClienteConVenta) });
+    const seeded = rows.find((r) => r.rutCliente === SEED.rutClienteConVenta);
+    expect(seeded).toBeDefined();
+    expect(seeded!.dias).toEqual([1, 3]);
+    expect(seeded!.ultFactura).toBe(1050);
+    expect(seeded!.ultNotaCredito).toBe(77);
+  });
+
+  it("with no text filters returns all active clients", async () => {
+    const rows = await searchClientes(db, { estado: "activos" });
+    const set = new Set(rows.map((r) => r.rutCliente));
+    expect(set.has(7000000)).toBe(true);
+    expect(set.has(7000001)).toBe(true);
+    expect(rows.every((r) => r.idEstado === 1)).toBe(true);
   });
 });

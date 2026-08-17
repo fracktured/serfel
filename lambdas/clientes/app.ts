@@ -1,13 +1,13 @@
 import { Hono, type Context } from "hono";
 import {
-  EstadoFilterSchema, ClienteCreateSchema, ClienteUpdateSchema, LocalCreateSchema, LocalUpdateSchema,
-  type ApiErrorBody,
+  EstadoFilterSchema, ClienteSearchSchema, ClienteCreateSchema, ClienteUpdateSchema,
+  LocalCreateSchema, LocalUpdateSchema, type ApiErrorBody,
 } from "@serfel/shared";
 import { AppError, isDbUnreachable } from "./errors";
 import { requireModule } from "./authz";
 import {
   activateCliente, createCliente, deactivateCliente, getClienteLookups,
-  listClientes, updateCliente,
+  searchClientes, updateCliente,
   activateLocal, createLocal, deactivateLocal, getLocalLookups, listLocales, updateLocal,
 } from "./service";
 import type { AppDeps, AppEnv } from "./types";
@@ -64,9 +64,14 @@ export function createApp(deps: AppDeps) {
   app.get("/clientes/lookups", async (c) => c.json(await getClienteLookups(await deps.getDb())));
 
   app.get("/clientes", async (c) => {
-    const parsed = EstadoFilterSchema.safeParse(c.req.query("estado"));
-    if (!parsed.success) throw new AppError("VALIDACION", 400, "estado debe ser activos, inactivos o todos");
-    return c.json(await listClientes(await deps.getDb(), parsed.data));
+    const parsed = ClienteSearchSchema.safeParse({
+      estado: c.req.query("estado"),
+      rut: c.req.query("rut"),
+      razonSocial: c.req.query("razonSocial"),
+      direccion: c.req.query("direccion"),
+    });
+    if (!parsed.success) throw new AppError("VALIDACION", 400, "parámetros de búsqueda inválidos");
+    return c.json(await searchClientes(await deps.getDb(), parsed.data));
   });
 
   app.post("/clientes", async (c) => {

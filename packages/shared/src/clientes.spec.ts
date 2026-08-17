@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { ClienteCreateSchema, ClienteUpdateSchema } from "./clientes";
+import { ClienteCreateSchema, ClienteUpdateSchema, ClienteSearchSchema } from "./clientes";
 
 const valid = {
   rut: "12345678-5",
@@ -45,5 +45,32 @@ describe("ClienteCreateSchema", () => {
 describe("ClienteUpdateSchema", () => {
   it("has no rut field", () => {
     expect("rut" in ClienteUpdateSchema.shape).toBe(false);
+  });
+});
+
+describe("ClienteSearchSchema", () => {
+  it("defaults estado to activos and leaves filters undefined", () => {
+    const r = ClienteSearchSchema.safeParse({});
+    expect(r.success).toBe(true);
+    if (!r.success) return;
+    expect(r.data.estado).toBe("activos");
+    expect(r.data.rut).toBeUndefined();
+    expect(r.data.razonSocial).toBeUndefined();
+    expect(r.data.direccion).toBeUndefined();
+  });
+
+  it("strips dots and DV from rut to digits", () => {
+    const r = ClienteSearchSchema.parse({ rut: "12.345.678" });
+    expect(r.rut).toBe("12345678");
+  });
+
+  it("trims razonSocial and direccion, mapping empty to undefined", () => {
+    const r = ClienteSearchSchema.parse({ razonSocial: "  espiga  ", direccion: "   " });
+    expect(r.razonSocial).toBe("espiga");
+    expect(r.direccion).toBeUndefined();
+  });
+
+  it("rejects an invalid estado", () => {
+    expect(ClienteSearchSchema.safeParse({ estado: "nope" }).success).toBe(false);
   });
 });

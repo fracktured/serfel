@@ -10,8 +10,12 @@ export class ClientesApi {
   private http = inject(HttpClient);
   private base = `${environment.apiUrl}/api`;
 
-  list(estado: EstadoFilter) {
-    return this.http.get<ClienteDto[]>(`${this.base}/clientes`, { params: { estado } });
+  search(params: { estado: EstadoFilter; rut: string; razonSocial: string; direccion: string }) {
+    const p: Record<string, string> = { estado: params.estado };
+    if (params.rut.trim()) p["rut"] = params.rut.trim();
+    if (params.razonSocial.trim()) p["razonSocial"] = params.razonSocial.trim();
+    if (params.direccion.trim()) p["direccion"] = params.direccion.trim();
+    return this.http.get<ClienteDto[]>(`${this.base}/clientes`, { params: p });
   }
   lookups() {
     return this.http.get<ClienteLookupsDto>(`${this.base}/clientes/lookups`);

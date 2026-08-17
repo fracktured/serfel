@@ -5,7 +5,7 @@ import type { AppDeps } from "../types";
 const mocks = vi.hoisted(() => ({
   getUserTipo: vi.fn(),
   getClienteLookups: vi.fn(),
-  listClientes: vi.fn(),
+  searchClientes: vi.fn(),
   createCliente: vi.fn(),
   updateCliente: vi.fn(),
   activateCliente: vi.fn(),
@@ -55,15 +55,30 @@ describe("clientes app", () => {
   });
 
   it("lists clientes", async () => {
-    mocks.listClientes.mockResolvedValue([{ rutCliente: 1 }]);
+    mocks.searchClientes.mockResolvedValue([{ rutCliente: 1 }]);
     const res = await makeApp().request("/api/clientes?estado=activos");
     expect(res.status).toBe(200);
-    expect(mocks.listClientes).toHaveBeenCalledWith(fakeDb, "activos");
+    expect(mocks.searchClientes).toHaveBeenCalledWith(fakeDb, { estado: "activos" });
   });
 
   it("400s an invalid estado", async () => {
     const res = await makeApp().request("/api/clientes?estado=foo");
     expect(res.status).toBe(400);
+  });
+
+  it("passes search params through to searchClientes", async () => {
+    mocks.searchClientes.mockResolvedValue([{ rutCliente: 7000000 }]);
+    const res = await makeApp().request("/api/clientes?estado=activos&razonSocial=espiga&direccion=manquehue&rut=7.000.000");
+    expect(res.status).toBe(200);
+    expect(mocks.searchClientes).toHaveBeenCalledWith(fakeDb, {
+      estado: "activos", razonSocial: "espiga", direccion: "manquehue", rut: "7000000",
+    });
+  });
+
+  it("400s on an invalid estado", async () => {
+    const res = await makeApp().request("/api/clientes?estado=nope");
+    expect(res.status).toBe(400);
+    expect((await res.json()).error.code).toBe("VALIDACION");
   });
 
   it("creates a cliente", async () => {

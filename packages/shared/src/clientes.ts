@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { rutValido } from "./rut";
+import { EstadoFilterSchema } from "./productos";
 
 const REQUIRED = (max: number) => z.string().trim().min(1).max(max);
 const OPTTEXT = (max: number) => z.string().trim().max(max);
@@ -49,3 +50,27 @@ export interface ClienteDto {
 export interface ClienteLookupsDto {
   listasPrecio: { id: number; nombre: string }[];
 }
+
+// The trailing .optional() (after .transform()) is required so the inferred
+// output type marks these keys optional (`rut?: string`) rather than required
+// `rut: string | undefined` — zod's object-key-optionality check only looks at
+// the outermost wrapper, and ZodEffects (from .transform()) isn't recognized,
+// so without it every ClienteSearchParams literal would need to spell out all
+// three keys even when omitting them was intended.
+const optDigits = z.string().optional().transform((s) => {
+  const d = (s ?? "").replace(/\D/g, "");
+  return d.length ? d : undefined;
+}).optional();
+const optTrimmed = z.string().optional().transform((s) => {
+  const t = (s ?? "").trim();
+  return t.length ? t : undefined;
+}).optional();
+
+/** Server-side clientes search params. All filters optional and ANDed. */
+export const ClienteSearchSchema = z.object({
+  estado: EstadoFilterSchema,
+  rut: optDigits,
+  razonSocial: optTrimmed,
+  direccion: optTrimmed,
+});
+export type ClienteSearchParams = z.infer<typeof ClienteSearchSchema>;

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { ClienteDto } from "@serfel/shared";
-import { applyFilters, sortRows, paginate, computeStats, toCsv } from "./clientes-logic";
+import { sortRows, paginate, computeStats, toCsv } from "./clientes-logic";
 
 function c(over: Partial<ClienteDto>): ClienteDto {
   return {
@@ -10,22 +10,6 @@ function c(over: Partial<ClienteDto>): ClienteDto {
     dias: [], ultFactura: null, ultNotaCredito: null, ...over,
   };
 }
-
-describe("applyFilters", () => {
-  const rows = [
-    c({ rutCliente: 111, rut: "111-1", razonSocial: "Alfa SpA", idListaPrecio: 1 }),
-    c({ rutCliente: 222, rut: "222-2", razonSocial: "Beta Ltda", idListaPrecio: 2 }),
-  ];
-  it("filters by razon social tokens", () => {
-    expect(applyFilters(rows, { razonSocial: "beta", rut: "", idListaPrecio: null, quick: "" })).toHaveLength(1);
-  });
-  it("filters by rut substring", () => {
-    expect(applyFilters(rows, { razonSocial: "", rut: "111", idListaPrecio: null, quick: "" })).toHaveLength(1);
-  });
-  it("filters by lista de precio", () => {
-    expect(applyFilters(rows, { razonSocial: "", rut: "", idListaPrecio: 2, quick: "" })).toHaveLength(1);
-  });
-});
 
 describe("sortRows", () => {
   it("sorts by ultFactura numerically", () => {
@@ -46,13 +30,12 @@ describe("paginate", () => {
 });
 
 describe("computeStats", () => {
-  it("counts total, listas, con deuda and filtrados", () => {
+  it("counts total, listas and con deuda", () => {
     const all = [c({ idListaPrecio: 1, permiteVentaDeuda: true }), c({ idListaPrecio: 2, permiteVentaDeuda: false })];
     const s = computeStats(all, all);
     expect(s.total).toBe(2);
     expect(s.listasPrecio).toBe(2);
     expect(s.conDeuda).toBe(1);
-    expect(s.filtrados).toBeNull();
   });
 });
 
