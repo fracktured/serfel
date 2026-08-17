@@ -8,6 +8,13 @@ not stopwatch-precise. Newest entries on top.
 
 ---
 
+## 2026-08-16 (Sun) — ~0.5h
+**Clientes search: full-RUT (with DV) query never matched**
+- Systematic-debugging: a search like `/api/clientes?rut=12452724-4` returned nothing for an existing client. Root cause in the shared `optDigits` transform (`ClienteSearchSchema`): it stripped **all** non-digits, so `12452724-4` became `124527244` — the DV digit glued onto the body. The lambda then ran `CAST(rut_cliente AS CHAR) LIKE '%124527244%'`, but `rut_cliente` stores only the **body** (DV lives in `dv_cliente`), so the LIKE never matched
+- Fix: split on `-` and keep only the body before stripping non-digits (`12.452.724-4` → `12452724`, `11.704.324-K` → `11704324`); partial/no-DV searches unchanged. Query needed no change once the param feeds it the body only. Fix lives in the shared Zod schema, so the Angular clientes search inherits it too
+- Added 2 regression tests (numeric DV + `K`); corrected the pre-existing test's name (it never actually exercised a DV). Shared suite (54) + root typecheck green
+- Commits: 1
+
 ## 2026-08-16 (Sun) — ~2.5h
 **Clientes maintainer: client-side filtering → server-side search (RUT / Razón Social / Dirección)**
 - Brainstormed → spec → plan → subagent-driven execution to stop the clientes list from loading all ~6k rows up front. Filtering moves **server-side**, keyed on **RUT**, **Razón Social**, **Dirección**, scoped by the existing **Estado** selector. Nothing loads until the user explicitly searches (**Buscar** button + Enter); the only path that returns everything is an all-empty search, which prompts a `confirm()` first. Key brainstorm decisions: Dirección matches the client's own `direccion_cliente` **OR any of its locales'** address; dropped the Lista de Precio filter; removed the redundant navbar quick-search; **sort/pagination/CSV stay client-side** over the returned result set (YAGNI — a normal search returns few rows, and the "all" case is what the page already paginates in-browser)

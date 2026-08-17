@@ -59,9 +59,16 @@ describe("ClienteSearchSchema", () => {
     expect(r.data.direccion).toBeUndefined();
   });
 
-  it("strips dots and DV from rut to digits", () => {
+  it("strips dots from rut to digits", () => {
     const r = ClienteSearchSchema.parse({ rut: "12.345.678" });
     expect(r.rut).toBe("12345678");
+  });
+
+  it("drops the DV so a full rut matches the stored body", () => {
+    // rutCliente stores only the body (DV is a separate column), so the DV
+    // after "-" must be dropped or the LIKE never matches. See rut split note.
+    expect(ClienteSearchSchema.parse({ rut: "12452724-4" }).rut).toBe("12452724");
+    expect(ClienteSearchSchema.parse({ rut: "11.704.324-K" }).rut).toBe("11704324");
   });
 
   it("trims razonSocial and direccion, mapping empty to undefined", () => {

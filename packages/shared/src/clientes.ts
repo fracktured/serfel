@@ -58,8 +58,11 @@ export interface ClienteLookupsDto {
 // so without it every ClienteSearchParams literal would need to spell out all
 // three keys even when omitting them was intended.
 const optDigits = z.string().optional().transform((s) => {
-  const d = (s ?? "").replace(/\D/g, "");
-  return d.length ? d : undefined;
+  // rutCliente stores only the body ("12452724"); the DV lives in a separate
+  // column. Drop everything after "-" so a full RUT ("12.452.724-4") matches,
+  // then keep just the body digits for the LIKE.
+  const body = (s ?? "").split("-")[0].replace(/\D/g, "");
+  return body.length ? body : undefined;
 }).optional();
 const optTrimmed = z.string().optional().transform((s) => {
   const t = (s ?? "").trim();
