@@ -30,13 +30,12 @@ describe("paginate", () => {
 });
 
 describe("computeStats", () => {
-  it("counts total, listas, con deuda and filtrados", () => {
+  it("counts total, listas and con deuda", () => {
     const all = [c({ idListaPrecio: 1, permiteVentaDeuda: true }), c({ idListaPrecio: 2, permiteVentaDeuda: false })];
     const s = computeStats(all, all);
     expect(s.total).toBe(2);
     expect(s.listasPrecio).toBe(2);
     expect(s.conDeuda).toBe(1);
-    expect(s.filtrados).toBeNull();
   });
 });
 

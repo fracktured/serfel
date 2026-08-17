@@ -47,9 +47,6 @@ import { toCsv, WEEKDAYS, type SortKey } from "./clientes-logic";
         <div class="stat-card"><div class="stat-icon-wrap" style="background:linear-gradient(135deg,#fef3c7,#fde68a)">
           <svg viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
           <div><div class="stat-num" style="color:#d97706">{{ store.stats().conDeuda }}</div><div class="stat-lbl">Con venta a deuda</div></div></div>
-        <div class="stat-card"><div class="stat-icon-wrap" style="background:linear-gradient(135deg,#dcfce7,#bbf7d0)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
-          <div><div class="stat-num" style="color:#059669">{{ store.stats().filtrados ?? '—' }}</div><div class="stat-lbl">Filtrados</div></div></div>
       </div>
 
       <div class="filter-dropdowns">

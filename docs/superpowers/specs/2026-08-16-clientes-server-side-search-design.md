@@ -64,7 +64,10 @@ Empty/absent text fields are omitted, not matched.
    WHERE lc.rut_cliente = c.rut_cliente AND lc.direccion_local_cliente LIKE '%q%')`.
 
 Relies on the table's case/accent-insensitive collation for folding (same as the
-existing behavior expectations).
+existing behavior expectations). Accent- and case-insensitivity are now delegated
+entirely to the MariaDB column collation; the client-side path previously
+normalized diacritics itself, so this is a deliberate assumption, not an
+oversight.
 
 ### Derived-column aggregates
 

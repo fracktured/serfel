@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { rutValido } from "./rut";
-import { EstadoFilterSchema, type EstadoFilter } from "./productos";
+import { EstadoFilterSchema } from "./productos";
 
 const REQUIRED = (max: number) => z.string().trim().min(1).max(max);
 const OPTTEXT = (max: number) => z.string().trim().max(max);
