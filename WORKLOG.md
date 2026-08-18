@@ -8,6 +8,15 @@ not stopwatch-precise. Newest entries on top.
 
 ---
 
+## 2026-08-18 (Mon) — ~0.75h
+**Precios UI restyle to match the productos maintainer design system (frontend-only)**
+- Reskinned the `precios` page + drawer to the shared maintainer look so it's consistent with productos; no store/API/DB changes, pricing logic untouched
+- **Page** (`precios-page.component.ts`): navbar `header-search`; hero restyled with `hero-btn` list-management + themed `.hero-select` picker; 4 `stat-card`s (Productos / Con Descuento / Bajo Costo / Filtrados); `filter-dropdowns` bar (search + client-side "Mostrar" view filter [Todos/Con descuento/Bajo costo] + Limpiar); shared `table-wrap` table with **sortable headers**, `t-num`/`t-name`/`t-muted` cells, an Acciones **Editar** button, preserved below-cost row highlight + margin coloring; shared `pagination` (per-page + windowed pages); `empty-state`. Sorting/paging/view-filter added as component-local signals (`sort`/`page`/`perPage`/`viewFilter`) — no store changes
+- **Drawer** (`precio-producto-drawer.component.ts`): converted the right-side `<aside class="drawer">` into a centered shared `.modal` (`max-height:90vh` scroll for tramos); preview/readout badges retinted to theme vars
+- Kept the bulk-edit bar (restyled as a toolbar pill group)
+- Verified: `tsc --noEmit` clean, frontend build ok (pre-existing bundle-budget warning only), `@serfel/frontend` vitest 58/58. No live drive (needs Cognito auth + seeded price data)
+- Commits: 1 on `main`
+
 ## 2026-08-18 (Mon) — ~4.5h
 **Precio Producto → "Precios y Descuentos": new `precios` vertical slice (shared → lambda → infra → frontend)**
 - Migrated the legacy `listPrecioProducto` module to the new stack and surfaced the volume-discount **tramo** tiers the legacy UI never showed or edited. No `legacy-php` changes; no DB migration (tramo columns already existed on `40_m_precio_producto`)

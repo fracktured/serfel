@@ -12,7 +12,7 @@ import {
   imports: [FormsModule, DecimalPipe],
   template: `
     <div class="modal-bg" (click)="cancel.emit()">
-      <aside class="drawer" (click)="$event.stopPropagation()">
+      <div class="modal" (click)="$event.stopPropagation()">
         <div class="modal-head">
           <h2>{{ row.nomProducto }}</h2>
           <button class="modal-close-btn" (click)="cancel.emit()">
@@ -71,18 +71,20 @@ import {
             {{ busy() ? 'Guardando…' : 'Guardar' }}
           </button>
         </div>
-      </aside>
+      </div>
     </div>
   `,
   styles: [`
-    .drawer { position: fixed; top: 0; right: 0; height: 100vh; width: min(480px, 92vw);
-      background: #fff; box-shadow: -8px 0 24px rgba(0,0,0,.15); overflow-y: auto; padding: 20px; }
-    .readout { font-weight: 700; font-size: 18px; }
+    .modal { width: 560px; max-height: 90vh; overflow-y: auto; }
+    .form-field.full > strong { font-size: 12px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--muted); margin-top: 4px; }
+    .readout { font-weight: 800; font-size: 18px; color: var(--accent); font-variant-numeric: tabular-nums; }
     .preview-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
-    .preview-list .badge { display: inline-block; min-width: 44px; padding: 2px 8px; border-radius: 999px;
-      background: #eff6ff; color: #2563eb; font-weight: 600; text-align: center; margin-right: 8px; }
-    .preview-list em { color: #16a34a; font-style: normal; }
-    .preview-list em.neg { color: #dc2626; }
+    .preview-list li { font-size: 13px; font-variant-numeric: tabular-nums; }
+    .preview-list .badge { display: inline-block; min-width: 44px; padding: 2px 9px; border-radius: 999px;
+      background: #eff6ff; color: #2563eb; font-weight: 700; text-align: center; margin-right: 8px; font-size: 12px; }
+    .preview-list em { color: var(--green); font-style: normal; font-weight: 600; }
+    .preview-list em.neg { color: var(--red); }
     .soft-warn { color: #b45309; background: #fffbeb; border: 1px solid #fde68a;
       border-radius: 8px; padding: 6px 10px; font-size: 13px; }
     .form-field.full, .full { grid-column: 1 / -1; }
