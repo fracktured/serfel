@@ -137,7 +137,7 @@ describe("role-based access", () => {
     expect(await res.json()).toMatchObject({
       idUsuario: SEED.idUsuario,
       idTipoUsuario: SEED.tipoAdmin,
-      modulos: ["productos", "rutas", "usuarios", "ventas", "clientes", "marcas"],
+      modulos: ["productos", "rutas", "usuarios", "ventas", "clientes", "marcas", "precios"],
     });
   });
 
