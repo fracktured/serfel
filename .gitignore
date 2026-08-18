@@ -12,3 +12,6 @@ lambdas/node-app-2/_legacy/.env
 
 # SDD subagent-driven-development scratch (ledger, briefs, review packages)
 .superpowers/
+
+# git worktrees (native tool + SDD)
+.claude/worktrees/
