@@ -64,6 +64,7 @@ export const NAV_GROUPS: NavGroup[] = [
         children: [
           { module: "productos", label: "Productos", path: "/productos", icon: PRODUCT_ICON },
           { module: "marcas", label: "Marcas", path: "/marcas", icon: BRAND_ICON },
+          { module: "precios", label: "Precios y Descuentos", path: "/precios", icon: SALES_ICON },
           { label: "Unidades de Medida", disabled: true },
           { label: "Tipos", disabled: true },
         ],

@@ -17,7 +17,7 @@ describe("tipoCanAccess", () => {
 
 describe("modulesForTipo", () => {
   it("lists the modules a tipo can access", () => {
-    expect(modulesForTipo(1)).toEqual(["productos", "rutas", "usuarios", "ventas", "clientes", "marcas"]);
+    expect(modulesForTipo(1)).toEqual(["productos", "rutas", "usuarios", "ventas", "clientes", "marcas", "precios"]);
     expect(modulesForTipo(2)).toEqual([]);
   });
 });

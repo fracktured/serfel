@@ -126,6 +126,22 @@ const marcasFn = new sst.aws.Function("MarcasFn", {
   },
 });
 
+const preciosFn = new sst.aws.Function("PreciosFn", {
+  handler: "lambdas/precios/index.handler",
+  runtime: "nodejs22.x",
+  architecture: "arm64",
+  timeout: "20 seconds",
+  memory: "256 MB",
+  vpc: { privateSubnets: privateSubnetIds, securityGroups: [sgLambdaId] },
+  environment: { DB_SECRET_ARN: dbSecretArn },
+  permissions: [{ actions: ["secretsmanager:GetSecretValue"], resources: [dbSecretArn] }],
+  copyFiles: [{ from: "packages/db/rds-global-bundle.pem", to: "rds-global-bundle.pem" }],
+  transform: {
+    function: { name: `serfel-${$app.stage}-precios`, tags: stackTags("serfel-aws") },
+    logGroup: { tags: stackTags("serfel-aws") },
+  },
+});
+
 const api = new sst.aws.ApiGatewayV2("Api", {
   // dev-only wildcard CORS (JWT still required); tighten in Fase 5
   cors: {
@@ -223,6 +239,19 @@ const marcasRoutes = [
 ] as const;
 for (const route of marcasRoutes) {
   api.route(route, marcasFn.arn, { auth: { jwt: { authorizer: jwtAuthorizer.id } } });
+}
+
+const preciosRoutes = [
+  "GET /api/listas-precio",
+  "POST /api/listas-precio",
+  "PATCH /api/listas-precio/{id}",
+  "DELETE /api/listas-precio/{id}",
+  "GET /api/listas-precio/{id}/productos",
+  "PATCH /api/listas-precio/{id}/productos/{idProducto}",
+  "POST /api/listas-precio/{id}/productos/bulk",
+] as const;
+for (const route of preciosRoutes) {
+  api.route(route, preciosFn.arn, { auth: { jwt: { authorizer: jwtAuthorizer.id } } });
 }
 
 export const apiUrl = api.url;

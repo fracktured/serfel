@@ -8,6 +8,7 @@ import { SinAccesoComponent } from './features/sin-acceso/sin-acceso.component';
 import { PrefacturacionPageComponent } from './features/prefacturacion/prefacturacion-page.component';
 import { ClientesPageComponent } from './features/clientes/clientes-page.component';
 import { MarcasPageComponent } from './features/marcas/marcas-page.component';
+import { PreciosPageComponent } from './features/precios/precios-page.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -19,5 +20,6 @@ export const routes: Routes = [
   { path: 'prefacturacion', component: PrefacturacionPageComponent, canActivate: [moduleGuard('ventas')] },
   { path: 'clientes', component: ClientesPageComponent, canActivate: [moduleGuard('clientes')] },
   { path: 'marcas', component: MarcasPageComponent, canActivate: [moduleGuard('marcas')] },
+  { path: 'precios', component: PreciosPageComponent, canActivate: [moduleGuard('precios')] },
   { path: '**', redirectTo: 'productos' },
 ];
