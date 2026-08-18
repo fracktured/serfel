@@ -20,4 +20,8 @@ describe("FechaLocalPipe", () => {
     expect(pipe.transform("", "dd/MM/yyyy HH:mm")).toBe("");
     expect(pipe.transform(null, "dd/MM/yyyy")).toBe("");
   });
+
+  it("renders Santiago-local midnight as 00:00, not 24:00", () => {
+    expect(pipe.transform("2026-01-15 03:00:00", "dd/MM/yyyy HH:mm")).toBe("15/01/2026 00:00");
+  });
 });

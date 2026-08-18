@@ -27,7 +27,7 @@ export class FechaLocalPipe implements PipeTransform {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
-      ...(withTime ? { hour: "2-digit", minute: "2-digit", hour12: false } : {}),
+      ...(withTime ? { hour: "2-digit", minute: "2-digit", hourCycle: "h23" } : {}),
     }).formatToParts(d);
     const g = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
     const date = `${g("day")}/${g("month")}/${g("year")}`;
