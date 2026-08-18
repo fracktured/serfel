@@ -8,6 +8,26 @@ not stopwatch-precise. Newest entries on top.
 
 ---
 
+## 2026-08-17 (Sun) — ~2h
+**Fechas shown in America/Santiago (new frontend + legacy Angular 14 + legacy-php)**
+- Root cause: datetimes are stored as naive UTC strings and passed through verbatim, so every renderer showed the UTC clock digits as local time (3–4h off, DST-dependent). Fix is display-only — storage, form inputs, filters, and the API contract are untouched.
+- Brainstormed → design spec + bite-sized plan (`docs/superpowers/specs` + `plans`); executed as 4 subagent tasks with per-task spec+quality reviews and a final whole-branch review (approve-with-nits, no Critical/Important)
+- **New frontend**: standalone `FechaLocalPipe` (`Intl.DateTimeFormat` + `America/Santiago`, DST-aware — not the `date` pipe's fixed-offset param); prefacturación template
+- **Legacy Angular 14**: module-declared `fechaLocal` pipe registered in SharedModule; 4 templates (porciones ×2, modal-porción, prefacturación)
+- **legacy-php** (Distribuidor + Coproad mirror): new `FechaUtil::aLocal()` UTC→Santiago helper applied at 7 datetime sites/app (cobranzas, informe cobranza, DTE `FchEmis`, NC/ND `FchRef`, 2× LibroCV `FchDoc`); the date-only `FchResol` (`fecha_aprobacion_SII`) deliberately left unconverted to avoid a day shift
+- Hardening: pinned `hourCycle:"h23"` in both pipes so Santiago midnight renders `00:00`, not `24:00`
+- Verified: new-frontend vitest 58/58 (incl. summer −3 / winter −4 DST + midnight cases); PHP via authentic `php:5.6-cli` docker (assertions + `php -l` on 13 files)
+- Commits: 5 (+ spec/plan docs) · branch `feat/fechas-america-santiago` merged to `main` (no-ff)
+
+## 2026-08-17 (Sun) — ~0.5h
+**Rehost legacy PHP: rebuild + manual redeploy of the combined image to dev (temp prod)**
+- Ran the Fase 3.5 manual deploy (per `legacy-php/README.md`) for `serfel-dev-rehost-php-app-1:v1` — the combined PHP 5.6 / arm64 image serving Distribuidor, SerfelWeb, and both Coproad tenants (`/coproad/Coproad`, `/coproad/CoproadWeb`) from one Apache doc root
+- Gotcha: `docker login` hung on macOS `credsStore: "desktop"` (GUI/keychain helper) in the non-interactive shell. Worked around it with a throwaway `DOCKER_CONFIG` dir (empty `config.json`, no helper) so the ECR token writes straight into that config, reused for the `buildx --push`
+- `buildx build --platform linux/arm64 --push` (~10 min PHP-from-source) → new digest `sha256:4f2dafd0…`; `ecs update-service --force-new-deployment` (mutable `:v1` needs the nudge) + `wait services-stable`
+- Verified: running task on the new digest, ALB target `healthy` / old `draining` (clean rollover); CloudFront front door (`d3hrkbcu7lsg3m`) smoke → Distribuidor/SerfelWeb/both Coproad apps all 200 (`/health.php` 403 through the CDN is expected — internal ALB probe path, not publicly routed)
+- No code changes; deploy-only. Account `146476548567` via `AWS_PROFILE=admin-christian`
+- Commits: 0
+
 ## 2026-08-17 (Sun) — ~4h
 **Marcas maintainer — full vertical slice (DB → shared → lambda → infra → nav → frontend), deployed to dev**
 - Brainstormed + wrote design spec and a bite-sized implementation plan (`docs/superpowers/specs` + `plans`); decided: soft-delete model (add `id_estado`), dedicated `marcas` lambda + authz module, 3-level Mantenedores nav with "(no disponible)" placeholders per the `option-2-topbar-mega` prototype
