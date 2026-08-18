@@ -91,7 +91,13 @@ class ProductoPedidoDAO {
                     ppe.precio,
                     ppe.porcen_desc,
                     ppe.precio_neto,
-                    pp.max_porcen_desc
+                    pp.max_porcen_desc,
+                    pp.cant_tramo1,
+                    pp.max_porcen_tramo1,
+                    pp.cant_tramo2,
+                    pp.max_porcen_tramo2,
+                    pp.cant_tramo3,
+                    pp.max_porcen_tramo3
              FROM 30_m_producto_pedido ppe
                  INNER JOIN 20_m_producto p ON ppe.id_producto = p.id_producto
                  INNER JOIN 20_p_marca m ON p.id_marca = m.id_marca

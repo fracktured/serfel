@@ -22,6 +22,12 @@ class PrecioProductoMapper {
         $dto['precioNeto'] = $producto->precio_neto;
         $dto['precio'] = $producto->precio;
         $dto['maxPorcenDesc'] = $producto->max_porcen_desc;
+        $dto['cantTramo1']      = $producto->cant_tramo1;
+        $dto['maxPorcenTramo1'] = $producto->max_porcen_tramo1;
+        $dto['cantTramo2']      = $producto->cant_tramo2;
+        $dto['maxPorcenTramo2'] = $producto->max_porcen_tramo2;
+        $dto['cantTramo3']      = $producto->cant_tramo3;
+        $dto['maxPorcenTramo3'] = $producto->max_porcen_tramo3;
 
         if ( !empty( $producto->id_pedido ) ) {
             $dto['idPedido'] = $producto->id_pedido;
