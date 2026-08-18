@@ -167,7 +167,7 @@ class XMLLibroCVNEG {
             $oNodoTasaImp = $oXML->createElement("TasaImp");
             $oNodoTasaImp->appendChild($oNodoTXTTasaImp);
             
-            $oNodoTXTFchDoc = $oXML->createTextNode(FechaUtil::aFechaYMD($oRecepcion->fecha_emision_docto));
+            $oNodoTXTFchDoc = $oXML->createTextNode(FechaUtil::aLocal($oRecepcion->fecha_emision_docto, 'Y-m-d'));
             $oNodoFchDoc = $oXML->createElement("FchDoc");
             $oNodoFchDoc->appendChild($oNodoTXTFchDoc);
             
@@ -238,7 +238,7 @@ class XMLLibroCVNEG {
             $oNodoTasaImp = $oXML->createElement("TasaImp");
             $oNodoTasaImp->appendChild($oNodoTXTTasaImp);
             
-            $oNodoTXTFchDoc = $oXML->createTextNode(FechaUtil::aFechaYMD($oVenta->fecha_venta));
+            $oNodoTXTFchDoc = $oXML->createTextNode(FechaUtil::aLocal($oVenta->fecha_venta, 'Y-m-d'));
             $oNodoFchDoc = $oXML->createElement("FchDoc");
             $oNodoFchDoc->appendChild($oNodoTXTFchDoc);
             
