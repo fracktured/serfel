@@ -1,7 +1,9 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { and, eq } from "drizzle-orm";
 import type { Db } from "@serfel/db";
-import { listListas, createLista, updateLista, deactivateLista } from "../service";
-import { setupPreciosTestDb, SEED } from "./helpers";
+import { t40MPrecioProducto } from "@serfel/db";
+import { listListas, createLista, updateLista, deactivateLista, getGrid, upsertPrecioProducto, bulkApply } from "../service";
+import { setupPreciosTestDb, SEED, seedLista } from "./helpers";
 
 let db: Db;
 let teardown: () => Promise<void>;
@@ -48,5 +50,73 @@ describe("listas de precio CRUD", () => {
   it("throws LISTA_NO_ENCONTRADA renaming a missing id", async () => {
     await expect(updateLista(db, 999, { nombre: "X" }, SEED.idUsuario))
       .rejects.toMatchObject({ code: "LISTA_NO_ENCONTRADA" });
+  });
+});
+
+describe("grid + pricing writes", () => {
+  const LISTA = 50;
+  beforeAll(async () => { await seedLista(db, LISTA, "Grid"); });
+
+  it("grid returns a row per active product, unpriced products default to 0", async () => {
+    const rows = await getGrid(db, LISTA);
+    expect(rows).toHaveLength(2);
+    const barato = rows.find((r) => r.idProducto === SEED.prodBarato)!;
+    expect(barato.precioNeto).toBe(0);
+    expect(barato.preciosVenta).toHaveLength(1); // no tramos
+    expect(barato.impuestosPorcen).toBe(19); // producto.impuesto = 0
+    const caro = rows.find((r) => r.idProducto === SEED.prodCaro)!;
+    expect(caro.impuestosPorcen).toBe(39); // 19 iva + 20 extra
+  });
+
+  it("upsert sets precio_neto, derives precio, stores tramos, and re-reads", async () => {
+    const updated = await upsertPrecioProducto(db, LISTA, SEED.prodBarato, {
+      precioNeto: 1000, maxPorcenDesc: 10,
+      tramos: [{ cantidad: 10, maxPorcen: 15 }, { cantidad: 50, maxPorcen: 20 }, { cantidad: 0, maxPorcen: 0 }],
+    });
+    expect(updated.precioBase).toBe(1190);
+    expect(updated.preciosVenta.map((v) => v.etiqueta)).toEqual(["1+", "≥10", "≥50"]);
+
+    // persisted: a second read reflects it
+    const rows = await getGrid(db, LISTA);
+    const barato = rows.find((r) => r.idProducto === SEED.prodBarato)!;
+    expect(barato.precioNeto).toBe(1000);
+    expect(barato.tramos[1].cantidad).toBe(50);
+  });
+
+  it("upsert never writes porcen_desc (stays 0)", async () => {
+    await upsertPrecioProducto(db, LISTA, SEED.prodCaro, {
+      precioNeto: 5000, maxPorcenDesc: 5,
+      tramos: [{ cantidad: 0, maxPorcen: 0 }, { cantidad: 0, maxPorcen: 0 }, { cantidad: 0, maxPorcen: 0 }],
+    });
+    // assert the dead column directly via a select on the raw table
+    const rows = await db.select({ pd: t40MPrecioProducto.porcenDesc })
+      .from(t40MPrecioProducto)
+      .where(and(
+        eq(t40MPrecioProducto.idListaPrecio, LISTA),
+        eq(t40MPrecioProducto.idProducto, SEED.prodCaro),
+      ));
+    expect(rows[0].pd).toBe(0);
+  });
+
+  it("bulk setPrecioNeto applies to all listed products", async () => {
+    const affected = await bulkApply(db, LISTA, {
+      action: "setPrecioNeto", valor: 2000, idProductos: [SEED.prodBarato, SEED.prodCaro],
+    });
+    expect(affected.every((r) => r.precioNeto === 2000)).toBe(true);
+  });
+
+  it("bulk clearMaxDesc zeroes max_porcen_desc", async () => {
+    await upsertPrecioProducto(db, LISTA, SEED.prodBarato, {
+      precioNeto: 1000, maxPorcenDesc: 30,
+      tramos: [{ cantidad: 0, maxPorcen: 0 }, { cantidad: 0, maxPorcen: 0 }, { cantidad: 0, maxPorcen: 0 }],
+    });
+    const affected = await bulkApply(db, LISTA, {
+      action: "clearMaxDesc", idProductos: [SEED.prodBarato],
+    });
+    expect(affected[0].maxPorcenDesc).toBe(0);
+  });
+
+  it("getGrid throws LISTA_NO_ENCONTRADA for a missing list", async () => {
+    await expect(getGrid(db, 9999)).rejects.toMatchObject({ code: "LISTA_NO_ENCONTRADA" });
   });
 });
