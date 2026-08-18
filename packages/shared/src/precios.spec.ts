@@ -35,10 +35,26 @@ describe("precios schemas", () => {
     expect(r.success).toBe(false);
   });
 
-  it("bulk: valor required except for clearMaxDesc", () => {
+  it("bulk: valor required except for clearMaxDesc / setTramo", () => {
     expect(BulkInputSchema.safeParse({ action: "clearMaxDesc", idProductos: [1] }).success).toBe(true);
     expect(BulkInputSchema.safeParse({ action: "setPrecioNeto", idProductos: [1] }).success).toBe(false);
     expect(BulkInputSchema.safeParse({ action: "setMaxDesc", valor: 200, idProductos: [1] }).success).toBe(false);
+  });
+
+  it("bulk setTramo requires tramo, cantidad and maxPorcen (not valor)", () => {
+    const ok = { action: "setTramo", tramo: 2, cantidad: 10, maxPorcen: 15, idProductos: [1] };
+    expect(BulkInputSchema.safeParse(ok).success).toBe(true);
+    // valor is not required for setTramo
+    expect(BulkInputSchema.safeParse({ ...ok, valor: undefined }).success).toBe(true);
+    // missing pieces
+    expect(BulkInputSchema.safeParse({ ...ok, tramo: undefined }).success).toBe(false);
+    expect(BulkInputSchema.safeParse({ ...ok, cantidad: undefined }).success).toBe(false);
+    expect(BulkInputSchema.safeParse({ ...ok, maxPorcen: undefined }).success).toBe(false);
+    // out of range
+    expect(BulkInputSchema.safeParse({ ...ok, tramo: 4 }).success).toBe(false);
+    expect(BulkInputSchema.safeParse({ ...ok, tramo: 0 }).success).toBe(false);
+    expect(BulkInputSchema.safeParse({ ...ok, maxPorcen: 101 }).success).toBe(false);
+    expect(BulkInputSchema.safeParse({ ...ok, cantidad: -1 }).success).toBe(false);
   });
 });
 

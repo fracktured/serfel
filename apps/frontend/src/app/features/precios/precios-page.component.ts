@@ -1,7 +1,7 @@
 import { Component, computed, inject, OnInit, signal, viewChild } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { DecimalPipe } from "@angular/common";
-import type { PrecioProductoInput, PrecioProductoRowDto } from "@serfel/shared";
+import type { BulkInput, PrecioProductoInput, PrecioProductoRowDto } from "@serfel/shared";
 import { NavbarComponent } from "../../core/navbar.component";
 import { ToastComponent } from "../../core/toast.component";
 import { ToastService } from "../../core/toast.service";
@@ -12,6 +12,10 @@ type SortKey =
   | "codSerfel" | "nomProducto" | "costoProm" | "precioNeto"
   | "precioBase" | "maxPorcenDesc";
 type ViewFilter = "todos" | "bajoCosto" | "conDescuento";
+/** Bulk-bar selection: the API actions plus per-tramo variants the UI expands. */
+type BulkUiAction =
+  | "setPrecioNeto" | "setMaxDesc" | "clearMaxDesc"
+  | "setTramo1" | "setTramo2" | "setTramo3";
 
 @Component({
   selector: "app-precios-page",
@@ -114,12 +118,18 @@ type ViewFilter = "todos" | "bajoCosto" | "conDescuento";
           <div class="bulk-bar">
             <span class="bulk-count">{{ store.selectedIds().size }} seleccionados</span>
             <select [(ngModel)]="bulkAction">
-              <option value="setPrecioNeto">Precio Neto</option>
+              <option value="setPrecioNeto">Nuevo Precio</option>
               <option value="setMaxDesc">Máx. % Desc.</option>
               <option value="clearMaxDesc">Borrar Máx. %</option>
+              <option value="setTramo1">Tramo 1</option>
+              <option value="setTramo2">Tramo 2</option>
+              <option value="setTramo3">Tramo 3</option>
             </select>
-            @if (bulkAction !== 'clearMaxDesc') {
+            @if (bulkAction === 'setPrecioNeto' || bulkAction === 'setMaxDesc') {
               <input type="number" min="0" [(ngModel)]="bulkValor" placeholder="valor" />
+            } @else if (isTramoAction()) {
+              <input type="number" min="0" [(ngModel)]="bulkCantidad" placeholder="cant. desde" />
+              <input type="number" min="0" max="100" [(ngModel)]="bulkMaxPorcen" placeholder="máx %" />
             }
             <button class="btn-save" (click)="onBulk()">Aplicar</button>
           </div>
@@ -173,6 +183,7 @@ type ViewFilter = "todos" | "bajoCosto" | "conDescuento";
                     <td style="text-align:center">
                       @if (t.cantidad > 0) {
                         <span class="pv-badge">{{ t.cantidad }}</span>
+                        <span class="tramo-pct">{{ t.maxPorcen }}%</span>
                       } @else {
                         <span class="t-muted">—</span>
                       }
@@ -239,6 +250,10 @@ type ViewFilter = "todos" | "bajoCosto" | "conDescuento";
     }
   `,
   styles: [`
+    /* Wider than the shared 1280px — this grid has 12 columns. */
+    .page-body { max-width: 1560px; }
+    .tramo-pct { margin-left: 6px; color: var(--muted); font-weight: 600; font-size: 12px;
+      font-variant-numeric: tabular-nums; }
     .hero-select {
       padding: 9px 14px; border-radius: 10px;
       background: rgba(255,255,255,.18); color: #fff;
@@ -282,8 +297,12 @@ export class PreciosPageComponent implements OnInit {
   readonly drawer = viewChild(PrecioProductoDrawerComponent);
 
   readonly drawerRow = signal<PrecioProductoRowDto | null>(null);
-  bulkAction: "setPrecioNeto" | "setMaxDesc" | "clearMaxDesc" = "setPrecioNeto";
+  bulkAction: BulkUiAction = "setPrecioNeto";
   bulkValor: number | null = null;
+  bulkCantidad: number | null = null;
+  bulkMaxPorcen: number | null = null;
+
+  isTramoAction(): boolean { return this.bulkAction.startsWith("setTramo"); }
 
   readonly viewFilter = signal<ViewFilter>("todos");
   readonly sort = signal<{ key: SortKey; asc: boolean }>({ key: "codSerfel", asc: true });
@@ -401,14 +420,27 @@ export class PreciosPageComponent implements OnInit {
   async onBulk(): Promise<void> {
     const ids = [...this.store.selectedIds()];
     if (ids.length === 0) return;
-    try {
-      await this.store.applyBulk({
-        action: this.bulkAction,
-        valor: this.bulkAction === "clearMaxDesc" ? undefined : Number(this.bulkValor ?? 0),
+    let input: BulkInput;
+    if (this.isTramoAction()) {
+      input = {
+        action: "setTramo",
+        tramo: Number(this.bulkAction.slice("setTramo".length)),
+        cantidad: Number(this.bulkCantidad ?? 0),
+        maxPorcen: Number(this.bulkMaxPorcen ?? 0),
         idProductos: ids,
-      });
+      };
+    } else if (this.bulkAction === "clearMaxDesc") {
+      input = { action: "clearMaxDesc", idProductos: ids };
+    } else {
+      // only setPrecioNeto / setMaxDesc reach here
+      input = { action: this.bulkAction as "setPrecioNeto" | "setMaxDesc", valor: Number(this.bulkValor ?? 0), idProductos: ids };
+    }
+    try {
+      await this.store.applyBulk(input);
       this.toast.show("Cambios aplicados");
       this.bulkValor = null;
+      this.bulkCantidad = null;
+      this.bulkMaxPorcen = null;
     } catch (err) {
       this.store.errorMsg.set(apiError(err)?.message ?? "No se pudo aplicar el cambio.");
     }

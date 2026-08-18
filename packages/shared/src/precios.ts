@@ -44,21 +44,40 @@ export const PrecioProductoInputSchema = z
 export type PrecioProductoInput = z.infer<typeof PrecioProductoInputSchema>;
 
 /** ---- Bulk actions ---- */
-export const BulkActionSchema = z.enum(["setPrecioNeto", "setMaxDesc", "clearMaxDesc"]);
+export const BulkActionSchema = z.enum([
+  "setPrecioNeto", "setMaxDesc", "clearMaxDesc", "setTramo",
+]);
 export type BulkAction = z.infer<typeof BulkActionSchema>;
+
+/** Actions that carry a single scalar `valor`. */
+const VALOR_ACTIONS: BulkAction[] = ["setPrecioNeto", "setMaxDesc"];
 
 export const BulkInputSchema = z
   .object({
     action: BulkActionSchema,
     valor: z.number().int().nonnegative().optional(),
+    tramo: z.number().int().min(1).max(3).optional(),
+    cantidad: z.number().int().nonnegative().optional(),
+    maxPorcen: z.number().int().min(0).max(100).optional(),
     idProductos: z.array(z.number().int().positive()).min(1),
   })
   .superRefine((v, ctx) => {
-    if (v.action !== "clearMaxDesc" && v.valor === undefined) {
+    if (VALOR_ACTIONS.includes(v.action) && v.valor === undefined) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["valor"], message: "valor es requerido" });
     }
     if (v.action === "setMaxDesc" && v.valor !== undefined && v.valor > 100) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["valor"], message: "El descuento máximo es 100" });
+    }
+    if (v.action === "setTramo") {
+      if (v.tramo === undefined) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["tramo"], message: "tramo es requerido" });
+      }
+      if (v.cantidad === undefined) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["cantidad"], message: "cantidad es requerida" });
+      }
+      if (v.maxPorcen === undefined) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["maxPorcen"], message: "maxPorcen es requerido" });
+      }
     }
   });
 export type BulkInput = z.infer<typeof BulkInputSchema>;

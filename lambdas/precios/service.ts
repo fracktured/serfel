@@ -208,12 +208,22 @@ async function writeRow(
     precioNeto?: number;
     maxPorcenDesc?: number;
     tramos?: Tramo[];
+    // Single-tramo patch: touches only that tramo's two columns, preserving the others.
+    tramoPatch?: { index: 1 | 2 | 3; cantidad: number; maxPorcen: number };
   },
 ): Promise<void> {
   const impuestos = await impuestosForProducto(tx, idProducto);
   const precioNeto = patch.precioNeto ?? 0;
   const precio = patch.precioNeto !== undefined ? computePrecioBase(precioNeto, impuestos) : 0;
   const t = patch.tramos;
+  const tp = patch.tramoPatch;
+  // A single-tramo patch expands to its two column overrides, applied to both
+  // the INSERT values and the UPDATE set so the other two tramos survive.
+  const tramoInsert =
+    tp?.index === 1 ? { cantTramo1: tp.cantidad, maxPorcenTramo1: tp.maxPorcen }
+    : tp?.index === 2 ? { cantTramo2: tp.cantidad, maxPorcenTramo2: tp.maxPorcen }
+    : tp?.index === 3 ? { cantTramo3: tp.cantidad, maxPorcenTramo3: tp.maxPorcen }
+    : {};
   // INSERT ... ON DUPLICATE KEY UPDATE — porcen_desc is never in the update set.
   const insertValues = {
     idListaPrecio: idLista,
@@ -225,6 +235,7 @@ async function writeRow(
     cantTramo1: t?.[0].cantidad ?? 0, maxPorcenTramo1: t?.[0].maxPorcen ?? 0,
     cantTramo2: t?.[1].cantidad ?? 0, maxPorcenTramo2: t?.[1].maxPorcen ?? 0,
     cantTramo3: t?.[2].cantidad ?? 0, maxPorcenTramo3: t?.[2].maxPorcen ?? 0,
+    ...tramoInsert,
   };
   const updateSet: Record<string, number> = {};
   if (patch.precioNeto !== undefined) { updateSet.precioNeto = precioNeto; updateSet.precio = precio; }
@@ -234,6 +245,7 @@ async function writeRow(
     updateSet.cantTramo2 = t[1].cantidad; updateSet.maxPorcenTramo2 = t[1].maxPorcen;
     updateSet.cantTramo3 = t[2].cantidad; updateSet.maxPorcenTramo3 = t[2].maxPorcen;
   }
+  if (tp) { Object.assign(updateSet, tramoInsert); }
   await (tx as Db).insert(t40MPrecioProducto).values(insertValues).onDuplicateKeyUpdate({ set: updateSet });
 }
 
@@ -269,6 +281,10 @@ export async function bulkApply(
         await writeRow(tx, idLista, idProducto, { precioNeto: input.valor! });
       } else if (input.action === "setMaxDesc") {
         await writeRow(tx, idLista, idProducto, { maxPorcenDesc: input.valor! });
+      } else if (input.action === "setTramo") {
+        await writeRow(tx, idLista, idProducto, {
+          tramoPatch: { index: input.tramo! as 1 | 2 | 3, cantidad: input.cantidad!, maxPorcen: input.maxPorcen! },
+        });
       } else {
         await writeRow(tx, idLista, idProducto, { maxPorcenDesc: 0 });
       }

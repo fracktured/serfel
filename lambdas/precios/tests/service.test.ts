@@ -116,6 +116,36 @@ describe("grid + pricing writes", () => {
     expect(affected[0].maxPorcenDesc).toBe(0);
   });
 
+  it("bulk setTramo updates the target tramo and preserves the others", async () => {
+    await upsertPrecioProducto(db, LISTA, SEED.prodBarato, {
+      precioNeto: 1000, maxPorcenDesc: 10,
+      tramos: [{ cantidad: 10, maxPorcen: 15 }, { cantidad: 50, maxPorcen: 20 }, { cantidad: 0, maxPorcen: 0 }],
+    });
+    await bulkApply(db, LISTA, {
+      action: "setTramo", tramo: 2, cantidad: 99, maxPorcen: 33, idProductos: [SEED.prodBarato],
+    });
+    const rows = await getGrid(db, LISTA);
+    const barato = rows.find((r) => r.idProducto === SEED.prodBarato)!;
+    expect(barato.tramos[1]).toEqual({ cantidad: 99, maxPorcen: 33 });
+    expect(barato.tramos[0]).toEqual({ cantidad: 10, maxPorcen: 15 });
+    expect(barato.tramos[2]).toEqual({ cantidad: 0, maxPorcen: 0 });
+    // untouched scalar fields survive
+    expect(barato.precioNeto).toBe(1000);
+    expect(barato.maxPorcenDesc).toBe(10);
+  });
+
+  it("bulk setTramo upserts a row for a product not yet in the list", async () => {
+    const FRESH = 51;
+    await seedLista(db, FRESH, "TramoFresh");
+    await bulkApply(db, FRESH, {
+      action: "setTramo", tramo: 1, cantidad: 5, maxPorcen: 12, idProductos: [SEED.prodCaro],
+    });
+    const rows = await getGrid(db, FRESH);
+    const caro = rows.find((r) => r.idProducto === SEED.prodCaro)!;
+    expect(caro.tramos[0]).toEqual({ cantidad: 5, maxPorcen: 12 });
+    expect(caro.precioNeto).toBe(0); // inserted fresh, no price set
+  });
+
   it("getGrid throws LISTA_NO_ENCONTRADA for a missing list", async () => {
     await expect(getGrid(db, 9999)).rejects.toMatchObject({ code: "LISTA_NO_ENCONTRADA" });
   });

@@ -8,6 +8,18 @@ not stopwatch-precise. Newest entries on top.
 
 ---
 
+## 2026-08-18 (Mon) — ~0.75h
+**Precios grid: wider table, tramo % display, tramo bulk edits (shared → lambda → frontend)**
+- Brainstormed → design spec (`docs/superpowers/specs/2026-08-18-precios-component-enhancements-design.md`); implemented TDD
+- **Table**: widened the precios page to `1560px` (component-scoped `.page-body` override; other pages stay 1280px) for its 12-column grid
+- **Tramo display**: each populated tramo cell now shows its `cantidad` pill **plus** the tier's `max_porcen_tramoN` as a muted `%` to the right (empty tiers keep `—`)
+- **Bulk edits (new)**: added per-tramo bulk editing alongside the existing Nuevo Precio / Máx % Desc / Borrar Máx %. Legacy `listPrecioProducto` never had tramo bulk (or even showed tramos), so this is net-new
+  - **Shared** (`precios.ts`): `setTramo` added to `BulkActionSchema`; optional `tramo`/`cantidad`/`maxPorcen` on `BulkInputSchema` with a refine requiring all three (and no `valor`) for `setTramo`
+  - **Lambda** (`precios/service.ts`): `writeRow` gained a `tramoPatch` that writes **only that tramo's two columns** in both INSERT and `onDuplicateKeyUpdate` (other two tiers preserved); `bulkApply` `setTramo` branch. No API Gateway change — reuses the existing `/bulk` route
+  - **Frontend** (`precios-page.component.ts`): bulk-bar gained Tramo 1/2/3; picking one swaps the single value input for two (cant. desde + máx %); `onBulk()` maps `setTramoN → { action:'setTramo', tramo:N, … }`. Renamed first option to **Nuevo Precio**
+- Verified (TDD, tests-first watched-fail): shared spec 10/10 (new `setTramo` validation), lambda vs real MariaDB 14/14 (setTramo preserves other tramos + fresh-row upsert), lambda suite 20/20, typecheck clean, frontend build ok (pre-existing bundle-budget warning only). No live browser drive of the UI bits
+- Commits: 1 on `main` (+ spec doc)
+
 ## 2026-08-18 (Mon) — ~0.25h
 **Precios grid: expose tramos as columns, drop redundant Margen, remove navbar search (frontend-only)**
 - Follow-up tweak to the precios page (`precios-page.component.ts`); no store/API/DB/shared changes
