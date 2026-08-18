@@ -2,14 +2,14 @@ import { describe, it, expect } from "vitest";
 import type { ModuleName } from "@serfel/shared";
 import { NAV_GROUPS, visibleGroups } from "./nav";
 
-const ALL: ModuleName[] = ["productos", "rutas", "usuarios", "ventas", "clientes", "marcas"];
+const ALL: ModuleName[] = ["productos", "rutas", "usuarios", "ventas", "clientes", "marcas", "precios"];
 
 describe("visibleGroups", () => {
   it("admin with every module sees all three groups with expected leaves", () => {
     const groups = visibleGroups(ALL);
     expect(groups.map((g) => g.label)).toEqual(["Mantenedores", "Documentos", "Ventas"]);
     const mantenedores = groups.find((g) => g.label === "Mantenedores")!;
-    expect(mantenedores.children.flatMap((s) => s.children.filter((l) => l.module).map((l) => l.module)).sort()).toEqual(["clientes", "marcas", "productos", "usuarios"]);
+    expect(mantenedores.children.flatMap((s) => s.children.filter((l) => l.module).map((l) => l.module)).sort()).toEqual(["clientes", "marcas", "precios", "productos", "usuarios"]);
   });
 
   it("a user with only productos sees just Mantenedores with one leaf", () => {
@@ -44,6 +44,7 @@ describe("visibleGroups", () => {
       clientes: "/clientes",
       productos: "/productos",
       marcas: "/marcas",
+      precios: "/precios",
       rutas: "/listado-carga",
       ventas: "/prefacturacion",
     });
