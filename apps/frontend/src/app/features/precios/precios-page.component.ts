@@ -10,7 +10,7 @@ import { PrecioProductoDrawerComponent } from "./precio-producto-drawer.componen
 
 type SortKey =
   | "codSerfel" | "nomProducto" | "costoProm" | "precioNeto"
-  | "precioBase" | "maxPorcenDesc" | "margenBase";
+  | "precioBase" | "maxPorcenDesc";
 type ViewFilter = "todos" | "bajoCosto" | "conDescuento";
 
 @Component({
@@ -18,13 +18,7 @@ type ViewFilter = "todos" | "bajoCosto" | "conDescuento";
   standalone: true,
   imports: [FormsModule, DecimalPipe, NavbarComponent, ToastComponent, PrecioProductoDrawerComponent],
   template: `
-    <app-navbar>
-      <div class="header-search">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input type="text" placeholder="Buscar producto…"
-               [ngModel]="store.filter()" (ngModelChange)="onSearch($event)" />
-      </div>
-    </app-navbar>
+    <app-navbar></app-navbar>
 
     <div class="hero">
       <div class="hero-inner">
@@ -156,9 +150,9 @@ type ViewFilter = "todos" | "bajoCosto" | "conDescuento";
                 <th (click)="toggleSort('maxPorcenDesc')" [class.sorted]="sort().key === 'maxPorcenDesc'">
                   Máx% <span class="sort-ind">{{ sortInd('maxPorcenDesc') }}</span>
                 </th>
-                <th (click)="toggleSort('margenBase')" [class.sorted]="sort().key === 'margenBase'">
-                  Margen <span class="sort-ind">{{ sortInd('margenBase') }}</span>
-                </th>
+                <th class="col-static" style="text-align:center">Tramo 1</th>
+                <th class="col-static" style="text-align:center">Tramo 2</th>
+                <th class="col-static" style="text-align:center">Tramo 3</th>
                 <th class="col-static">Precio Venta</th>
                 <th class="col-static" style="width:120px; text-align:center">Acciones</th>
               </tr>
@@ -175,9 +169,15 @@ type ViewFilter = "todos" | "bajoCosto" | "conDescuento";
                   <td>{{ r.precioNeto | number:'1.0-0' }}</td>
                   <td>{{ r.precioBase | number:'1.0-0' }}</td>
                   <td>{{ r.maxPorcenDesc }}%</td>
-                  <td [class.neg]="r.margenBase !== null && r.margenBase <= 0">
-                    {{ r.margenBase === null ? '—' : (r.margenBase + '%') }}
-                  </td>
+                  @for (t of r.tramos; track $index) {
+                    <td style="text-align:center">
+                      @if (t.cantidad > 0) {
+                        <span class="pv-badge">{{ t.cantidad }}</span>
+                      } @else {
+                        <span class="t-muted">—</span>
+                      }
+                    </td>
+                  }
                   <td>
                     <ul class="pv">
                       @for (v of r.preciosVenta; track v.etiqueta) {
@@ -269,8 +269,9 @@ type ViewFilter = "todos" | "bajoCosto" | "conDescuento";
     .neg { color: var(--red); font-weight: 700; }
     ul.pv { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
     ul.pv li { font-size: 12px; font-variant-numeric: tabular-nums; }
-    ul.pv .pv-badge { display: inline-block; min-width: 38px; padding: 1px 7px; border-radius: 999px;
-      background: #eff6ff; color: #2563eb; font-weight: 700; text-align: center; margin-right: 6px; font-size: 11px; }
+    .pv-badge { display: inline-block; min-width: 38px; padding: 1px 7px; border-radius: 999px;
+      background: #eff6ff; color: #2563eb; font-weight: 700; text-align: center; font-size: 11px; }
+    ul.pv .pv-badge { margin-right: 6px; }
     ul.pv em { color: var(--green); font-style: normal; font-weight: 600; }
     ul.pv em.neg { color: var(--red); }
   `],

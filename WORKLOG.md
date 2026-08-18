@@ -8,6 +8,15 @@ not stopwatch-precise. Newest entries on top.
 
 ---
 
+## 2026-08-18 (Mon) — ~0.25h
+**Precios grid: expose tramos as columns, drop redundant Margen, remove navbar search (frontend-only)**
+- Follow-up tweak to the precios page (`precios-page.component.ts`); no store/API/DB/shared changes
+- Removed the **Margen** column (the value already shows per price inside the Precio Venta cell) and its now-unused `margenBase` sort key
+- Added **3 tramo columns** (Tramo 1/2/3) rendering each tier's `cantidad` in the same `pv-badge` pill (muted `—` when the tier is unused); promoted `.pv-badge` from an `ul.pv`-scoped selector to a standalone class so it styles outside the list
+- Removed the navbar `header-search` (the "Buscar Producto" filter under the stats row still covers search)
+- Verified: `tsc --noEmit` clean. No live drive (needs Cognito auth + seeded price data)
+- Commits: 1 on `main`
+
 ## 2026-08-18 (Mon) — ~0.75h
 **Precios UI restyle to match the productos maintainer design system (frontend-only)**
 - Reskinned the `precios` page + drawer to the shared maintainer look so it's consistent with productos; no store/API/DB changes, pricing logic untouched
