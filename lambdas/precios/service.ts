@@ -129,9 +129,9 @@ function impuestosPorcenFor(iva: number, productoImpuesto: number, valores: Map<
 }
 
 function tramosFromRow(pp: {
-  cantTramo1: number; maxPorcenTramo1: number;
-  cantTramo2: number; maxPorcenTramo2: number;
-  cantTramo3: number; maxPorcenTramo3: number;
+  cantTramo1: number | null; maxPorcenTramo1: number | null;
+  cantTramo2: number | null; maxPorcenTramo2: number | null;
+  cantTramo3: number | null; maxPorcenTramo3: number | null;
 } | null): Tramo[] {
   return [
     { cantidad: pp?.cantTramo1 ?? 0, maxPorcen: pp?.maxPorcenTramo1 ?? 0 },
