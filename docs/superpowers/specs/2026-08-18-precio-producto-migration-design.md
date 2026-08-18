@@ -42,8 +42,8 @@ ascending (t1 < t2 < t3). Present in the table and now editable in the new UI.
   it.** Writes leave it at its default (0).
 - Precio Venta is a **multi-value cell** (up to 4 values, each with its margin).
 - Price-list rows and product-pricing rows are **upsert-only**. No
-  Activas/Inactivas toggle, no restore UI. (List DELETE still inactivates via
-  `id_estado=0`, matching legacy *Eliminar Lista*, but there is no restore.)
+  Activas/Inactivas toggle, no restore UI, and **no delete** — lists are only
+  created and renamed (legacy's *Eliminar Lista* is dropped).
 
 ## 1. Architecture (new `precios` vertical slice)
 
@@ -71,7 +71,6 @@ No DB migration — the tramo columns already exist in `schema.ts`
 | GET | `/listas-precio` | List active price lists |
 | POST | `/listas-precio` | Create `{ nombre }` |
 | PATCH | `/listas-precio/:id` | Rename |
-| DELETE | `/listas-precio/:id` | Inactivate (`id_estado=0`) |
 | GET | `/listas-precio/:id/productos` | Grid rows (all active products LEFT JOIN precio_producto, computed) |
 | PATCH | `/listas-precio/:id/productos/:idProducto` | Upsert one product's pricing (drawer save) |
 | POST | `/listas-precio/:id/productos/bulk` | Bulk `{ action, valor, idProductos[] }` |
@@ -103,7 +102,7 @@ preview.
 
 ```
 ┌ Precios ─────────────────────────────────────────────────────┐
-│ Lista: [ Mayoristas ▾ ]  [+ Nueva]  ✎ ⌫                        │
+│ Lista: [ Mayoristas ▾ ]  [+ Nueva]  ✎                          │
 ├───────────────────────────────────────────────────────────────┤
 │ ☐  N   Producto     Costo   Neto   Base  Máx%  Margen  Precio Venta        │
 │ ☐ 102  Aceite 1L    $900   $1.000 $1.190  10%   +11%   1+   $1.071 (+7%)   │
