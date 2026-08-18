@@ -18,8 +18,8 @@ import { PrecioProductoDrawerComponent } from "./precio-producto-drawer.componen
     <div class="hero">
       <div class="hero-inner">
         <div>
-          <h1>Precios de Productos</h1>
-          <p>Gestiona las listas de precio y los precios de venta</p>
+          <h1>Precios y Descuentos</h1>
+          <p>Gestiona las listas de precio, precios de venta y descuentos por volumen</p>
         </div>
         <div class="hero-actions">
           <select [ngModel]="store.selectedListaId()" (ngModelChange)="onSelectLista($event)">
