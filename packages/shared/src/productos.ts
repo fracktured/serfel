@@ -73,7 +73,9 @@ export type ApiErrorCode =
   | "CLIENTE_NO_ENCONTRADO"
   | "CLIENTE_CON_VENTAS_PENDIENTES"
   | "LOCAL_NO_ENCONTRADO"
-  | "MARCA_NO_ENCONTRADA";
+  | "MARCA_NO_ENCONTRADA"
+  | "LISTA_NO_ENCONTRADA"
+  | "PRECIO_PRODUCTO_NO_ENCONTRADO";
 
 export interface ApiErrorBody {
   error: { code: ApiErrorCode; message: string };
