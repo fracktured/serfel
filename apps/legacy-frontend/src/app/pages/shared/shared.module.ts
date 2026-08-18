@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 
 import { MonedaPipe } from 'src/app/pipes/moneda.pipe';
 import { FiltrarPorTextoPipe } from 'src/app/pipes/filtrar-por-texto.pipe';
+import { FechaLocalPipe } from 'src/app/pipes/fecha-local.pipe';
 import { Title } from '@angular/platform-browser';
 import { ModalTimeOutComponent } from './modal-time-out/modal-time-out.component';
 import { ModalConfirmacionComponent } from './modal-confirmacion/modal-confirmacion.component';
@@ -25,6 +26,7 @@ import { FullName } from '@app/pipes/full-nombre.pipe';
     ModalConfirmacionComponent,
     ModalMensajesComponent,
     MonedaPipe,
+    FechaLocalPipe,
     FiltrarPorTextoPipe,
     FullName,
     ClientFullRutPipe,
@@ -39,6 +41,7 @@ import { FullName } from '@app/pipes/full-nombre.pipe';
     SidebarComponent,
     NavbarComponent,
     MonedaPipe,
+    FechaLocalPipe,
     FiltrarPorTextoPipe,
     FullName,
     ClientFullRutPipe,
