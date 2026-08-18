@@ -45,7 +45,7 @@ class XMLDTEEcertChileNEG {
         $oNodoFolio = $oXML->createElement("Folio");
         $oNodoFolio->appendChild($oNodoTXTFolio);
         
-        $oNodoTXTFchEmis = $oXML->createTextNode(FechaUtil::aFechaYMD($dFechaEmis));
+        $oNodoTXTFchEmis = $oXML->createTextNode(FechaUtil::aLocal($dFechaEmis, 'Y-m-d'));
         $oNodoFchEmis = $oXML->createElement("FchEmis");
         $oNodoFchEmis->appendChild($oNodoTXTFchEmis);
         

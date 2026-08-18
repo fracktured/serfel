@@ -173,7 +173,7 @@ class InformeCobranzaCTRL {
                                 <td align="left" style="white-space: nowrap;">' . substr($venta->razon_social_cliente, 0, 32) . '</td>
                                 <td>'.$venta->obtRutCompletoCliente().'</td>
                                 <td>'.$venta->nom_forma_pago.'</td>
-                                <td>'.FechaUtil::aFechaDMY($venta->fecha_venta).'</td>
+                                <td>'.FechaUtil::aLocal($venta->fecha_venta, 'd/m/Y').'</td>
                                 <td align="right">'.getFormatoDineroEntero( $venta->precio_total - $venta->iMontoTotalPago - $venta->iMontoTotalNC ).'</td>
                                 <td class="observaciones"></td>
                             </tr>';

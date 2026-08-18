@@ -64,12 +64,12 @@
     </thead>
     <tbody>
       <tr *ngFor="let porcion of porciones" class="text-center">
-        <th scope="row">{{ porcion.fecha | date : 'dd/MM/yyyy HH:mm' }}</th>
+        <th scope="row">{{ porcion.fecha | fechaLocal : 'dd/MM/yyyy HH:mm' }}</th>
         <td>{{ porcion.grupo }}</td>
         <td>{{ porcion.numero }}</td>
         <td>{{ porcion.cantidad }}</td>
         <td>{{ porcion.venta?.numDoctoEmitido }}</td>
-        <td>{{ porcion.venta?.fechaVenta | date : 'dd/MM/yyyy' }}</td>
+        <td>{{ porcion.venta?.fechaVenta | fechaLocal : 'dd/MM/yyyy' }}</td>
         <td>
           <button class="btn btn-primary" type="button" (click)="modificar(porcion)">
             <i class="bi bi-pencil"></i>

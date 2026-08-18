@@ -24,19 +24,36 @@ class FechaUtil {
 
     /**
      * Retorna fecha en siguiente formato 'yyyy-mm-dd'
-     * 
+     *
      * @param string $fecha
      */
     public static function aFechaDMY($fecha) {
         $dFecha = strtotime($fecha);
-        
+
         return date("d-m-Y", $dFecha);
     }
-    
-    
+
+    /**
+     * Convierte una fecha-hora almacenada en UTC a America/Santiago.
+     * Solo para columnas datetime (con hora); NO usar en columnas date.
+     *
+     * @param string $fechaUtc  Fecha naive en UTC, ej "2026-08-17 12:00:00"
+     * @param string $formato   Formato de salida (default 'd/m/Y H:i')
+     * @return string
+     */
+    public static function aLocal($fechaUtc, $formato = 'd/m/Y H:i') {
+        if (empty($fechaUtc)) {
+            return '';
+        }
+        $dt = new DateTime($fechaUtc, new DateTimeZone('UTC'));
+        $dt->setTimezone(new DateTimeZone('America/Santiago'));
+        return $dt->format($formato);
+    }
+
+
     /**
      * Retorna fecha en formato 'yyyy-mm-dd' para fecha en formato 'dd/mm/yyyy'
-     * 
+     *
      * @param string $cFecha
      * @return string
      */

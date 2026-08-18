@@ -84,7 +84,7 @@ $oModel = CobranzaCTRL::cobranzas();
                 echo    "<td>" . $oRegListVenta->razon_social_cliente . "</td>";
                 echo    "<td>" . $oRegListVenta->nom_forma_pago . "</td>";
                 echo    "<td align='center'>" . $oRegListVenta->num_docto_emitido . "</td>";
-                echo    "<td align='center'>" . FechaUtil::aFechaYMD($oRegListVenta->fecha_venta) . "</td>";
+                echo    "<td align='center'>" . FechaUtil::aLocal($oRegListVenta->fecha_venta, 'Y-m-d') . "</td>";
                 echo    "<td align='right'>" . getFormatoDineroEntero($oRegListVenta->precio_total)  . "</td>";
                 echo    "<td align='right'>" . getFormatoDineroEntero($iMontoPorPagar)  . "</td>";
 

@@ -29,7 +29,7 @@ class XMLNotaDebitoElectronicaNEG extends XMLDTEEcertChileNEG {
             $oNodoFolioRef = $oXML->createElement("FolioRef");
             $oNodoFolioRef->appendChild($oNodoTXTFolioRef);
             
-            $oNodoTXTFchRef = $oXML->createTextNode(FechaUtil::aFechaYMD($oNotaCredito->fecha_nota_credito));
+            $oNodoTXTFchRef = $oXML->createTextNode(FechaUtil::aLocal($oNotaCredito->fecha_nota_credito, 'Y-m-d'));
             $oNodoFchRef = $oXML->createElement("FchRef");
             $oNodoFchRef->appendChild($oNodoTXTFchRef);
             

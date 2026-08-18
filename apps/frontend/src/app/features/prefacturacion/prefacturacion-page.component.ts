@@ -2,13 +2,14 @@ import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from "@a
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { NavbarComponent } from "../../core/navbar.component";
+import { FechaLocalPipe } from "../../shared/fecha-local.pipe";
 import { PrefacturacionStore } from "./prefacturacion-store";
 import type { SortKey } from "./prefacturacion-logic";
 
 @Component({
   selector: "app-prefacturacion-page",
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent],
+  imports: [CommonModule, FormsModule, NavbarComponent, FechaLocalPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-navbar>
@@ -124,7 +125,7 @@ import type { SortKey } from "./prefacturacion-logic";
               @for (p of store.filtered(); track p.idPedido) {
                 <tr>
                   <td class="t-num">{{ p.idPedido }}</td>
-                  <td class="t-muted">{{ p.fecha | date: 'dd/MM/yyyy HH:mm' }}</td>
+                  <td class="t-muted">{{ p.fecha | fechaLocal: 'dd/MM/yyyy HH:mm' }}</td>
                   <td>{{ p.rutCliente }}-{{ p.dvCliente }}</td>
                   <td class="t-name">{{ p.nomFantasia }}</td>
                   <td>{{ p.nomLocal }}</td>
