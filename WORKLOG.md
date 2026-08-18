@@ -8,6 +8,19 @@ not stopwatch-precise. Newest entries on top.
 
 ---
 
+## 2026-08-18 (Mon) — ~4.5h
+**Precio Producto → "Precios y Descuentos": new `precios` vertical slice (shared → lambda → infra → frontend)**
+- Migrated the legacy `listPrecioProducto` module to the new stack and surfaced the volume-discount **tramo** tiers the legacy UI never showed or edited. No `legacy-php` changes; no DB migration (tramo columns already existed on `40_m_precio_producto`)
+- Brainstormed → design spec (+2 revisions on list delete: dropped then restored the inactivate button) → bite-sized plan; executed as 8 subagent SDD tasks with per-task spec+quality reviews and a final whole-branch review (opus, ready-to-merge, no Critical/Important)
+- **Key design decisions**: `40_m_precio_producto.porcen_desc` is a **dead column — never read/written** (discounts derive from `max_porcen_desc` + tramos); pricing math single-sourced in `@serfel/shared` and imported by both the Lambda and the Angular drawer; **Precio Venta as a multi-value cell** (base@max% + one value per set tramo), each with its margin; per-product drawer + preserved legacy bulk actions; under-cost rows flagged red
+- **Shared**: `precios.ts` Zod schemas + DTOs + pure pricing (`computePrecioBase`/`computeMargen`/`computePreciosVenta`/`buildPrecioProductoRow`) + `precios` module in `MODULE_ROLES`
+- **Lambda** `lambdas/precios/`: Lista CRUD (`MAX(id)+1` — `id_lista_precio` is not AUTO_INCREMENT — with reactivate-on-name-reuse), grid (all active products LEFT JOIN precio_producto), per-product upsert (`onDuplicateKeyUpdate`, never touches `porcen_desc`), bulk apply
+- **Infra**: `PreciosFn` + 7 API Gateway routes
+- **Frontend**: api service + signal store; pricing grid with the multi-value Precio Venta cell + red under-cost rows; per-product drawer with live shared-pricing preview + a soft (non-blocking) tramo-% warning; `/precios` route + nav leaf **"Precios y Descuentos"** in Mantenedores → Productos
+- Side-fixes: the new `precios` module rippled to hardcoded admin module-list fixtures — shared `authz`/`rutas`, frontend `nav.spec`, products `getMe`/`/api/me` (3 fixup commits; grep-swept to confirm the full set). Brief-bugs caught in-flight: test-helper seed missing not-null columns; drawer missing `DecimalPipe`
+- Verified: `pnpm -r test` full green (shared 67, db 4, frontend 58, lambdas 184 incl. 18 precios + 9 shared pricing), typecheck clean, frontend build ok
+- Commits: 12 on branch `worktree-precio-producto-migration` (+ spec/plan docs) · merged to `main`
+
 ## 2026-08-17 (Sun) — ~2h
 **Fechas shown in America/Santiago (new frontend + legacy Angular 14 + legacy-php)**
 - Root cause: datetimes are stored as naive UTC strings and passed through verbatim, so every renderer showed the UTC clock digits as local time (3–4h off, DST-dependent). Fix is display-only — storage, form inputs, filters, and the API contract are untouched.
