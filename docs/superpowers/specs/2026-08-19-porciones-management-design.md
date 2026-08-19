@@ -110,7 +110,9 @@ batch"). The physical label of a piece is the `(grupo, numero)` pair.
 - **grupo selection**: default `1`; `maxGrupo = MAX(grupo)` for the product. If a
   piece with `(numero, grupo = maxGrupo)` already exists (Disponible **or**
   Asignado), assign `grupo = maxGrupo + 1`. Each wrap-around thus becomes a new,
-  younger batch.
+  younger batch. **Deliberate deviation:** legacy did `grupo++` from a hardcoded
+  `1`, capping grupo at 1 or 2 (a bug); we use `maxGrupo + 1` so grupo is a true
+  monotonic batch/age counter, matching its intended meaning.
 - On create: `fecha = now()`, `id_usuario` from JWT claim. (No `id_estado` — column
   dropped.)
 
