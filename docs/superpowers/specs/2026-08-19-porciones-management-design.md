@@ -107,10 +107,12 @@ batch"). The physical label of a piece is the `(grupo, numero)` pair.
   piece keeps its `numero` in the table but does NOT block a new available piece —
   it instead drives the grupo bump below. (This replaces legacy's "free among
   ACTIVE" check, since selling a piece used to flip it out of active.)
-- **grupo selection**: default `1`; `maxGrupo = MAX(grupo)` for the product. If a
-  piece with `(numero, grupo = maxGrupo)` already exists (Disponible **or**
-  Asignado), assign `grupo = maxGrupo + 1`. Each wrap-around thus becomes a new,
-  younger batch. **Deliberate deviation:** legacy did `grupo++` from a hardcoded
+- **grupo selection**: `maxGrupo = MAX(grupo)` for the product (`0`/none → grupo
+  `1` for the first piece). If a piece with `(numero, grupo = maxGrupo)` already
+  exists (Disponible **or** Asignado), the label is wrapping into a new batch →
+  `grupo = maxGrupo + 1`; otherwise the new piece joins the current batch →
+  `grupo = maxGrupo`. Each wrap-around thus becomes a new, younger batch, and
+  every piece of the same physical batch shares one grupo. **Deliberate deviation:** legacy did `grupo++` from a hardcoded
   `1`, capping grupo at 1 or 2 (a bug); we use `maxGrupo + 1` so grupo is a true
   monotonic batch/age counter, matching its intended meaning.
 - On create: `fecha = now()`, `id_usuario` from JWT claim. (No `id_estado` — column
