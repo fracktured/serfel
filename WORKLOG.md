@@ -8,6 +8,11 @@ not stopwatch-precise. Newest entries on top.
 
 ---
 
+## 2026-08-19 (Tue) — ~1h
+**Testing: tramo discount tiers in the order-detail modal**
+- Manual + suite testing of the `feature/tramos-descuento-modal-pedido` work (the pre-merge checks that couldn't run in the build env)
+- No commits (verification only)
+
 ## 2026-08-18 (Mon) — ~1.5h
 **Pedidos legacy: discount tramos in the crear/modificar order-detail modal (PHP → Angular 14)**
 - Brainstormed → design spec (`docs/superpowers/specs/2026-08-18-tramos-descuento-modal-pedido-design.md`) + step-by-step plan (`docs/superpowers/plans/…`); executed subagent-driven (fresh implementer + per-task review + final whole-branch review, all clean)
