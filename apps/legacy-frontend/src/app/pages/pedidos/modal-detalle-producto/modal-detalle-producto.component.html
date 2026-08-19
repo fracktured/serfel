@@ -14,7 +14,7 @@
         <div class="col-5">
             <div class="form-group">
                 <label for="lblUnidades">Unidades:</label>
-                <input type="text" [(ngModel)]="producto.cantidad" class="form-control">
+                <input type="text" [(ngModel)]="producto.cantidad" (ngModelChange)="onCantidadChange()" class="form-control">
             </div>
         </div>
         <div class="col-5">
@@ -26,10 +26,23 @@
         <div class="col-2">
             <div class="form-group">
                 <label for="lblUnidades">Eliminar</label><br>
-                <button name="delete" class="btn btn-danger btn-block" (click)="eliminarProductoPedido()"> 
+                <button name="delete" class="btn btn-danger btn-block" (click)="eliminarProductoPedido()">
                     <span class="fa fa-trash" aria-hidden="true">
                     </span>
                 </button>
+            </div>
+        </div>
+    </div>
+    <div class="row" *ngIf="tieneTramos">
+        <div class="col">
+            <div class="alert alert-info py-2 mb-0" role="alert">
+                <div><strong>% Desc máx (aplica): {{ techoEfectivo }}%</strong></div>
+                <div>
+                    <span *ngFor="let t of tramos; let i = index">
+                        <span *ngIf="i > 0"> · </span>
+                        <span [class.font-weight-bold]="tramoActivoCant === t.cant">Desde {{ t.cant }} uds: {{ t.max }}%</span>
+                    </span>
+                </div>
             </div>
         </div>
     </div>
