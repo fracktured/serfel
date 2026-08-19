@@ -8,6 +8,16 @@ not stopwatch-precise. Newest entries on top.
 
 ---
 
+## 2026-08-18 (Mon) — ~1.5h
+**Pedidos legacy: discount tramos in the crear/modificar order-detail modal (PHP → Angular 14)**
+- Brainstormed → design spec (`docs/superpowers/specs/2026-08-18-tramos-descuento-modal-pedido-design.md`) + step-by-step plan (`docs/superpowers/plans/…`); executed subagent-driven (fresh implementer + per-task review + final whole-branch review, all clean)
+- **Data-flow gap found & closed**: the tramo columns were already SELECTed by `PrecioProductoDAO` and held on the POJO, but `PrecioProductoMapper::fromEntityToDTO` dropped them. Backend order-creation does **no** discount validation, so it was left untouched per design (cap lives in the client modal)
+- **Backend PHP** (Serfel `Distribuidor` + Coproad `Coproad`, byte-identical): Mapper now emits `cantTramoN`/`maxPorcenTramoN`; `RegListProductoPedido` POJO + `ProductoPedidoDAO.listProductoPedidoComoRegListProductoPedido` SELECT gained the six tramo columns so the **modify** flow carries them too
+- **Frontend** (`apps/legacy-frontend`): optional tramo fields on `PrecioProductoModel`; new pure, unit-tested `tramos.ts` (`getTechoEfectivo`/`getTramosActivos`/`getTramoActivoCant`) — ceiling = base `maxPorcenDesc` + highest reached ascending active tramo (`cant_tramoN > 0`)
+- **Modal** (`modal-detalle-producto`, shared by crear + modificar): shows active tiers with the quantity-matched tier bold + a "% Desc máx (aplica)" label; on qty change recomputes the ceiling both directions and auto-clamps the typed % **down** only when it drops; Agregar validates against the effective ceiling
+- Verified: `tsc --noEmit` clean for changed files; reviewer hand-traced all 13 tramo assertions. **Pre-merge TODO** (env can't run here): execute Karma `tramos.spec.ts` + manual UI pass on a Node 16 + Chrome host. 3 Minor findings parked (ascending-tramo assumption etc., all outside spec's guaranteed inputs)
+- Commits: 3 on branch `feature/tramos-descuento-modal-pedido` (not merged) · Span: 19:55–20:02 (+ spec/plan docs)
+
 ## 2026-08-18 (Mon) — ~0.75h
 **Precios grid: wider table, tramo % display, tramo bulk edits (shared → lambda → frontend)**
 - Brainstormed → design spec (`docs/superpowers/specs/2026-08-18-precios-component-enhancements-design.md`); implemented TDD
