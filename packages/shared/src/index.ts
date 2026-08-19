@@ -1,4 +1,5 @@
 export * from "./productos";
+export * from "./porciones";
 export * from "./authz";
 export * from "./rutas";
 export * from "./tenant";
