@@ -140,7 +140,7 @@ export async function setupTestDb(
   ]);
   await db.insert(t20MPorcion).values({
     idProducto: SEED.prodLeche, fecha: NOW, grupo: 1, numero: 5, cantidad: "1.000",
-    idVenta: 1, idUsuario: SEED.usuarioAdmin, idEstado: 1,
+    idVenta: 1, idUsuario: SEED.usuarioAdmin,
   });
 
   const pedido = (idPedido: number, idLocalCliente: number, idEstado: number, precioTotal: number) => ({
