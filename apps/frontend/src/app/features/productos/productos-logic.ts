@@ -4,6 +4,7 @@ export interface Filters {
   codigo: string;
   nombre: string;
   idMarca: number | null;
+  usaPorciones: 0 | 1 | null;
   quick: string;
 }
 
@@ -50,6 +51,7 @@ export function applyFilters(rows: ProductoDto[], f: Filters): ProductoDto[] {
     if (codigo && !String(p.codSerfel).includes(codigo)) return false;
     if (nombre && !matchesAllTokens(p.nomProducto, nombre)) return false;
     if (f.idMarca !== null && p.idMarca !== f.idMarca) return false;
+    if (f.usaPorciones !== null && p.usaPorciones !== f.usaPorciones) return false;
     if (
       quick &&
       !matchesAllTokens(p.nomProducto, quick) &&

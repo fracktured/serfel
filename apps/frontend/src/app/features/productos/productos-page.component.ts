@@ -111,6 +111,16 @@ import { brandBadgeStyle, toCsv, type SortKey } from './productos-logic';
           </select>
         </div>
         <div class="fd-field">
+          <label for="f-porc">Porciones</label>
+          <select id="f-porc" style="min-width:150px"
+                  [ngModel]="store.filters().usaPorciones"
+                  (ngModelChange)="store.setFilter({ usaPorciones: $event })">
+            <option [ngValue]="null">Todos</option>
+            <option [ngValue]="1">Porcionados</option>
+            <option [ngValue]="0">No porcionados</option>
+          </select>
+        </div>
+        <div class="fd-field">
           <label for="f-estado">Estado</label>
           <select id="f-estado" [ngModel]="store.estadoFilter()" (ngModelChange)="setEstado($event)">
             <option value="activos">Activos</option>
