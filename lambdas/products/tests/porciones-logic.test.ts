@@ -45,4 +45,8 @@ describe("pickGrupo", () => {
     expect(pickGrupo([{ grupo: 1, numero: 1 }], 1)).toBe(2);
     expect(pickGrupo([{ grupo: 3, numero: 5 }, { grupo: 3, numero: 1 }], 1)).toBe(4);
   });
+  it("stays in the current (max) grupo when the numero is free and maxGrupo > 1", () => {
+    expect(pickGrupo([{ grupo: 2, numero: 1 }], 5)).toBe(2);
+    expect(pickGrupo([{ grupo: 3, numero: 5 }, { grupo: 3, numero: 1 }], 9)).toBe(3);
+  });
 });

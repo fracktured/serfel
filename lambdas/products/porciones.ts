@@ -31,5 +31,5 @@ export function pickGrupo(
   const existsInMax = porciones.some(
     (p) => p.grupo === maxGrupo && p.numero === numero
   );
-  return existsInMax ? maxGrupo + 1 : 1;
+  return existsInMax ? maxGrupo + 1 : maxGrupo;
 }
