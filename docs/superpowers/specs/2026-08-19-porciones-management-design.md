@@ -47,8 +47,7 @@ This derived Disponible/Asignado is the status filter shown to users.
   No soft-delete / Restaurar for porciones.
 - **Drop the `id_estado` column** from `20_m_porcion` — it is redundant under
   hard-delete (rows are always effectively active). The user-facing status filter
-  becomes **Disponible / Asignado**, derived from `id_venta`. In practice a
-  product never exceeds 100 pieces, so numero never actually wraps.
+  becomes **Disponible / Asignado**, derived from `id_venta`.
 
 ## DB migration
 
@@ -94,15 +93,24 @@ catch-all).
 
 Default order: `grupo DESC, numero DESC`, limit 100 (legacy parity).
 
-### Numbering logic (preserved exactly, pure helpers)
+### Numbering & grupo logic (adapted from legacy; `id_estado` ACTIVO → `id_venta`-derived Disponible)
 
-- `nextNumero(porciones)`: `max(numero) + 1`, wrapping to `1` after `100`
-  (i.e. if it would become `101`, reset to `1`). `1` when there are none.
-- `POST` validation: requested `numero` must be **free among the product's
-  existing porciones** → else error `NUMERO_OCUPADO`. (No estado predicate needed:
-  hard-delete means every remaining row is active.)
-- `grupo` selection: default `1`; if the requested `numero` already exists in the
-  current `max(grupo)` for that product, use `maxGrupo + 1`.
+`grupo` is a **batch/age marker**: products routinely exceed 100 pieces, so `numero`
+wraps at 100 and each wrap starts a newer grupo ("that piece is from last week's
+batch"). The physical label of a piece is the `(grupo, numero)` pair.
+
+- `nextNumero(porciones)`: take the top piece ordered by `grupo DESC, numero DESC`,
+  add `1`; wrap to `1` if it would exceed `100`; `1` when there are none. Suggests
+  the next physical label, continuing within the current batch.
+- **Collision (`NUMERO_OCUPADO`)**: the requested `numero` must be free among the
+  product's **Disponible** pieces (`id_venta` NULL or `0`). A **sold** (Asignado)
+  piece keeps its `numero` in the table but does NOT block a new available piece —
+  it instead drives the grupo bump below. (This replaces legacy's "free among
+  ACTIVE" check, since selling a piece used to flip it out of active.)
+- **grupo selection**: default `1`; `maxGrupo = MAX(grupo)` for the product. If a
+  piece with `(numero, grupo = maxGrupo)` already exists (Disponible **or**
+  Asignado), assign `grupo = maxGrupo + 1`. Each wrap-around thus becomes a new,
+  younger batch.
 - On create: `fecha = now()`, `id_usuario` from JWT claim. (No `id_estado` — column
   dropped.)
 
