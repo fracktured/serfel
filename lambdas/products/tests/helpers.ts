@@ -17,6 +17,10 @@ import {
   t10PTipoDocto,
   t70MProveedor,
   t40MListaPrecio,
+  t10MEmpresa,
+  t10MCliente,
+  t10MLocalCliente,
+  t40MVenta,
 } from "@serfel/db";
 
 const ROOT = { host: "127.0.0.1", port: 3307, user: "root", password: "serfel" };
@@ -43,6 +47,9 @@ export const SEED = {
   impHarina: 2,
   tipoDoctoFactura: 1,
   proveedorRut: 76000000,
+  listaPrecioGeneral: 1,
+  clienteRut: 55000000,
+  empresaRut: 88000000,
 } as const;
 
 export async function setupTestDb(
@@ -134,4 +141,35 @@ export async function setupTestDb(
     await c.end();
   };
   return { db, pool, teardown };
+}
+
+/** Inserts one venta (and its FK parents: empresa, cliente, local_cliente, forma_pago). */
+export async function seedVenta(
+  db: Db,
+  opts: { idVenta: number; numDoctoEmitido: number }
+): Promise<void> {
+  await db.insert(t10MEmpresa).values({
+    rutEmpresa: SEED.empresaRut, dvEmpresa: "9", razonSocial: "EMP TEST",
+    nomFantasia: "EmpTest", direccionEmpresa: "-",
+    idUsuarioMod: SEED.idUsuario, ultFechaMod: "2026-01-01 00:00:00", idEstado: 1,
+    giro: "-", codActividadEconomica: 0, comuna: "-", ciudad: "-",
+    rutRepresentanteLegal: 1, dvRepresentanteLegal: "1",
+    fechaAprobacionSii: "2026-01-01", numAprobacionSii: 0,
+  } as never);
+  await db.insert(t10MCliente).values({
+    rutCliente: SEED.clienteRut, dvCliente: "1", razonSocial: "CLI TEST",
+    idUsuarioMod: SEED.idUsuario, ultFechaMod: "2026-01-01 00:00:00", idEstado: 1,
+  } as never);
+  await db.insert(t10MLocalCliente).values({
+    idLocalCliente: 1, rutCliente: SEED.clienteRut, nomLocalCliente: "LOCAL 1",
+    idUsuarioMod: SEED.idUsuario, ultFechaMod: "2026-01-01 00:00:00", idEstado: 1,
+  } as never);
+  await db.insert(t40MVenta).values({
+    idVenta: opts.idVenta, idListaPrecio: SEED.listaPrecioGeneral,
+    idUsuarioVenta: SEED.idUsuario, precioTotal: 1000,
+    numDoctoEmitido: opts.numDoctoEmitido, idTipoDoctoEmitido: SEED.tipoDoctoFactura,
+    rutEmpresa: SEED.empresaRut, rutCliente: SEED.clienteRut, idLocalCliente: 1,
+    fechaVenta: "2026-01-02 00:00:00", idUsuarioMod: SEED.idUsuario,
+    ultFechaMod: "2026-01-02 00:00:00", idEstado: 1,
+  } as never);
 }
