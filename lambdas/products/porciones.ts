@@ -1,5 +1,5 @@
-import { eq, sql } from "drizzle-orm";
-import { t20MPorcion, t40MVenta, type Db } from "@serfel/db";
+import { and, eq, isNull, or, sql } from "drizzle-orm";
+import { t20MPorcion, t20MProducto, t40MVenta, type Db } from "@serfel/db";
 import type {
   PorcionDto,
   PorcionesListDto,
@@ -128,8 +128,33 @@ export async function createPorcion(
   idUsuario: number
 ): Promise<PorcionDto> {
   return db.transaction(async (tx) => {
+    const [producto] = await (tx as Db)
+      .select({ idProducto: t20MProducto.idProducto })
+      .from(t20MProducto)
+      .where(eq(t20MProducto.idProducto, idProducto))
+      .limit(1);
+    if (!producto) {
+      throw new AppError(
+        "PRODUCTO_NO_ENCONTRADO",
+        404,
+        `Producto ${idProducto} no existe`
+      );
+    }
+
     const existing = await rowsForProducto(tx, idProducto);
-    if (numeroOcupado(existing, input.numero)) {
+
+    const [ocupado] = await (tx as Db)
+      .select({ idPorcion: t20MPorcion.idPorcion })
+      .from(t20MPorcion)
+      .where(
+        and(
+          eq(t20MPorcion.idProducto, idProducto),
+          eq(t20MPorcion.numero, input.numero),
+          or(isNull(t20MPorcion.idVenta), eq(t20MPorcion.idVenta, 0))
+        )
+      )
+      .limit(1);
+    if (ocupado) {
       throw new AppError(
         "NUMERO_OCUPADO",
         409,
@@ -146,10 +171,13 @@ export async function createPorcion(
       idVenta: null,
       idUsuario,
     });
-    const [row] = await rowsForProducto(tx, idProducto).then((rows) =>
-      rows.filter((r) => r.idPorcion === header.insertId)
-    );
-    return toDto(row);
+    const [row] = await (tx as Db)
+      .select(porcionColumns)
+      .from(t20MPorcion)
+      .leftJoin(t40MVenta, eq(t20MPorcion.idVenta, t40MVenta.idVenta))
+      .where(eq(t20MPorcion.idPorcion, header.insertId))
+      .limit(1);
+    return toDto(row as PorcionRow);
   });
 }
 

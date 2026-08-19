@@ -42,6 +42,42 @@ describe("createPorcion", () => {
     expect(p.grupo).toBe(2);
     expect(p.disponibilidad).toBe("disponible");
   });
+
+  it("rejects when idProducto does not exist (404)", async () => {
+    await expect(createPorcion(db, 999999, { numero: 1, cantidad: 0.1 }, SEED.idUsuario))
+      .rejects.toMatchObject({ code: "PRODUCTO_NO_ENCONTRADO" });
+  });
+
+  it("catches a disponible collision outside the 100-row window (Finding B regression)", async () => {
+    const IDP2 = 2;
+    await db.insert(t20MProducto).values({
+      idProducto: IDP2, nomProducto: "PAN", descProducto: "", codBarraProducto: "",
+      idTipoProducto: SEED.tipoYogurt, idMarca: SEED.marcaSoprole, idUm: SEED.umUni,
+      idUsuarioMod: SEED.idUsuario, ultFechaMod: "2026-01-01 00:00:00",
+      idEstado: 1, codSerfel: 501, impuesto: 0, usaPorciones: 1,
+    } as never);
+
+    // An older-grupo disponible piece using numero 1.
+    await db.insert(t20MPorcion).values({
+      idProducto: IDP2, fecha: "2026-01-01 00:00:00", grupo: 1, numero: 1,
+      cantidad: "0.5", idVenta: null, idUsuario: SEED.idUsuario,
+    });
+
+    // Fill a newer grupo with 100 rows so the grupo-1 row falls outside the
+    // .limit(100) window ordered by (grupo desc, numero desc).
+    const filler = Array.from({ length: 100 }, (_, i) => ({
+      idProducto: IDP2, fecha: "2026-01-02 00:00:00", grupo: 2, numero: i + 2,
+      cantidad: "0.5", idVenta: null, idUsuario: SEED.idUsuario,
+    }));
+    await db.insert(t20MPorcion).values(filler);
+
+    // Sanity check: the grupo-1/numero-1 row is indeed out of the windowed view.
+    const windowed = await listPorciones(db, IDP2, { disponibilidad: "todas" });
+    expect(windowed.porciones.some((p) => p.grupo === 1 && p.numero === 1)).toBe(false);
+
+    await expect(createPorcion(db, IDP2, { numero: 1, cantidad: 0.2 }, SEED.idUsuario))
+      .rejects.toMatchObject({ code: "NUMERO_OCUPADO" });
+  });
 });
 
 describe("listPorciones", () => {
@@ -61,6 +97,28 @@ describe("listPorciones", () => {
   it("filters by factura (num_docto_emitido)", async () => {
     const res = await listPorciones(db, IDP, { factura: 7777 });
     expect(res.porciones.every((p) => p.numDoctoEmitido === 7777)).toBe(true);
+  });
+
+  it("filters by numero, returning only rows with that numero", async () => {
+    const res = await listPorciones(db, IDP, { numero: 1 });
+    expect(res.porciones.length).toBeGreaterThan(0);
+    expect(res.porciones.every((p) => p.numero === 1)).toBe(true);
+    const other = await listPorciones(db, IDP, { numero: 50 });
+    expect(other.porciones.every((p) => p.numero === 50)).toBe(true);
+  });
+
+  it("computes an exact nextNumero from the top (grupo desc, numero desc) piece", async () => {
+    const IDP3 = 3;
+    await db.insert(t20MProducto).values({
+      idProducto: IDP3, nomProducto: "LECHE", descProducto: "", codBarraProducto: "",
+      idTipoProducto: SEED.tipoYogurt, idMarca: SEED.marcaSoprole, idUm: SEED.umUni,
+      idUsuarioMod: SEED.idUsuario, ultFechaMod: "2026-01-01 00:00:00",
+      idEstado: 1, codSerfel: 502, impuesto: 0, usaPorciones: 1,
+    } as never);
+    const created = await createPorcion(db, IDP3, { numero: 7, cantidad: 0.6 }, SEED.idUsuario);
+    expect(created.numero).toBe(7);
+    const res = await listPorciones(db, IDP3, { disponibilidad: "todas" });
+    expect(res.nextNumero).toBe(8);
   });
 });
 
