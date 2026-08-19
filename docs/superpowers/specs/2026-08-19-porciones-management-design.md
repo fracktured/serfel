@@ -120,9 +120,10 @@ batch"). The physical label of a piece is the `(grupo, numero)` pair.
 
 ### Errors (existing `AppError` shape)
 
-- `NUMERO_OCUPADO` (400) — numero taken by another active porción.
-- `PORCION_VENDIDA` (400) — delete attempted on a porción with `id_venta` set.
-- `NO_ENCONTRADO` (404) — product or porción does not exist.
+- `NUMERO_OCUPADO` (409) — numero taken by another Disponible porción.
+- `PORCION_VENDIDA` (409) — delete attempted on a porción with `id_venta` set.
+- `PRODUCTO_NO_ENCONTRADO` (404) — product does not exist.
+- `PORCION_NO_ENCONTRADA` (404) — porción does not exist.
 - `VALIDACION` (400) — bad input (via Zod).
 - DB unreachable → 503 (existing handler).
 
@@ -130,7 +131,9 @@ batch"). The physical label of a piece is the `(grupo, numero)` pair.
 
 Single source of truth, reused by Lambda and Angular form:
 
-- `PorcionInputSchema` — `{ numero: int >= 1, cantidad: decimal string > 0 }`.
+- `PorcionInputSchema` — `{ numero: int 1..100, cantidad: number > 0, ≤3 decimals }`
+  (`cantidad` travels as a JSON number; the service stringifies it for the
+  `decimal(18,3)` column).
 - `PorcionDto` — porción row plus derived `disponibilidad` and, when Asignado,
   read-only venta info (`idVenta`, `numDoctoEmitido`).
 - `PorcionesListDto` — `{ porciones: PorcionDto[], nextNumero: number }`.
