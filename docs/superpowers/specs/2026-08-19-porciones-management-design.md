@@ -26,10 +26,11 @@ Table `20_m_porcion` (already in `packages/db/src/schema.ts`):
 | `cantidad` | weight of this piece, decimal(18,3) |
 | `id_venta` | nullable; set when the piece is sold |
 | `id_usuario` | creator (from ID-token `custom:id_usuario`) |
-| `id_estado` | always set to activo on create (not used as a filter) |
+| ~~`id_estado`~~ | **being dropped** — redundant under hard-delete (see DB migration) |
 
-**Disponibilidad** is derived, not a stored status:
+**Estado / disponibilidad** is derived from `id_venta`, not a stored status:
 `id_venta` is `0` or `NULL` → **Disponible**; otherwise → **Asignado**.
+This derived Disponible/Asignado is the status filter shown to users.
 
 ## Scope decisions
 
@@ -44,8 +45,25 @@ Table `20_m_porcion` (already in `packages/db/src/schema.ts`):
   via the existing "Es porcionado" checkbox in the product modal.
 - **Hard delete** (matches legacy `remove()`), blocked when `id_venta` is set.
   No soft-delete / Restaurar for porciones.
-- **Estado filter dropped.** Replaced by a **Disponibilidad** filter
-  (Disponible / Asignado) derived from `id_venta`.
+- **Drop the `id_estado` column** from `20_m_porcion` — it is redundant under
+  hard-delete (rows are always effectively active). The user-facing status filter
+  becomes **Disponible / Asignado**, derived from `id_venta`. In practice a
+  product never exceeds 100 pieces, so numero never actually wraps.
+
+## DB migration
+
+Drop the redundant `id_estado` column from `20_m_porcion`:
+
+1. Edit `packages/db/src/schema.ts`: remove `idEstado` from `t20MPorcion` and the
+   `fk_porcion_estado` foreign key.
+2. `pnpm --filter @serfel/db generate` to produce a versioned migration
+   (`ALTER TABLE 20_m_porcion DROP FOREIGN KEY fk_porcion_estado; DROP COLUMN id_estado`).
+3. Deploy (SST) **before** `db:migrate` so the migrate Lambda bundles the new
+   migration.
+
+Verified safe: no application code (only drizzle meta snapshots) references
+`fk_porcion_estado` / the porción `id_estado`. Legacy Node still writes the
+column but is being retired; the drop does not affect Serfel 2.0 reads.
 
 ## Backend
 
@@ -80,11 +98,13 @@ Default order: `grupo DESC, numero DESC`, limit 100 (legacy parity).
 
 - `nextNumero(porciones)`: `max(numero) + 1`, wrapping to `1` after `100`
   (i.e. if it would become `101`, reset to `1`). `1` when there are none.
-- `POST` validation: requested `numero` must be **free among active porciones**
-  for that product → else error `NUMERO_OCUPADO`.
+- `POST` validation: requested `numero` must be **free among the product's
+  existing porciones** → else error `NUMERO_OCUPADO`. (No estado predicate needed:
+  hard-delete means every remaining row is active.)
 - `grupo` selection: default `1`; if the requested `numero` already exists in the
   current `max(grupo)` for that product, use `maxGrupo + 1`.
-- On create: `id_estado = activo`, `fecha = now()`, `id_usuario` from JWT claim.
+- On create: `fecha = now()`, `id_usuario` from JWT claim. (No `id_estado` — column
+  dropped.)
 
 ### Errors (existing `AppError` shape)
 
