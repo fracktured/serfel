@@ -8,6 +8,25 @@ not stopwatch-precise. Newest entries on top.
 
 ---
 
+## 2026-08-19 (Tue) — ~0.5h
+**Pedidos legacy: tramo-discount icon in the product picker modal**
+- Follow-up to the tramos-descuento work: mark products that have quantity tier discounts in `modal-productos` (the crear/modificar product search modal)
+- Brainstormed the placement/icon (chose `fa fa-signal` = rising bars), then added a `tieneTramos()` method reusing the existing unit-tested `getTramosActivos()` helper — `PrecioProductoModel` already carries the `cantTramoN`/`maxPorcenTramoN` fields, so no new data plumbing
+- Icon rendered next to `maxPorcenDesc %` in both the Serfel and Coproad cells, tooltip "Tiene descuentos por tramo"
+- Verified: `tsc --noEmit` clean on the legacy app (visual UI pass still pending a Node 16 + browser host)
+- Commits: 1 on branch `feature/tramo-icon-modal-productos` → merged to `feature/tramos-descuento-modal-pedido` · ~22:30
+
+## 2026-08-19 (Tue) — ~4h
+**Porciones maintainer (Serfel 2.0): per-product piece management**
+- Brainstormed (from the legacy `porcion.service.ts`) → design spec (`docs/superpowers/specs/2026-08-19-porciones-management-design.md`) + step-by-step 10-task plan (`docs/superpowers/plans/…`); executed subagent-driven (fresh implementer + per-task spec/quality review + fix loops + final whole-branch review)
+- **Domain**: a weight-stocked product (e.g. cheese) is cut into numbered physical pieces (`20_m_porcion`). `numero` 1..100 wraps; `grupo` is a monotonic batch/age counter; availability derives from `id_venta` (null/0 = Disponible, else Asignado)
+- **DB**: dropped the redundant `id_estado` column from `20_m_porcion` (migration 0013; also cleaned `relations.ts` + a rutas test seed)
+- **Backend** (folded into the existing `products` lambda, `productos` authz — no new lambda/module): shared Zod schemas/DTOs/error codes; pure numbering helpers; `listPorciones`/`createPorcion`/`deletePorcion` service; 3 Hono routes + API Gateway registration
+- **Frontend**: API client, pure display/query logic, the porciones modal (list/create/delete + numero/factura/disponibilidad filters), a `usa_porciones` table filter, and a per-row Porciones button colored by the flag (green=1, red=0)
+- **Review catches (fixed)**: `pickGrupo` was dumping new pieces into the oldest batch (returned 1 instead of `maxGrupo`); create now 404s on a missing product, checks numero collisions across **all** grupos (not just a 100-row window), and reads the inserted row back by `insertId`
+- Verified: lambda products 68/68, shared 5/5, frontend productos 18/18, typecheck clean (apart from the untracked legacy reference file). 1 parked finding (theoretical create race → suggest a unique index after a data audit); visual UI pass pending
+- Commits: 14 on branch `feature/porciones-management` → merged to `feature/tramos-descuento-modal-pedido` · Span: 15:04–15:42 (+ brainstorm/spec/plan)
+
 ## 2026-08-19 (Tue) — ~1h
 **Testing: tramo discount tiers in the order-detail modal**
 - Manual + suite testing of the `feature/tramos-descuento-modal-pedido` work (the pre-merge checks that couldn't run in the build env)
