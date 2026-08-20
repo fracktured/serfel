@@ -567,14 +567,12 @@ export const t20MPorcion = mysqlTable("20_m_porcion", {
 	cantidad: decimal("cantidad", { precision: 18, scale: 3 }).notNull(),
 	idVenta: int("id_venta"),
 	idUsuario: int("id_usuario").notNull(),
-	idEstado: int("id_estado").notNull(),
 },
 (table) => [
 	primaryKey({ columns: [table.idPorcion], name: "PRIMARY" }),
 	index("fk_porcion_venta").on(table.idVenta),
 	foreignKey({ name: "fk_porcion_producto", columns: [table.idProducto], foreignColumns: [t20MProducto.idProducto] }).onDelete("cascade").onUpdate("restrict"),
 	foreignKey({ name: "fk_porcion_usuario", columns: [table.idUsuario], foreignColumns: [t10MUsuario.idUsuario] }).onDelete("cascade").onUpdate("restrict"),
-	foreignKey({ name: "fk_porcion_estado", columns: [table.idEstado], foreignColumns: [t99PEstado.idEstado] }).onDelete("cascade").onUpdate("restrict"),
 ]);
 
 export const t30MProductoPedido = mysqlTable("30_m_producto_pedido", {

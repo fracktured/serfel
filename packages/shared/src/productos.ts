@@ -75,7 +75,10 @@ export type ApiErrorCode =
   | "LOCAL_NO_ENCONTRADO"
   | "MARCA_NO_ENCONTRADA"
   | "LISTA_NO_ENCONTRADA"
-  | "PRECIO_PRODUCTO_NO_ENCONTRADO";
+  | "PRECIO_PRODUCTO_NO_ENCONTRADO"
+  | "PORCION_NO_ENCONTRADA"
+  | "NUMERO_OCUPADO"
+  | "PORCION_VENDIDA";
 
 export interface ApiErrorBody {
   error: { code: ApiErrorCode; message: string };

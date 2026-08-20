@@ -19,7 +19,7 @@ import {
   type SortKey,
 } from "./productos-logic";
 
-const EMPTY_FILTERS: Filters = { codigo: "", nombre: "", idMarca: null, quick: "" };
+const EMPTY_FILTERS: Filters = { codigo: "", nombre: "", idMarca: null, usaPorciones: null, quick: "" };
 
 /** Extracts the structured API error body, or null for network/unknown errors. */
 export function apiError(err: unknown): ApiErrorBody["error"] | null {

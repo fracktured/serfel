@@ -176,6 +176,9 @@ const productsRoutes = [
   "POST /api/products/{id}/restore",
   "GET /api/products/{id}/detalle",
   "PUT /api/products/{id}/stock",
+  "GET /api/products/{id}/porciones",
+  "POST /api/products/{id}/porciones",
+  "DELETE /api/porciones/{idPorcion}",
 ] as const;
 for (const route of productsRoutes) {
   api.route(route, productsFn.arn, {

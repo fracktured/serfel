@@ -254,3 +254,78 @@ describe("detalle + stock routes", () => {
     }
   });
 });
+
+describe("porciones routes", () => {
+  let idProd: number;
+
+  beforeAll(async () => {
+    await appPromise;
+    const [h] = await db.insert(t20MProducto).values({
+      nomProducto: "APP PORCIONES", descProducto: "", codBarraProducto: "",
+      idTipoProducto: SEED.tipoYogurt, idMarca: SEED.marcaSoprole, idUm: SEED.umUni,
+      idUsuarioMod: SEED.idUsuario, ultFechaMod: "2026-01-01 00:00:00",
+      idEstado: 1, codSerfel: 960, impuesto: 0, usaPorciones: 1, costoProm: "10.00",
+    });
+    idProd = h.insertId;
+  });
+
+  it("GET /api/products/:id/porciones returns { porciones, nextNumero }", async () => {
+    const app = await appPromise;
+    const res = await app.request(`/api/products/${idProd}/porciones`);
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body).toHaveProperty("porciones");
+    expect(body).toHaveProperty("nextNumero");
+    expect(body.porciones).toEqual([]);
+    expect(body.nextNumero).toBe(1);
+  });
+
+  it("POST /api/products/:id/porciones validates the body", async () => {
+    const app = await appPromise;
+    const res = await app.request(`/api/products/${idProd}/porciones`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ numero: 0, cantidad: 1 }),
+    });
+    expect(res.status).toBe(400);
+    expect((await res.json()).error.code).toBe("VALIDACION");
+  });
+
+  it("POST /api/products/:id/porciones creates and GET reflects it", async () => {
+    const app = await appPromise;
+    const created = await app.request(`/api/products/${idProd}/porciones`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ numero: 1, cantidad: 1 }),
+    });
+    expect(created.status).toBe(201);
+    const dto = await created.json();
+    expect(dto.numero).toBe(1);
+    expect(dto.disponibilidad).toBe("disponible");
+
+    const list = await app.request(`/api/products/${idProd}/porciones`);
+    const body = await list.json();
+    expect(body.porciones.some((p: { idPorcion: number }) => p.idPorcion === dto.idPorcion)).toBe(
+      true
+    );
+  });
+
+  it("DELETE /api/porciones/:id 404s on a missing piece", async () => {
+    const app = await appPromise;
+    const res = await app.request("/api/porciones/999999", { method: "DELETE" });
+    expect(res.status).toBe(404);
+    expect((await res.json()).error.code).toBe("PORCION_NO_ENCONTRADA");
+  });
+
+  it("403 PROHIBIDO when a vendedor hits the porciones routes", async () => {
+    const app = await appPromise;
+    currentUser = SEED.idUsuarioVendedor;
+    try {
+      const res = await app.request(`/api/products/${idProd}/porciones`);
+      expect(res.status).toBe(403);
+      expect((await res.json()).error.code).toBe("PROHIBIDO");
+    } finally {
+      currentUser = SEED.idUsuario;
+    }
+  });
+});

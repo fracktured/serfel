@@ -6,6 +6,10 @@ import type {
   ProductoDetalleDto,
   ProductoDto,
   ProductoInput,
+  PorcionDto,
+  PorcionesListDto,
+  PorcionInput,
+  PorcionesQuery,
 } from "@serfel/shared";
 import { environment } from "../../../environments/environment";
 
@@ -39,5 +43,19 @@ export class ProductosApi {
   }
   setStock(id: number, cantidad: number) {
     return this.http.put<ProductoDetalleDto>(`${this.base}/products/${id}/stock`, { cantidad });
+  }
+  listPorciones(idProducto: number, query: PorcionesQuery) {
+    const params: Record<string, string> = {};
+    if (query.numero !== undefined) params["numero"] = String(query.numero);
+    if (query.factura !== undefined) params["factura"] = String(query.factura);
+    if (query.disponibilidad) params["disponibilidad"] = query.disponibilidad;
+    return this.http.get<PorcionesListDto>(
+      `${this.base}/products/${idProducto}/porciones`, { params });
+  }
+  createPorcion(idProducto: number, input: PorcionInput) {
+    return this.http.post<PorcionDto>(`${this.base}/products/${idProducto}/porciones`, input);
+  }
+  deletePorcion(idPorcion: number) {
+    return this.http.delete<{ ok: true }>(`${this.base}/porciones/${idPorcion}`);
   }
 }

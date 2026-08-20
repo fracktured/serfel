@@ -19,7 +19,6 @@ export const t99PEstadoRelations = relations(t99PEstado, ({many}) => ({
 	t10MEmpresas: many(t10MEmpresa),
 	t10MLocalClientes: many(t10MLocalCliente),
 	t10MUsuarios: many(t10MUsuario),
-	t20MPorcions: many(t20MPorcion),
 	t20MProductos: many(t20MProducto),
 	t30MPedidos: many(t30MPedido),
 	t40MNotaCreditos: many(t40MNotaCredito),
@@ -89,10 +88,6 @@ export const t10PTipoUsuarioRelations = relations(t10PTipoUsuario, ({many}) => (
 }));
 
 export const t20MPorcionRelations = relations(t20MPorcion, ({one}) => ({
-	t99PEstado: one(t99PEstado, {
-		fields: [t20MPorcion.idEstado],
-		references: [t99PEstado.idEstado]
-	}),
 	t20MProducto: one(t20MProducto, {
 		fields: [t20MPorcion.idProducto],
 		references: [t20MProducto.idProducto]

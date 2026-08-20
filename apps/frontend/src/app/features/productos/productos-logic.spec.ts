@@ -44,6 +44,16 @@ describe("applyFilters", () => {
     expect(applyFilters(soprole, { ...none, nombre: "165 BATIDO" })).toHaveLength(1);
     expect(applyFilters(soprole, { ...none, nombre: "leche" })).toHaveLength(0);
   });
+  it("filters by usaPorciones when set, ignores it when null", () => {
+    const rows = [
+      { idProducto: 1, usaPorciones: 1, nomProducto: "A", codSerfel: 1, idMarca: 1, nomMarca: "M", idUm: 1, nomUm: "U", idTipoProducto: 1, nomTipoProducto: "T", impuesto: 0, idEstado: 1 },
+      { idProducto: 2, usaPorciones: 0, nomProducto: "B", codSerfel: 2, idMarca: 1, nomMarca: "M", idUm: 1, nomUm: "U", idTipoProducto: 1, nomTipoProducto: "T", impuesto: 0, idEstado: 1 },
+    ] as any;
+    const base = { codigo: "", nombre: "", idMarca: null, quick: "" };
+    expect(applyFilters(rows, { ...base, usaPorciones: 1 }).map((r: any) => r.idProducto)).toEqual([1]);
+    expect(applyFilters(rows, { ...base, usaPorciones: 0 }).map((r: any) => r.idProducto)).toEqual([2]);
+    expect(applyFilters(rows, { ...base, usaPorciones: null }).length).toBe(2);
+  });
 });
 
 describe("sortRows", () => {

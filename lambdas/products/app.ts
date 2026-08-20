@@ -3,6 +3,8 @@ import {
   EstadoFilterSchema,
   ProductoInputSchema,
   StockInputSchema,
+  PorcionInputSchema,
+  PorcionesQuerySchema,
   type ApiErrorBody,
 } from "@serfel/shared";
 import { AppError, isDbUnreachable } from "./errors";
@@ -17,6 +19,7 @@ import {
   setStock,
   updateProduct,
 } from "./service";
+import { listPorciones, createPorcion, deletePorcion } from "./porciones";
 import { requireModule } from "./authz";
 import type { AppDeps, AppEnv } from "./types";
 
@@ -60,6 +63,28 @@ async function parseStockInput(c: Context) {
   return parsed.data;
 }
 
+async function parsePorcionInput(c: Context) {
+  const raw = await c.req.json().catch(() => {
+    throw new AppError("VALIDACION", 400, "El cuerpo debe ser JSON válido");
+  });
+  const parsed = PorcionInputSchema.safeParse(raw);
+  if (!parsed.success) {
+    const detail = parsed.error.issues
+      .map((i) => `${i.path.join(".")}: ${i.message}`)
+      .join("; ");
+    throw new AppError("VALIDACION", 400, detail);
+  }
+  return parsed.data;
+}
+
+function parsePorcionId(c: Context): number {
+  const id = Number(c.req.param("idPorcion"));
+  if (!Number.isInteger(id) || id <= 0) {
+    throw new AppError("VALIDACION", 400, "id de porción inválido");
+  }
+  return id;
+}
+
 export function createApp(deps: AppDeps) {
   const app = new Hono<AppEnv>().basePath("/api");
 
@@ -97,6 +122,7 @@ export function createApp(deps: AppDeps) {
   app.use("/lookups", productos);
   app.use("/products", productos);
   app.use("/products/*", productos);
+  app.use("/porciones/*", productos);
 
   app.get("/me", async (c) =>
     c.json(await getMe(await deps.getDb(), c.get("idUsuario")))
@@ -143,6 +169,31 @@ export function createApp(deps: AppDeps) {
     const id = parseId(c);
     const { cantidad } = await parseStockInput(c);
     return c.json(await setStock(await deps.getDb(), id, cantidad, c.get("idUsuario")));
+  });
+
+  app.get("/products/:id/porciones", async (c) => {
+    const id = parseId(c);
+    const parsed = PorcionesQuerySchema.safeParse({
+      numero: c.req.query("numero"),
+      factura: c.req.query("factura"),
+      disponibilidad: c.req.query("disponibilidad"),
+    });
+    if (!parsed.success) {
+      throw new AppError("VALIDACION", 400, "parámetros de porciones inválidos");
+    }
+    return c.json(await listPorciones(await deps.getDb(), id, parsed.data));
+  });
+
+  app.post("/products/:id/porciones", async (c) => {
+    const id = parseId(c);
+    const input = await parsePorcionInput(c);
+    const dto = await createPorcion(await deps.getDb(), id, input, c.get("idUsuario"));
+    return c.json(dto, 201);
+  });
+
+  app.delete("/porciones/:idPorcion", async (c) => {
+    const idPorcion = parsePorcionId(c);
+    return c.json(await deletePorcion(await deps.getDb(), idPorcion));
   });
 
   return app;

@@ -5,6 +5,7 @@ import { NavbarComponent } from '../../core/navbar.component';
 import { ProductosStore, apiError } from './productos-store';
 import { ProductModalComponent } from './product-modal.component';
 import { ProductDetailModalComponent } from './product-detail-modal.component';
+import { PorcionesModalComponent } from './porciones-modal.component';
 import { ToastComponent } from '../../core/toast.component';
 import { ToastService } from '../../core/toast.service';
 import { brandBadgeStyle, toCsv, type SortKey } from './productos-logic';
@@ -12,7 +13,7 @@ import { brandBadgeStyle, toCsv, type SortKey } from './productos-logic';
 @Component({
   selector: 'app-productos-page',
   standalone: true,
-  imports: [FormsModule, NavbarComponent, ProductModalComponent, ProductDetailModalComponent, ToastComponent],
+  imports: [FormsModule, NavbarComponent, ProductModalComponent, ProductDetailModalComponent, PorcionesModalComponent, ToastComponent],
   template: `
     <app-navbar>
       <div class="header-search">
@@ -111,6 +112,16 @@ import { brandBadgeStyle, toCsv, type SortKey } from './productos-logic';
           </select>
         </div>
         <div class="fd-field">
+          <label for="f-porc">Porciones</label>
+          <select id="f-porc" style="min-width:150px"
+                  [ngModel]="store.filters().usaPorciones"
+                  (ngModelChange)="store.setFilter({ usaPorciones: $event })">
+            <option [ngValue]="null">Todos</option>
+            <option [ngValue]="1">Porcionados</option>
+            <option [ngValue]="0">No porcionados</option>
+          </select>
+        </div>
+        <div class="fd-field">
           <label for="f-estado">Estado</label>
           <select id="f-estado" [ngModel]="store.estadoFilter()" (ngModelChange)="setEstado($event)">
             <option value="activos">Activos</option>
@@ -180,6 +191,12 @@ import { brandBadgeStyle, toCsv, type SortKey } from './productos-logic';
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
                           Eliminar
                         </button>
+                        <button class="t-btn"
+                                [class.t-btn-porc-on]="p.usaPorciones === 1"
+                                [class.t-btn-porc-off]="p.usaPorciones !== 1"
+                                (click)="openPorciones(p)" title="Porciones">
+                          Porciones
+                        </button>
                       } @else {
                         <button class="t-btn t-btn-edit" (click)="restore(p)" title="Restaurar">↩ Restaurar</button>
                       }
@@ -230,6 +247,12 @@ import { brandBadgeStyle, toCsv, type SortKey } from './productos-logic';
         (stockChanged)="onStockChanged()"
         (closed)="detailOpen.set(false)" />
     }
+    @if (porcionesOpen() && porcionesProducto(); as pp) {
+      <app-porciones-modal
+        [idProducto]="pp.idProducto"
+        [nomProducto]="pp.nomProducto"
+        (closed)="porcionesOpen.set(false)" />
+    }
     <app-toast />
   `,
 })
@@ -240,6 +263,8 @@ export class ProductosPageComponent implements OnInit {
   readonly editing = signal<ProductoDto | null>(null);
   readonly detailOpen = signal(false);
   readonly detailId = signal<number | null>(null);
+  readonly porcionesOpen = signal(false);
+  readonly porcionesProducto = signal<ProductoDto | null>(null);
   private modal = viewChild(ProductModalComponent);
 
   ngOnInit(): void {
@@ -298,6 +323,11 @@ export class ProductosPageComponent implements OnInit {
   onStockChanged(): void {
     void this.store.load();
     this.toasts.show('Stock actualizado');
+  }
+
+  openPorciones(p: ProductoDto): void {
+    this.porcionesProducto.set(p);
+    this.porcionesOpen.set(true);
   }
 
   openModal(product: ProductoDto | null): void {
