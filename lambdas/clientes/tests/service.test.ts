@@ -19,6 +19,7 @@ const baseInput = {
   telefono: "+56 9 1111 1111", direccion: "Calle 1", comuna: "Providencia",
   ciudad: "Santiago", email: "uno@serfel.cl", idListaPrecio: SEED.idListaPrecio,
   permiteVentaDeuda: false,
+  bloquearVenta: false,
 };
 
 describe("createCliente", () => {
@@ -58,6 +59,25 @@ describe("updateCliente", () => {
     const dto = await updateCliente(db, 12345678, { ...baseInput, razonSocial: "Comercial Uno Renombrada SpA", permiteVentaDeuda: true }, SEED.idAdmin);
     expect(dto.razonSocial).toBe("Comercial Uno Renombrada SpA");
     expect(dto.permiteVentaDeuda).toBe(true);
+  });
+
+  it("persists and reads back bloquearVenta", async () => {
+    const created = await createCliente(
+      db,
+      { ...baseInput, rut: "8877665-6", razonSocial: "Bloqueo SpA", email: "bloqueo@serfel.cl", bloquearVenta: true },
+      SEED.idAdmin,
+    );
+    expect(created.kind).toBe("created");
+    if (created.kind !== "created") return;
+    expect(created.dto.bloquearVenta).toBe(true);
+
+    const updated = await updateCliente(
+      db,
+      created.dto.rutCliente,
+      { ...baseInput, razonSocial: "Bloqueo SpA", email: "bloqueo@serfel.cl", bloquearVenta: false },
+      SEED.idAdmin,
+    );
+    expect(updated.bloquearVenta).toBe(false);
   });
 
   it("404s CLIENTE_NO_ENCONTRADO for an unknown rut", async () => {

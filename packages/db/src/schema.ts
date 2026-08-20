@@ -255,6 +255,7 @@ export const t10MCliente = mysqlTable("10_m_cliente", {
 	ultFechaMod: datetime("ult_fecha_mod", { mode: 'string'}).notNull(),
 	idEstado: int("id_estado").default(1).notNull(),
 	permiteVentaDeuda: tinyint("permite_venta_deuda").default(0).notNull(),
+	bloquearVenta: tinyint("bloquear_venta").default(0).notNull(),
 },
 (table) => [
 	primaryKey({ columns: [table.rutCliente], name: "PRIMARY" }),

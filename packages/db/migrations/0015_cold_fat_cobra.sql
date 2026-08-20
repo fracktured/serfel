@@ -1,0 +1,1 @@
+ALTER TABLE `10_m_cliente` ADD `bloquear_venta` tinyint DEFAULT 0 NOT NULL;

@@ -33,6 +33,7 @@ const dtoColumns = {
   idListaPrecio: t10MCliente.idListaPrecio,
   nomListaPrecio: t40MListaPrecio.nomListaPrecio,
   permiteVentaDeuda: t10MCliente.permiteVentaDeuda,
+  bloquearVenta: t10MCliente.bloquearVenta,
   idEstado: t10MCliente.idEstado,
 };
 
@@ -40,13 +41,14 @@ type Row = {
   rutCliente: number; dvCliente: string; razonSocial: string; nomFantasia: string;
   telefono: string | null; direccion: string; comuna: string; ciudad: string;
   email: string | null; idListaPrecio: number; nomListaPrecio: string;
-  permiteVentaDeuda: number; idEstado: number;
+  permiteVentaDeuda: number; bloquearVenta: number; idEstado: number;
 };
 
 function toDto(r: Row, dias: number[], ultFactura: number | null, ultNotaCredito: number | null): ClienteDto {
   return {
     ...r,
     permiteVentaDeuda: r.permiteVentaDeuda === 1,
+    bloquearVenta: r.bloquearVenta === 1,
     rut: formatRut(r.rutCliente, r.dvCliente),
     dias, ultFactura, ultNotaCredito,
   };
@@ -216,6 +218,7 @@ function writeValues(input: ClienteUpdateInput, idUsuario: number) {
     emailCliente: input.email,
     idListaPrecio: input.idListaPrecio,
     permiteVentaDeuda: input.permiteVentaDeuda ? 1 : 0,
+    bloquearVenta: input.bloquearVenta ? 1 : 0,
     idUsuarioMod: idUsuario,
     ultFechaMod: nowDateTime(),
   };
