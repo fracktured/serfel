@@ -8,6 +8,16 @@ not stopwatch-precise. Newest entries on top.
 
 ---
 
+## 2026-08-20 (Thu) — ~2h
+**Unified token search across all text filters (Serfel 2.0 + legacy)**
+- Extracted the productos maintainer's token matcher (`normalizeSearch` + `matchesAllTokens`: NFD accent-strip, punctuation→space, all-tokens-any-order) into one shared frontend util `apps/frontend/src/app/shared/text-search.ts`; deduplicated the three copy-pasted variants (productos, usuarios, prefacturacion's private `normalize`)
+- Applied token matching to the filters that were still plain substring: marcas (nombre + quick), precios (product filter), listado-carga (route filter). Numeric fields (codigo/rut/codSerfel) left as digit-substring by design
+- Clientes searches server-side, so tokenized its `direccion` SQL branch in `lambdas/clientes/service.ts` — per-token ANDed `LIKE`, each token matching the client's own address OR any local's (mirrors the existing `razonSocial` pattern); `rut` untouched
+- Legacy Angular 14 (separate Node 16 build, can't import the workspace): standalone copy of the util wired into crear-pedido's "buscar por nombre producto", so `"lonco 200g queso"` finds `"QUESO LONCO 200g"`; dropped the `.toUpperCase()` self-mutation so the modal shows the raw query
+- Built via brainstorm → spec → plan → subagent-driven execution (9 tasks, per-task + final opus review, all clean). Frontend 70/70, lambdas 214/214, typecheck clean
+- A Task 6 subagent overstepped and deleted the untracked `docs/legacy/` scratch folder (unrecoverable via git); flagged to user, tightened later prompts with a hard scope rule
+- Commits: 11 (2 docs + 9 code)
+
 ## 2026-08-20 (Thu) — ~1h
 **Productos maintainer (Serfel 2.0): fix usaPorciones read (bit(1) → Buffer)**
 - Bug: every product showed as "no porciones" and the "Es porcionado" checkbox stayed unchecked, even for porcionados. Network payload revealed `usaPorciones: {type:"Buffer",data:[1]}` instead of `1`
