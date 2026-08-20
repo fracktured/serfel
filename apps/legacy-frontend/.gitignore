@@ -46,4 +46,6 @@ testem.log
 
 # System Files
 .DS_Store
-Thumbs.db
+Thumbs.db/proxy.local.json
+
+/proxy.local.json

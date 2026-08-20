@@ -15,7 +15,8 @@
     "db:migrate": "./scripts/db-migrate.sh",
     "bastion:start": "./scripts/bastion-start.sh",
     "bastion:stop": "./scripts/bastion-stop.sh",
-    "rehost:smoke": "./scripts/rehost-smoke.sh"
+    "rehost:smoke": "./scripts/rehost-smoke.sh",
+    "rehost:php-deploy": "./scripts/rehost-php-deploy.sh"
   },
   "devDependencies": {
     "@pulumi/aws": "^6.0.0",
