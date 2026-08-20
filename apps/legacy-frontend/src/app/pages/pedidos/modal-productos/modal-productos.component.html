@@ -17,8 +17,10 @@
         <tbody>
             <tr *ngFor="let producto of listaProductos; let i = index;" (click)=seleccionarProducto(producto)>
                 <td>{{ producto.codSerfel }} <br> {{ producto.nomProducto }}</td>
-                <td *ngIf="esSerfel">{{ producto.precio | moneda }} <br> {{ producto.maxPorcenDesc }}%</td>
-                <td *ngIf="esCoproad">{{ producto.precioNeto | moneda }} <br> {{ producto.maxPorcenDesc }}%</td>
+                <td *ngIf="esSerfel">{{ producto.precio | moneda }} <br> {{ producto.maxPorcenDesc }}%
+                    <i *ngIf="tieneTramos(producto)" class="fa fa-signal text-primary ml-1" title="Tiene descuentos por tramo"></i></td>
+                <td *ngIf="esCoproad">{{ producto.precioNeto | moneda }} <br> {{ producto.maxPorcenDesc }}%
+                    <i *ngIf="tieneTramos(producto)" class="fa fa-signal text-primary ml-1" title="Tiene descuentos por tramo"></i></td>
                 <td>{{ producto.cantidadStock - producto.cantidadPedida | number }} <br> {{producto.nomMarca}}</td>
             </tr>
         </tbody>

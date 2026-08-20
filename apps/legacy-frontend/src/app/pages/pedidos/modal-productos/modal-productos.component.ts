@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { PrecioProductoModel } from '../../../models/precio-producto.model';
 import { environment } from '@environments/environment';
+import { getTramosActivos } from '../modal-detalle-producto/tramos';
 
 @Component({
   selector: 'app-modal-productos',
@@ -25,6 +26,10 @@ export class ModalProductosComponent implements OnInit {
 
   seleccionarProducto(producto: PrecioProductoModel){
     this.activeModal.close(producto);
+  }
+
+  tieneTramos(producto: PrecioProductoModel): boolean {
+    return getTramosActivos(producto).length > 0;
   }
 
 }
