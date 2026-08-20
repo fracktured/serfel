@@ -29,12 +29,18 @@
             <div *ngIf="listaLocales">
                 <br/>
                 <h4>Clientes</h4>
-                <table class="table table-sm table-striped table-hover">
+                <table class="table table-sm table-hover">
                     <tbody>
-                        <tr *ngFor="let local of listaLocales" (click)="seleccionarLocal(local)">
-                            <td>{{ local.razonSocial }}</td>
-                            <td>{{ local.nomLocalCliente }}</td>
-                        </tr>
+                        <ng-container *ngFor="let local of listaLocales; let i = index">
+                            <tr class="fila-cliente" [class.fila-par]="i % 2 === 0" (click)="seleccionarLocal(local)">
+                                <td>{{ local.razonSocial }}</td>
+                                <td>{{ local.nomLocalCliente }}</td>
+                            </tr>
+                            <tr class="fila-cliente" [class.fila-par]="i % 2 === 0" (click)="seleccionarLocal(local)">
+                                <td>{{ local.direccionLocalCliente }}</td>
+                                <td>{{ local.nomContacto }} {{ local.apellPatContacto }} {{ local.apellMatContacto }}</td>
+                            </tr>
+                        </ng-container>
                     </tbody>
                 </table>
             </div>

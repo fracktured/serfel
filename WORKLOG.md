@@ -9,6 +9,13 @@ not stopwatch-precise. Newest entries on top.
 ---
 
 ## 2026-08-19 (Tue) — ~0.5h
+**Pedidos legacy: dirección + contacto in the client search modal**
+- `modal-busqueda-locales-cliente` results now show `direccionLocalCliente` and the contacto name (`nomContacto` + `apellPatContacto` + `apellMatContacto`), below the razón social / nombre local line
+- Traced the actual JSON keys through `LocalClienteMapper::fromEntityToDTO` (legacy-php) to confirm the camelCase DTO names before wiring the template
+- Each client renders as a two-row block; replaced Bootstrap `table-striped` (which colored the two rows differently) with per-client striping keyed on the `*ngFor` index, and dropped the inter-row border so a client reads as one group
+- Commits: 1
+
+## 2026-08-19 (Tue) — ~0.5h
 **Pedidos legacy: tramo-discount icon in the product picker modal**
 - Follow-up to the tramos-descuento work: mark products that have quantity tier discounts in `modal-productos` (the crear/modificar product search modal)
 - Brainstormed the placement/icon (chose `fa fa-signal` = rising bars), then added a `tieneTramos()` method reusing the existing unit-tested `getTramosActivos()` helper — `PrecioProductoModel` already carries the `cantTramoN`/`maxPorcenTramoN` fields, so no new data plumbing

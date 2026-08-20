@@ -1,0 +1,8 @@
+.fila-par > td {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Segunda fila de cada cliente: sin borde superior para que se lea como un bloque */
+.fila-cliente + .fila-cliente > td {
+  border-top: none;
+}
