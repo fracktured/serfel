@@ -68,14 +68,15 @@ class LocalClienteDAO {
      * @return RegListLocalRuta
      */
     public static function listarPorRut($db, $iRutCliente) {
-        $sql = 
-            "SELECT " . 
-                LocalClienteDAO::COLUMNAS . ", " . 
+        $sql =
+            "SELECT " .
+                LocalClienteDAO::COLUMNAS . ", " .
                 LocalClienteDAO::PEDIDOS . "
             FROM 10_m_local_cliente lc
                 INNER JOIN 10_m_cliente c ON lc.rut_cliente = c.rut_cliente
             WHERE c.rut_cliente = :rut_cliente
             AND c.rut_cliente > 0
+            AND c.bloquear_venta = 0
             AND lc.id_estado = 1";
 
         $stmt = $db->prepare($sql);
@@ -95,13 +96,14 @@ class LocalClienteDAO {
      * @return RegListLocalRuta
      */
     public static function listarPorRazonSocialONombre($db, $palabras) {
-        $sql = 
-            "SELECT " . 
-                LocalClienteDAO::COLUMNAS . ", " . 
+        $sql =
+            "SELECT " .
+                LocalClienteDAO::COLUMNAS . ", " .
                 LocalClienteDAO::PEDIDOS . "
             FROM 10_m_local_cliente lc
                 INNER JOIN 10_m_cliente c ON lc.rut_cliente = c.rut_cliente
             WHERE (upper(c.razon_social) LIKE upper(:palabra) OR upper(lc.nom_local_cliente) LIKE upper(:palabra))
+            AND c.bloquear_venta = 0
             AND lc.id_estado = 1";
         
         $nom_razon = '%';
