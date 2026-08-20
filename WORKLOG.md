@@ -8,6 +8,14 @@ not stopwatch-precise. Newest entries on top.
 
 ---
 
+## 2026-08-20 (Thu) — ~1h
+**Productos maintainer (Serfel 2.0): fix usaPorciones read (bit(1) → Buffer)**
+- Bug: every product showed as "no porciones" and the "Es porcionado" checkbox stayed unchecked, even for porcionados. Network payload revealed `usaPorciones: {type:"Buffer",data:[1]}` instead of `1`
+- Root cause (systematic-debugging): `20_m_producto.usa_porciones` is a real `bit(1)` column; `mysql2` returns `bit` as a Node `Buffer`, not a number. The Drizzle schema *declares* it `tinyint` (drizzle-kit can't parse `bit(1)`), so the runtime value diverged from the type and the frontend's `p.usaPorciones === 1` never matched. It's the only `bit` column in the schema
+- Fix: migration `0014_usa_porciones_tinyint` (`ALTER … MODIFY usa_porciones tinyint(1) NOT NULL`) makes the real column match the schema so mysql2 returns a plain 0/1; no frontend/lambda code change needed. Plain column (no PK/FK) → simple MODIFY, existing `b'0'/b'1'` values cast cleanly
+- Verified: full `@serfel/lambdas` suite 213/213 (products service + porciones-service included) and the `@serfel/db` fresh-migration test pass with `0014` applied; deploy + `db:migrate` against dev/prod pending (bit(1) exists on prod too)
+- Commits: 1
+
 ## 2026-08-19 (Tue) — ~0.5h
 **Pedidos legacy: dirección + contacto in the client search modal**
 - `modal-busqueda-locales-cliente` results now show `direccionLocalCliente` and the contacto name (`nomContacto` + `apellPatContacto` + `apellMatContacto`), below the razón social / nombre local line
