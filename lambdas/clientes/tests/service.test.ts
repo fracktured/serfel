@@ -244,6 +244,11 @@ describe("searchClientes", () => {
     expect(ruts(rows)).toEqual([7000001]);
   });
 
+  it("matches direccion tokens in any order", async () => {
+    const rows = await searchClientes(db, { estado: "activos", direccion: "1200 manquehue" });
+    expect(ruts(rows)).toEqual([7000000]);
+  });
+
   it("ANDs filters across fields", async () => {
     const rows = await searchClientes(db, { estado: "activos", razonSocial: "ferreteria", direccion: "melipilla" });
     expect(ruts(rows)).toEqual([7000001]);
