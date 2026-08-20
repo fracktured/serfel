@@ -4,6 +4,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 import type { ApiErrorBody, CargoTipo, RutaDto } from "@serfel/shared";
 import { ListadoCargaApi } from "./listado-carga-api.service";
 import { allSelected, selectedRutas, toggleSelection } from "./listado-carga-logic";
+import { matchesAllTokens } from "../../shared/text-search";
 
 /** Extracts the structured API error body, or null for network/unknown errors. */
 export function apiError(err: unknown): ApiErrorBody["error"] | null {
@@ -26,9 +27,9 @@ export class ListadoCargaStore {
   readonly nameFilter = signal("");
 
   readonly filteredRutas = computed(() => {
-    const q = this.nameFilter().trim().toLowerCase();
+    const q = this.nameFilter().trim();
     if (!q) return this.rutas();
-    return this.rutas().filter((r) => r.nomRuta.toLowerCase().includes(q));
+    return this.rutas().filter((r) => matchesAllTokens(r.nomRuta, q));
   });
   readonly allChecked = computed(() => allSelected(this.filteredRutas(), this.selected()));
   readonly hasSelection = computed(() => this.selected().size > 0);
