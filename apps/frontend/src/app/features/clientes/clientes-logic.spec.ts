@@ -6,7 +6,7 @@ function c(over: Partial<ClienteDto>): ClienteDto {
   return {
     rutCliente: 1, dvCliente: "9", rut: "1-9", razonSocial: "Alfa SpA", nomFantasia: "Alfa",
     telefono: null, direccion: "Calle 1", comuna: "Prov", ciudad: "Stgo", email: "a@x.cl",
-    idListaPrecio: 1, nomListaPrecio: "Base", permiteVentaDeuda: false, idEstado: 1,
+    idListaPrecio: 1, nomListaPrecio: "Base", permiteVentaDeuda: false, bloquearVenta: false, idEstado: 1,
     dias: [], ultFactura: null, ultNotaCredito: null, ...over,
   };
 }
@@ -36,6 +36,17 @@ describe("computeStats", () => {
     expect(s.total).toBe(2);
     expect(s.listasPrecio).toBe(2);
     expect(s.conDeuda).toBe(1);
+  });
+});
+
+describe("computeStats bloqueados", () => {
+  it("counts bloqueados clients", () => {
+    const all = [
+      c({ bloquearVenta: true }),
+      c({ bloquearVenta: false }),
+      c({ bloquearVenta: true }),
+    ];
+    expect(computeStats(all, all).bloqueados).toBe(2);
   });
 });
 

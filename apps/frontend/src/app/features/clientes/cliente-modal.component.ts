@@ -87,6 +87,12 @@ export type ClienteSavePayload =
                 Permite venta a deuda
               </label>
             </div>
+            <div class="form-field full">
+              <label class="checkbox-row">
+                <input type="checkbox" [(ngModel)]="bloquearVenta" />
+                Bloquear venta
+              </label>
+            </div>
           </div>
           <div class="modal-footer">
             <button class="btn-cancel" (click)="cancel.emit()">Cancelar</button>
@@ -158,7 +164,7 @@ export class ClienteModalComponent implements OnInit {
 
   rut = ""; razonSocial = ""; nomFantasia = "";
   telefono = ""; direccion = ""; comuna = ""; ciudad = ""; email = "";
-  idListaPrecio: number | null = null; permiteVentaDeuda = false;
+  idListaPrecio: number | null = null; permiteVentaDeuda = false; bloquearVenta = false;
 
   readonly errors = signal<FieldErrors>({});
   readonly busy = signal(false);
@@ -181,6 +187,7 @@ export class ClienteModalComponent implements OnInit {
       this.email = this.cliente.email ?? "";
       this.idListaPrecio = this.cliente.idListaPrecio;
       this.permiteVentaDeuda = this.cliente.permiteVentaDeuda;
+      this.bloquearVenta = this.cliente.bloquearVenta;
     } else {
       this.idListaPrecio = this.lookups.listasPrecio[0]?.id ?? null;
     }
@@ -192,6 +199,7 @@ export class ClienteModalComponent implements OnInit {
       telefono: this.telefono.trim() || null, direccion: this.direccion,
       comuna: this.comuna, ciudad: this.ciudad, email: this.email.trim() || null,
       idListaPrecio: this.idListaPrecio, permiteVentaDeuda: this.permiteVentaDeuda,
+      bloquearVenta: this.bloquearVenta,
     };
     if (this.cliente) {
       const parsed = ClienteUpdateSchema.safeParse(common);
