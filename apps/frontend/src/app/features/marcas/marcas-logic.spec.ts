@@ -17,6 +17,20 @@ describe("marcas-logic", () => {
     expect(applyFilters(rows, { nombre: "", quick: "sur" }).map((m) => m.idMarca)).toEqual([3]);
   });
 
+  it("matches nombre tokens in any order", () => {
+    const rows = [
+      { nomMarca: "SOPROLE LIGHT", descMarca: "" } as MarcaDto,
+      { nomMarca: "COLUN", descMarca: "" } as MarcaDto,
+    ];
+    expect(applyFilters(rows, { nombre: "light soprole", quick: "" })).toHaveLength(1);
+  });
+  it("quick matches across nombre + descMarca in any order", () => {
+    const rows = [
+      { nomMarca: "NESTLE", descMarca: "chocolates y leche" } as MarcaDto,
+    ];
+    expect(applyFilters(rows, { nombre: "", quick: "leche nestle" })).toHaveLength(1);
+  });
+
   it("sortRows sorts by nomMarca descending", () => {
     expect(sortRows(rows, { key: "nomMarca", asc: false }).map((m) => m.nomMarca))
       .toEqual(["SOPROLE", "NESTLE", "COLUN"]);
