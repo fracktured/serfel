@@ -1,4 +1,5 @@
 import { ESTADO_ACTIVO, type UsuarioDto } from "@serfel/shared";
+import { matchesAllTokens } from "../../shared/text-search";
 
 export interface Filters {
   nombre: string;
@@ -9,14 +10,6 @@ export interface Filters {
 
 export type SortKey = "rut" | "nombreCompleto" | "nomTipoUsuario" | "emailUsuario" | "numUsuario";
 export interface Sort { key: SortKey; asc: boolean; }
-
-function normalizeSearch(text: string): string {
-  return text.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
-}
-function matchesAllTokens(text: string, query: string): boolean {
-  const haystack = normalizeSearch(text);
-  return normalizeSearch(query).split(" ").filter(Boolean).every((t) => haystack.includes(t));
-}
 
 export function applyFilters(rows: UsuarioDto[], f: Filters): UsuarioDto[] {
   const nombre = f.nombre.trim();

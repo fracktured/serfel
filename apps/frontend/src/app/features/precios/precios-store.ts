@@ -6,6 +6,7 @@ import type {
   PrecioProductoRowDto, PrecioProductoInput, BulkInput,
 } from "@serfel/shared";
 import { PreciosApi } from "./precios-api.service";
+import { matchesAllTokens } from "../../shared/text-search";
 
 export function apiError(err: unknown): ApiErrorBody["error"] | null {
   if (err instanceof HttpErrorResponse && err.error?.error?.code) {
@@ -30,10 +31,10 @@ export class PreciosStore {
     this.listas().find((l) => l.idListaPrecio === this.selectedListaId()) ?? null);
 
   readonly filteredRows = computed(() => {
-    const q = this.filter().trim().toLowerCase();
+    const q = this.filter().trim();
     if (!q) return this.rows();
     return this.rows().filter((r) =>
-      `${r.codSerfel} ${r.nomProducto}`.toLowerCase().includes(q));
+      matchesAllTokens(`${r.codSerfel} ${r.nomProducto}`, q));
   });
 
   async loadListas(): Promise<void> {

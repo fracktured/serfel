@@ -1,4 +1,5 @@
 import { ESTADO_ACTIVO, type ProductoDto } from "@serfel/shared";
+import { matchesAllTokens } from "../../shared/text-search";
 
 export interface Filters {
   codigo: string;
@@ -18,29 +19,6 @@ export type SortKey =
 export interface Sort {
   key: SortKey;
   asc: boolean;
-}
-
-/**
- * Normaliza texto para búsqueda: minúsculas, sin tildes, puntuación → espacio.
- * Así "YOG.BATIDO SOPR 165grs" se compara como "yog batido sopr 165grs".
- */
-function normalizeSearch(text: string): string {
-  return text
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, " ")
-    .trim();
-}
-
-/**
- * true si cada palabra de la consulta aparece como substring en el texto,
- * en cualquier orden (ej. "yog bat 165" matchea "YOG.BATIDO SOPR 165grs").
- */
-function matchesAllTokens(text: string, query: string): boolean {
-  const haystack = normalizeSearch(text);
-  const tokens = normalizeSearch(query).split(" ").filter(Boolean);
-  return tokens.every((t) => haystack.includes(t));
 }
 
 export function applyFilters(rows: ProductoDto[], f: Filters): ProductoDto[] {
