@@ -55,7 +55,7 @@ Issuing an NC **creates** one `40_m_nota_credito` row and one or more
 | NC listing | Included, with a per-row button that fetches fresh PDF links from facturación.cl and opens them in a new tab |
 | Over-credit | Hard-block: no new NC once a venta is fully credited |
 | NC PK | Migrate `40_m_nota_credito.id_nota_credito` to AUTO_INCREMENT (no hand-assigned PKs) |
-| Folio source | New `40_m_folios_electronicos` table holds authorized folio ranges per empresa per doc type (rows set manually for now). Next folio comes from the active `nota_credito` range, not `MAX(id_folio)+1` |
+| Folio source | New `40_m_folios_electronicos` table holds authorized folio ranges per empresa per `id_tipo_docto` (rows set manually for now). Next NC folio comes from the active `id_tipo_docto = 11` range via its `ult_folio` high-water mark, not `MAX(id_folio)+1` |
 
 ## Architecture & components
 
@@ -105,7 +105,8 @@ The `notas-credito` lambda invokes `facturacion-emisor` via the Lambda SDK
    - Build flat file → invoke emisor `procesar`.
    - **Success:** update NC → `es_nota_cred_electronica = 1`,
      `id_tipo_docto_emitido = 11`, store folio + PDF URLs, estado finalizado;
-     restitute stock per rules.
+     bump `40_m_folios_electronicos.ult_folio` to the used folio; restitute stock
+     per rules.
    - **Failure/timeout:** NC stays *pendiente* (retryable). Retry re-sends the
      **same** folio (never re-inserts) → no double-emit, no folio gaps.
 4. `40_m_venta` / `40_m_producto_venta` never modified.
@@ -150,21 +151,27 @@ document type. Rows are inserted **manually** by the operator for now.
 | `id` | int AUTO_INCREMENT PK | |
 | `fecha_creacion` | datetime | when the range was registered |
 | `rut_empresa` | int | owning empresa |
+| `id_tipo_docto` | int | internal `10_p_tipo_docto` code: `9` = Factura Electrónica, `11` = Nota Crédito Electrónica (only these two for now) |
 | `folio_desde` | int | first authorized folio in the range |
 | `folio_hasta` | int | last authorized folio in the range |
-| `factura` | tinyint | 1 if this range serves Facturas |
-| `nota_credito` | tinyint | 1 if this range serves Notas de Crédito |
-| `nota_debito` | tinyint | 1 if this range serves Notas de Débito |
+| `ult_folio` | int | last folio **successfully processed** by facturación.cl in this range (high-water mark) |
 
 **Next-folio resolution (NC):** for the target `rut_empresa`, select the active
-range row where `nota_credito = 1`. Next folio =
-`max(folio_desde, (last NC folio used within [folio_desde, folio_hasta]) + 1)`.
-If the result exceeds `folio_hasta` → range exhausted, return an actionable error
-(operator must register a new range row). Done inside the emit transaction so a
-folio is reserved atomically with the NC insert.
+range row where `id_tipo_docto = 11`. Next folio =
+`max(folio_desde, ult_folio + 1, (max id_folio among existing NC rows for this
+empresa within [folio_desde, folio_hasta]) + 1)`. The third term covers folios
+already reserved by *pendiente* NCs that have not yet bumped `ult_folio`. If the
+result exceeds `folio_hasta` → range exhausted, return an actionable error
+(operator registers a new range row).
 
-The `factura` / `nota_debito` flags exist so the same table can serve those
-document types later; this module only reads `nota_credito` ranges.
+**`ult_folio` is bumped only on successful `procesar`** (its definition), in the
+same update that marks the NC electrónica. A failed emit leaves `ult_folio`
+unchanged; the *pendiente* NC keeps its reserved folio on its own row, and a retry
+re-uses that stored `id_folio` rather than recomputing — so no double-emit and no
+folio gaps.
+
+The `id_tipo_docto = 9` rows exist so the same table can serve Factura Electrónica
+emission later; this module only reads `id_tipo_docto = 11` ranges.
 
 ## Secrets
 
