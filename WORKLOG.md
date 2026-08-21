@@ -8,6 +8,16 @@ not stopwatch-precise. Newest entries on top.
 
 ---
 
+## 2026-08-21 (Fri) — ~0.75h
+**Fix: clientes lambda ERROR_INTERNO on dev (bloquear_venta column never migrated)**
+- Symptom: every clientes request on dev returned `{"error":{"code":"ERROR_INTERNO"}}` with no usable log reason. The `onError` handler (`lambdas/clientes/app.ts:47`) logs only `err.message`/`err.code` and drops the mysql2 cause, so the failure surfaced as `code: undefined`
+- Root cause (systematic-debugging via CloudWatch): the deployed clientes query selected `10_m_cliente.bloquear_venta`, a column that didn't exist in the dev DB → `ER_BAD_FIELD_ERROR` on *every* `SELECT` against the table. Migration `0015` was present in the deployed migrate-lambda bundle yet `db:migrate` kept returning `migrationsInJournalTable: 15` and never ran the `ALTER`
+- Real cause: **Drizzle journal timestamp desync**. The mysql2 migrator compares each pending migration only against the single most-recently-applied one (`… order by created_at desc limit 1`). `0015`'s auto-generated `when` (1787261201781) was ~18.5h *earlier* than `0014`'s hand-rounded `when` (1787328000000), so Drizzle judged it already applied and silently skipped it
+- Fix: bumped `0015`'s `when` to `1787328000001` in `packages/db/migrations/meta/_journal.json` (whens now strictly monotonic) → `sst deploy --stage dev` to re-bundle the journal → migrate lambda now reports `16`, column created
+- Verified end-to-end: invoked live `serfel-dev-clientes` for `GET /api/clientes?estado=activos` → `200` with real client rows. Also fast-forwarded local `main` (was one merge behind `origin/main`)
+- Prod-relevant: prod will hit the identical skip when it deploys `0015`; the journal fix protects it. Saved gotcha to memory (`drizzle-journal-timestamp-skip`)
+- Commits: 1 (journal fix)
+
 ## 2026-08-20 (Thu) — ~2h
 **bloquear_venta: block sales to flagged clients (Serfel + Coproad)**
 - New `bloquear_venta` flag on `10_m_cliente` (stored `tinyint`, boolean only at the DTO boundary — mirrors `permite_venta_deuda` line-for-line). When set, the client's locales vanish from the legacy pedidos "buscar cliente" search, so vendors can't create pedidos for them
