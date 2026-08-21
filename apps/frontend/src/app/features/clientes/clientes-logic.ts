@@ -49,5 +49,6 @@ export function computeStats(all: ClienteDto[], filtered: ClienteDto[]) {
     total: all.length,
     listasPrecio: new Set(all.map((r) => r.idListaPrecio)).size,
     conDeuda: all.filter((r) => r.permiteVentaDeuda).length,
+    bloqueados: all.filter((r) => r.bloquearVenta).length,
   };
 }

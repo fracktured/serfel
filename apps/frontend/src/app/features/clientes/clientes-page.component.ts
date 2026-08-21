@@ -47,6 +47,9 @@ import { toCsv, WEEKDAYS, type SortKey } from "./clientes-logic";
         <div class="stat-card"><div class="stat-icon-wrap" style="background:linear-gradient(135deg,#fef3c7,#fde68a)">
           <svg viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
           <div><div class="stat-num" style="color:#d97706">{{ store.stats().conDeuda }}</div><div class="stat-lbl">Con venta a deuda</div></div></div>
+        <div class="stat-card"><div class="stat-icon-wrap" style="background:linear-gradient(135deg,#fee2e2,#fecaca)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#b91c1c" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M4.9 4.9l14.2 14.2"/></svg></div>
+          <div><div class="stat-num" style="color:#b91c1c">{{ store.stats().bloqueados }}</div><div class="stat-lbl">Bloqueados</div></div></div>
       </div>
 
       <div class="filter-dropdowns">
@@ -96,7 +99,9 @@ import { toCsv, WEEKDAYS, type SortKey } from "./clientes-logic";
               @for (cli of store.paged().slice; track cli.rutCliente) {
                 <tr>
                   <td class="t-num">{{ cli.rut }}</td>
-                  <td class="t-name">{{ cli.razonSocial }}<br /><span class="t-muted">{{ cli.nomFantasia }}</span></td>
+                  <td class="t-name">{{ cli.razonSocial }}
+                    @if (cli.bloquearVenta) { <span class="badge-bloqueado" title="Venta bloqueada">Bloqueado</span> }
+                    <br /><span class="t-muted">{{ cli.nomFantasia }}</span></td>
                   @for (w of weekdays; track w.dia) {
                     <td style="text-align:center">
                       @if (cli.dias.includes(w.dia)) {
@@ -154,6 +159,12 @@ import { toCsv, WEEKDAYS, type SortKey } from "./clientes-logic";
     }
     <app-toast />
   `,
+  styles: [`
+    .badge-bloqueado {
+      display: inline-block; font-size: 11px; padding: 1px 6px; border-radius: 8px;
+      background: #fee2e2; color: #b91c1c; margin-left: 6px;
+    }
+  `],
 })
 export class ClientesPageComponent implements OnInit {
   readonly store = inject(ClientesStore);
@@ -189,6 +200,7 @@ export class ClientesPageComponent implements OnInit {
       razonSocial: cli.razonSocial, nomFantasia: cli.nomFantasia, telefono: cli.telefono,
       direccion: cli.direccion, comuna: cli.comuna, ciudad: cli.ciudad, email: cli.email,
       idListaPrecio: cli.idListaPrecio, permiteVentaDeuda: cli.permiteVentaDeuda,
+      bloquearVenta: cli.bloquearVenta,
     };
   }
 

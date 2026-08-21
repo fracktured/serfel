@@ -16,6 +16,7 @@ const clienteBase = {
   email: z.string().trim().email().max(50).nullable().default(null),
   idListaPrecio: z.number().int().positive(),
   permiteVentaDeuda: z.boolean().default(false),
+  bloquearVenta: z.boolean().default(false),
 };
 
 export const ClienteCreateSchema = z.object({
@@ -41,6 +42,7 @@ export interface ClienteDto {
   idListaPrecio: number;
   nomListaPrecio: string;
   permiteVentaDeuda: boolean;
+  bloquearVenta: boolean;
   idEstado: number;
   dias: number[];            // present route weekdays (num_dia 1..5)
   ultFactura: number | null;

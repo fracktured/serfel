@@ -9,6 +9,16 @@ not stopwatch-precise. Newest entries on top.
 ---
 
 ## 2026-08-20 (Thu) — ~2h
+**bloquear_venta: block sales to flagged clients (Serfel + Coproad)**
+- New `bloquear_venta` flag on `10_m_cliente` (stored `tinyint`, boolean only at the DTO boundary — mirrors `permite_venta_deuda` line-for-line). When set, the client's locales vanish from the legacy pedidos "buscar cliente" search, so vendors can't create pedidos for them
+- Brainstormed → design spec (`docs/superpowers/specs/2026-08-20-bloquear-venta-cliente-design.md`) → 4-task plan (`docs/superpowers/plans/…`); executed subagent-driven (fresh implementer + per-task spec/quality review, final whole-branch review on opus — clean)
+- **Backend** (Task 1): schema column + drizzle migration `0015`, `@serfel/shared` Zod/DTO field, clientes lambda read (`=== 1`) + write (`? 1 : 0` via shared `writeValues`, so create/update/activate all inherit it)
+- **Serfel 2.0 maintainer** (Task 2): editable "Bloquear venta" checkbox in the client modal, additive "Bloqueado" list badge (blocked clients stay visible to un-block), a `bloqueados` stat + stats card
+- **Legacy filter** (Task 3): `AND c.bloquear_venta = 0` in all four search DAO methods (`listarPorRut` + `listarPorRazonSocialONombre` × Distribuidor + Coproad) — the single enforcement chokepoint; blocked clients are silently absent
+- **Coproad schema** (Task 4): `dump/` is gitignored (large data dumps), so the coproad `legacy-schema.sql` column edit stays a local reference; the column is applied at deploy via a live `ALTER TABLE`. Coproad has no edit UI (filter-only); its flag is set in the DB. Caught + reverted an implementer's force-add of the gitignored dump
+- Verified: `@serfel/shared` 73/73, clientes lambda 50/50, frontend clientes 8/8, `tsc --noEmit` clean. Legacy PHP has no test harness
+- Deploy follow-ups (pending): `sst deploy` **before** `db:migrate`; coproad live `ALTER`; manual legacy PHP Fargate rebuild (not built in CI)
+- Commits: 3 on `feature/bloquear-venta-cliente`
 **Unified token search across all text filters (Serfel 2.0 + legacy)**
 - Extracted the productos maintainer's token matcher (`normalizeSearch` + `matchesAllTokens`: NFD accent-strip, punctuation→space, all-tokens-any-order) into one shared frontend util `apps/frontend/src/app/shared/text-search.ts`; deduplicated the three copy-pasted variants (productos, usuarios, prefacturacion's private `normalize`)
 - Applied token matching to the filters that were still plain substring: marcas (nombre + quick), precios (product filter), listado-carga (route filter). Numeric fields (codigo/rut/codSerfel) left as digit-substring by design

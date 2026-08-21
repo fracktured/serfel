@@ -31,7 +31,7 @@ function postJson(body: unknown) {
 const validCreate = {
   rut: "12345678-5", razonSocial: "Comercial Uno SpA", nomFantasia: "Uno",
   telefono: "111", direccion: "Calle 1", comuna: "Prov", ciudad: "Stgo",
-  email: "uno@serfel.cl", idListaPrecio: 1, permiteVentaDeuda: false,
+  email: "uno@serfel.cl", idListaPrecio: 1, permiteVentaDeuda: false, bloquearVenta: false,
 };
 const validLocal = {
   nombre: "Sucursal Centro", direccion: "Av. Siempre Viva 123", idVendedor: 1, idFormaPago: 1,
