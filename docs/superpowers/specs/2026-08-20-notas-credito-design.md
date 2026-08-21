@@ -54,7 +54,8 @@ Issuing an NC **creates** one `40_m_nota_credito` row and one or more
 | Correction codes | `CodRef 1` (anular total) and `CodRef 3` (corrige montos, partial qty/value). `CodRef 2` (corrige texto) out of scope |
 | NC listing | Included, with a per-row button that fetches fresh PDF links from facturación.cl and opens them in a new tab |
 | Over-credit | Hard-block: no new NC once a venta is fully credited |
-| NC PK | Migrate `40_m_nota_credito.id_nota_credito` to AUTO_INCREMENT (no hand-assigned PKs); folio remains a per-empresa `MAX+1` document sequence |
+| NC PK | Migrate `40_m_nota_credito.id_nota_credito` to AUTO_INCREMENT (no hand-assigned PKs) |
+| Folio source | New `40_m_folios_electronicos` table holds authorized folio ranges per empresa per doc type (rows set manually for now). Next folio comes from the active `nota_credito` range, not `MAX(id_folio)+1` |
 
 ## Architecture & components
 
@@ -97,8 +98,9 @@ The `notas-credito` lambda invokes `facturacion-emisor` via the Lambda SDK
    Frontend previews totals via the shared calc.
 3. **Emit** (single request):
    - Re-validate server-side; recompute totals from NC lines only.
+   - Resolve the next folio from `40_m_folios_electronicos` (see below).
    - `INSERT 40_m_nota_credito` (`id_estado = pendiente`, `es_nota_cred_electronica = 0`,
-     `id_folio = MAX(id_folio)+1 WHERE rut_empresa`) + `40_m_prod_nota_credito` rows.
+     `id_folio = <next folio>`) + `40_m_prod_nota_credito` rows.
      **Commit** — folio reserved, NC durable.
    - Build flat file → invoke emisor `procesar`.
    - **Success:** update NC → `es_nota_cred_electronica = 1`,
@@ -138,6 +140,32 @@ Emisor base64-encodes and sends via `GET /wsds/procesar?file=<b64>&formato=1&inc
   `obtenerlink` (login → `/wsds/obtenerlink` or `/wsds/obtenerpdf`) → returns fresh
   URL(s); frontend opens in a new tab.
 
+## Folio management — `40_m_folios_electronicos`
+
+New table, a manual registry of authorized folio ranges (CAF) per empresa per
+document type. Rows are inserted **manually** by the operator for now.
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | int AUTO_INCREMENT PK | |
+| `fecha_creacion` | datetime | when the range was registered |
+| `rut_empresa` | int | owning empresa |
+| `folio_desde` | int | first authorized folio in the range |
+| `folio_hasta` | int | last authorized folio in the range |
+| `factura` | tinyint | 1 if this range serves Facturas |
+| `nota_credito` | tinyint | 1 if this range serves Notas de Crédito |
+| `nota_debito` | tinyint | 1 if this range serves Notas de Débito |
+
+**Next-folio resolution (NC):** for the target `rut_empresa`, select the active
+range row where `nota_credito = 1`. Next folio =
+`max(folio_desde, (last NC folio used within [folio_desde, folio_hasta]) + 1)`.
+If the result exceeds `folio_hasta` → range exhausted, return an actionable error
+(operator must register a new range row). Done inside the emit transaction so a
+folio is reserved atomically with the NC insert.
+
+The `factura` / `nota_debito` flags exist so the same table can serve those
+document types later; this module only reads `nota_credito` ranges.
+
 ## Secrets
 
 One Secrets Manager secret, JSON keyed by empresa rut
@@ -149,7 +177,9 @@ following the `aws-secrets-manager` skill. **Rotate** the leaked PRD passwords.
 
 - **Migration:** `40_m_nota_credito.id_nota_credito` → AUTO_INCREMENT (drizzle
   generate). Watch the FK-parent (1834/1452) and id=0 (1062) traps documented for
-  prior ALTER-to-autoincrement work. Folio stays per-empresa `MAX+1`.
+  prior ALTER-to-autoincrement work.
+- **Migration:** create `40_m_folios_electronicos` (see Folio management). Add to
+  `packages/db/src/schema.ts` + drizzle generate. No seed data — rows added manually.
 - **`infra/api.ts`:** register `notas-credito` routes in the explicit route array
   (else CORS 404); add the non-VPC `facturacion-emisor` lambda + InvokeFunction grant.
 - **Module/authz:** add `notas_credito` to `MODULE_ROLES` + `moduleGuard`. Update the
@@ -171,3 +201,11 @@ store PDF links, NC listing with PDF button, over-credit block.
 
 **Out:** notas de débito, compra NCs (`_compra` tables), corrige texto (`CodRef 2`),
 emitting the original factura electrónica (targets remain legacy-migrated data).
+
+## Follow-ups (separate from this module)
+
+- **Rotate leaked facturación.cl PRD passwords.** The credentials for SERFEL
+  (`8030856-6`), serfel2 (`8367020-7`), and COPROAD (`76770842-4`) are committed in
+  plaintext in `legacy-php/Distribuidor/Clases/WS/FacturacionClWSCredenciales.php`.
+  Rotate at facturación.cl, store the new values only in Secrets Manager, and scrub
+  the legacy file. Track independently of the NC module rollout.
