@@ -1,18 +1,16 @@
 import type { MarcaDto } from "@serfel/shared";
+import { matchesAllTokens } from "../../shared/text-search";
 
 export type SortKey = "nomMarca" | "descMarca";
 export interface Sort { key: SortKey; asc: boolean }
 export interface Filters { nombre: string; quick: string }
 
 export function applyFilters(rows: MarcaDto[], f: Filters): MarcaDto[] {
-  const nombre = f.nombre.trim().toLowerCase();
-  const quick = f.quick.trim().toLowerCase();
+  const nombre = f.nombre.trim();
+  const quick = f.quick.trim();
   return rows.filter((r) => {
-    if (nombre && !r.nomMarca.toLowerCase().includes(nombre)) return false;
-    if (quick) {
-      const hay = `${r.nomMarca} ${r.descMarca}`.toLowerCase();
-      if (!hay.includes(quick)) return false;
-    }
+    if (nombre && !matchesAllTokens(r.nomMarca, nombre)) return false;
+    if (quick && !matchesAllTokens(`${r.nomMarca} ${r.descMarca}`, quick)) return false;
     return true;
   });
 }

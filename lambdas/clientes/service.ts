@@ -127,15 +127,17 @@ function buildClienteWhere(db: DbOrTx, params: ClienteSearchParams) {
     }
   }
   if (params.direccion) {
-    const pat = `%${params.direccion}%`;
-    const localMatch = (db as Db)
-      .select({ x: sql`1` })
-      .from(t10MLocalCliente)
-      .where(and(
-        eq(t10MLocalCliente.rutCliente, t10MCliente.rutCliente),
-        like(t10MLocalCliente.direccionLocalCliente, pat),
-      ));
-    conds.push(or(like(t10MCliente.direccionCliente, pat), exists(localMatch)));
+    for (const tok of params.direccion.split(/\s+/).filter(Boolean)) {
+      const pat = `%${tok}%`;
+      const localMatch = (db as Db)
+        .select({ x: sql`1` })
+        .from(t10MLocalCliente)
+        .where(and(
+          eq(t10MLocalCliente.rutCliente, t10MCliente.rutCliente),
+          like(t10MLocalCliente.direccionLocalCliente, pat),
+        ));
+      conds.push(or(like(t10MCliente.direccionCliente, pat), exists(localMatch)));
+    }
   }
   return conds.length ? and(...conds) : undefined;
 }

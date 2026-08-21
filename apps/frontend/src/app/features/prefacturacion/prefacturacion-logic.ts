@@ -1,4 +1,5 @@
 import type { PedidoPendienteDto } from "@serfel/shared";
+import { normalizeSearch } from "../../shared/text-search";
 
 export type SortKey = "idPedido" | "fecha" | "rutCliente" | "nomFantasia" | "nomLocal" | "contacto" | "vendedor" | "precioTotal";
 
@@ -7,15 +8,11 @@ export interface Sort {
   asc: boolean;
 }
 
-function normalize(text: string): string {
-  return text.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
-}
-
 export function applyFilter(rows: PedidoPendienteDto[], query: string): PedidoPendienteDto[] {
-  const tokens = normalize(query).split(" ").filter(Boolean);
+  const tokens = normalizeSearch(query).split(" ").filter(Boolean);
   if (tokens.length === 0) return rows;
   return rows.filter((r) => {
-    const haystack = normalize(`${r.idPedido} ${r.rutCliente} ${r.nomFantasia} ${r.nomLocal} ${r.contacto} ${r.vendedor}`);
+    const haystack = normalizeSearch(`${r.idPedido} ${r.rutCliente} ${r.nomFantasia} ${r.nomLocal} ${r.contacto} ${r.vendedor}`);
     return tokens.every((t) => haystack.includes(t));
   });
 }

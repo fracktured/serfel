@@ -22,6 +22,10 @@ describe("applyFilter", () => {
   it("matches by idPedido", () => {
     expect(applyFilter(rows, "2").map((r) => r.idPedido)).toEqual([2]);
   });
+  it("is accent-insensitive", () => {
+    const accentedRows = [...rows, row({ idPedido: 3, contacto: "José Muñoz" })];
+    expect(applyFilter(accentedRows, "munoz").map((r) => r.idPedido)).toEqual([3]);
+  });
 });
 
 describe("sortRows", () => {

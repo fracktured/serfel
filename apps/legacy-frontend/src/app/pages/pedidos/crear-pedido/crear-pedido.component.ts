@@ -5,6 +5,7 @@ import { PrecioService } from '../../../services/precio.service';
 import { ModalProductosComponent } from '../modal-productos/modal-productos.component';
 import { ModalDetalleProductoComponent } from '../modal-detalle-producto/modal-detalle-producto.component';
 import { PrecioProductoModel } from '../../../models/precio-producto.model';
+import { matchesAllTokens } from '../../../utils/text-search';
 import { ModalOpcionesBusquedaLocalesComponent } from '../modal-opciones-busqueda-locales/modal-opciones-busqueda-locales.component';
 import { LocalClienteModel } from '../../../models/local-cliente.model';
 import { LocalesService } from '../../../services/locales.service';
@@ -188,9 +189,8 @@ export class CrearPedidoComponent implements OnInit {
    }
 
    buscarProducto() {
-      this.nombreProducto = this.nombreProducto.toUpperCase();
       const listaProductos: PrecioProductoModel[] = JSON.parse(localStorage.getItem('productos'));
-      this.productos = listaProductos.filter(item => item.nomProducto.toUpperCase().includes(this.nombreProducto));
+      this.productos = listaProductos.filter(item => matchesAllTokens(item.nomProducto, this.nombreProducto));
 
       if (this.productos && this.productos.length) {
          const modalProductos = this.modalService.open(ModalProductosComponent, {
