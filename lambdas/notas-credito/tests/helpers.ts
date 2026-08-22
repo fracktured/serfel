@@ -57,8 +57,7 @@ let nextIdVenta = 1;
  * matches the brief's single-call beforeAll usage; the docker-compose DB is
  * disposable across test runs.
  */
-export async function makeTestDb(): Promise<Db> {
-  const dbName = "serfel_notas_credito_service";
+export async function makeTestDb(dbName = "serfel_notas_credito_service"): Promise<Db> {
   const conn = await mysql.createConnection(ROOT);
   await conn.query(`DROP DATABASE IF EXISTS \`${dbName}\``);
   await conn.query(`CREATE DATABASE \`${dbName}\``);
@@ -181,7 +180,13 @@ export async function seedVenta(
  */
 export async function seedNota(
   targetDb: Db,
-  opts: { idVenta: number; precioTotal: number; idUsuario?: number; esNotaCredElectronica?: 0 | 1 }
+  opts: {
+    idVenta: number;
+    precioTotal: number;
+    idUsuario?: number;
+    esNotaCredElectronica?: 0 | 1;
+    idFolio?: number;
+  }
 ): Promise<number> {
   const [header] = await targetDb.insert(t40MNotaCredito).values({
     idVenta: opts.idVenta,
@@ -191,6 +196,8 @@ export async function seedNota(
     precioTotal: opts.precioTotal,
     idEstado: SEED.ESTADO_ACTIVO,
     esNotaCredElectronica: opts.esNotaCredElectronica ?? 1,
+    idFolio: opts.idFolio ?? 0,
+    rutEmpresa: SEED.empresaTarget,
   });
   return header.insertId;
 }

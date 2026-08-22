@@ -17,7 +17,12 @@ export const MODULE_ROLES = {
 export type ModuleName = keyof typeof MODULE_ROLES;
 
 export function tipoCanAccess(module: ModuleName, tipo: number): boolean {
-  return (MODULE_ROLES[module] as readonly number[]).includes(tipo);
+  // Guarded (rather than a direct cast+includes) so a module referenced ahead of its
+  // MODULE_ROLES registration denies access instead of throwing — e.g. notas-credito's
+  // Hono app wires requireModule("notas_credito", ...) in one task, and the corresponding
+  // MODULE_ROLES entry lands in a later task.
+  const roles = MODULE_ROLES[module] as readonly number[] | undefined;
+  return roles ? roles.includes(tipo) : false;
 }
 
 export function modulesForTipo(tipo: number): ModuleName[] {

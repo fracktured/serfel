@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { eq } from "drizzle-orm";
 import { t40MNotaCredito } from "@serfel/db";
 import { makeTestDb, seedVenta, seedNota, seedFolioRange, stockOf, ultFolioOf, SEED } from "./helpers";
-import { getVentaCreditable, resolveNextFolio, emitirNotaCredito } from "../service";
+import { getVentaCreditable, resolveNextFolio, emitirNotaCredito, listNotasCredito } from "../service";
 import { COD_REF_ANULA, COD_REF_CORRIGE_MONTOS } from "@serfel/shared";
 
 let db: Awaited<ReturnType<typeof makeTestDb>>;
@@ -137,5 +137,14 @@ describe("emitirNotaCredito", () => {
     expect(await ultFolioOf(db, SEED.empresaTarget)).toBe(pendienteFolio);
     // Stock restituted exactly once (not twice across the failed + retried call).
     expect(await stockOf(db, venta.lineas[0].idProducto)).toBe(before + venta.lineas[0].cantidad);
+  });
+});
+
+describe("listNotasCredito", () => {
+  it("lists issued NCs with cliente name and electronic flag", async () => {
+    const idVenta = await seedVenta(db, { idTipoDoctoEmitido: 9, idFolio: 400, precioTotal: 1190 });
+    await seedNota(db, { idVenta, precioTotal: 1190, esNotaCredElectronica: 1, idFolio: 501 });
+    const list = await listNotasCredito(db);
+    expect(list.some((n) => n.idFolio === 501 && n.esElectronica)).toBe(true);
   });
 });

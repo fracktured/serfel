@@ -6,9 +6,9 @@ import {
 import {
   TIPO_DOCTO_FACTURA_ELECTRONICA, TIPO_DOCTO_NOTA_CREDITO_ELECTRONICA,
   COD_REF_ANULA, computeNcTotales, buildFlatFile,
-  ESTADO_FINALIZADO, IMPUESTO_IVA, IMPUESTO_ESPEC, BODEGA_CENTRAL,
+  ESTADO_FINALIZADO, IMPUESTO_IVA, IMPUESTO_ESPEC, BODEGA_CENTRAL, DTE_NOTA_CREDITO_ELECTRONICA,
   type VentaCreditableDto, type NcLineaDto, type EmitirNcInput, type EmitirNcResultDto,
-  type EmisorEvent, type EmisorResult,
+  type EmisorEvent, type EmisorResult, type NotaCreditoListItemDto,
 } from "@serfel/shared";
 import { AppError } from "./errors";
 
@@ -304,4 +304,40 @@ export async function emitirNotaCredito(
     idNotaCredito, idFolio, esElectronica: true,
     urlPdfOriginal: emitResult.urlPdfOriginal ?? "", urlPdfCedible: emitResult.urlPdfCedible ?? "",
   };
+}
+
+export async function listNotasCredito(db: Db): Promise<NotaCreditoListItemDto[]> {
+  const rows = await db
+    .select({
+      idNotaCredito: t40MNotaCredito.idNotaCredito, idVenta: t40MNotaCredito.idVenta,
+      idFolio: t40MNotaCredito.idFolio, numNotaCredito: t40MNotaCredito.numNotaCredito,
+      fechaNotaCredito: t40MNotaCredito.fechaNotaCredito, precioTotal: t40MNotaCredito.precioTotal,
+      esElectronica: t40MNotaCredito.esNotaCredElectronica,
+      rutCliente: t40MVenta.rutCliente, nomCliente: t10MCliente.nomFantasia,
+    })
+    .from(t40MNotaCredito)
+    .innerJoin(t40MVenta, eq(t40MNotaCredito.idVenta, t40MVenta.idVenta))
+    .innerJoin(t10MCliente, eq(t40MVenta.rutCliente, t10MCliente.rutCliente))
+    .orderBy(desc(t40MNotaCredito.idNotaCredito))
+    .limit(200);
+  return rows.map((r) => ({
+    idNotaCredito: r.idNotaCredito, idVenta: r.idVenta, idFolio: r.idFolio, numNotaCredito: r.numNotaCredito,
+    rutCliente: r.rutCliente, nomCliente: r.nomCliente, fechaNotaCredito: r.fechaNotaCredito,
+    precioTotal: r.precioTotal, esElectronica: r.esElectronica === 1,
+  }));
+}
+
+export async function getPdfLinks(
+  db: Db, invokeEmisor: (e: EmisorEvent) => Promise<EmisorResult>, idNotaCredito: number,
+): Promise<{ urlPdfOriginal: string; urlPdfCedible: string }> {
+  const rows = await db
+    .select({ idFolio: t40MNotaCredito.idFolio, rutEmpresa: t40MNotaCredito.rutEmpresa })
+    .from(t40MNotaCredito).where(eq(t40MNotaCredito.idNotaCredito, idNotaCredito)).limit(1);
+  if (rows.length === 0) throw new AppError("VALIDACION", 404, "Nota de crédito no encontrada");
+  const { idFolio, rutEmpresa } = rows[0];
+  const [orig, ced] = await Promise.all([
+    invokeEmisor({ op: "obtenerlink", rutEmpresa: String(rutEmpresa), folio: idFolio, tipoDte: DTE_NOTA_CREDITO_ELECTRONICA, cedible: false }),
+    invokeEmisor({ op: "obtenerlink", rutEmpresa: String(rutEmpresa), folio: idFolio, tipoDte: DTE_NOTA_CREDITO_ELECTRONICA, cedible: true }),
+  ]);
+  return { urlPdfOriginal: orig.url ?? "", urlPdfCedible: ced.url ?? "" };
 }
