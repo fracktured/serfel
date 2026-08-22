@@ -8,6 +8,21 @@ not stopwatch-precise. Newest entries on top.
 
 ---
 
+## 2026-08-22 (Sat) — ~8h
+**Gestión → Notas de Crédito module (new AWS/Angular vertical slice)**
+- Brainstormed + design spec + step-by-step implementation plan (migrated the legacy SOAP `wsplano.asmx` flow to facturación.cl's REST API + flat file `formato=1`)
+- Executed subagent-driven: 13 planned tasks + 1 inserted (fresh implementer per task, spec+quality review after each, final whole-branch review). 4 fix loops.
+- DB: new `40_m_folios_electronicos` folio-range registry (id_tipo_docto 9/11, `ult_folio` high-water mark) + `40_m_nota_credito.id_nota_credito` → AUTO_INCREMENT (migration 0016)
+- Shared: Zod schema + DTOs + `EmisorEvent/EmisorResult` contract + pure `computeNcTotales` / `buildFlatFile` (archivo plano: Encabezado/Totales/Detalle/Referencia, DTE 61, ref DTE 33, CodRef 1 anula / 3 corrige montos)
+- VPC `notas-credito` lambda: search tipo=9 ventas (read-only), emit (insert pendiente → invoke emisor → mark electrónica + bump ult_folio + restitute stock), idempotent folio reuse on retry, over-credit guard (finalized-only), list + PDF links. Never writes `40_m_venta`/`40_m_producto_venta`
+- Non-VPC `facturacion-emisor` lambda: login → procesar → obtenerlink; creds from Secrets Manager by rut (split avoids NAT — private subnet has no egress; facturación.cl is IPv4-only so EIGW ruled out)
+- Stock: per-line `restituirStock` flag (goods returned) replacing the broken "cantidad:0" value-only model
+- authz/nav/route registration (`notas_credito` module + the fixture ripple) · SST infra (both lambdas + routes + `lambda:InvokeFunction`) · Angular feature (search/compose/emit + listing + PDF, per-line "¿Devuelve mercadería?" toggle)
+- Final-review fix wave: real receptor fields (razón social/giro/dirección/comuna/email) in the flat file, America/Santiago document date, motivo *text* in razonRef, post-emit reconciliation breadcrumb, getPdfLinks electronic guard
+- Full suite green: shared 82 · db 4 · frontend 74 · lambdas 238 · typecheck clean
+- Pending (operator, gate real emission): provision the facturación.cl secret + `FACT_SECRET_ARN`; rotate the leaked legacy PRD passwords; validate flat-file column layout against the live `archivoplano` spec + dev deploy drive
+- Commits: 18 on branch (design/spec/plan committed earlier) · Span: 11:09–17:18
+
 ## 2026-08-21 (Fri) — ~0.75h
 **Fix: clientes lambda ERROR_INTERNO on dev (bloquear_venta column never migrated)**
 - Symptom: every clientes request on dev returned `{"error":{"code":"ERROR_INTERNO"}}` with no usable log reason. The `onError` handler (`lambdas/clientes/app.ts:47`) logs only `err.message`/`err.code` and drops the mysql2 cause, so the failure surfaced as `code: undefined`
