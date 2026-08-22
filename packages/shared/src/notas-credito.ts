@@ -121,3 +121,51 @@ export function computeNcTotales(
   const iva = Math.round((subTotal * opts.ivaValor) / 100);
   return { subTotal, iva, espec, iaba, precioTotal: subTotal + espec + iaba + iva };
 }
+
+export interface FlatLinea {
+  codigo: string;
+  descripcion: string;
+  cantidad: number;
+  precio: number;
+  porcenDesc: number;
+  valor: number;
+}
+
+export interface FlatFileDoc {
+  folio: number;
+  fecha: string; // Y-m-d
+  rutReceptor: string;
+  rsReceptor: string;
+  giroReceptor: string;
+  dirReceptor: string;
+  comReceptor: string;
+  ciuReceptor: string;
+  emailReceptor: string;
+  totales: NcTotales;
+  lineas: FlatLinea[];
+  referencia: { folioRef: number; fchRef: string; codRef: number; razonRef: string };
+}
+
+export function buildFlatFile(doc: FlatFileDoc): string {
+  const L: string[] = [];
+  L.push("->Encabezado<-");
+  // TipoDTE;Folio;FechaEmision;RUTReceptor;RSReceptor;GiroReceptor;DirReceptor;ComReceptor;CiuReceptor;Email;
+  L.push(
+    `${DTE_NOTA_CREDITO_ELECTRONICA};${doc.folio};${doc.fecha};${doc.rutReceptor};${doc.rsReceptor};` +
+      `${doc.giroReceptor};${doc.dirReceptor};${doc.comReceptor};${doc.ciuReceptor};${doc.emailReceptor};`,
+  );
+  L.push("->Totales<-");
+  L.push(`${doc.totales.subTotal};${doc.totales.iva};${doc.totales.espec};${doc.totales.iaba};${doc.totales.precioTotal};`);
+  L.push("->Detalle<-");
+  doc.lineas.forEach((l, i) => {
+    // NroLinea;Codigo;Descripcion;Cantidad;Precio;PorcDescto;Valor;
+    L.push(`${i + 1};${l.codigo};${l.descripcion};${l.cantidad};${l.precio};${l.porcenDesc};${l.valor};`);
+  });
+  L.push("->Referencia<-");
+  // NroLineaRef;TipoDTERef;FolioRef;FechaRef;CodigoRef;RazonRef;
+  L.push(
+    `1;${DTE_FACTURA_ELECTRONICA};${doc.referencia.folioRef};${doc.referencia.fchRef};` +
+      `${doc.referencia.codRef};${doc.referencia.razonRef};`,
+  );
+  return L.join("\n") + "\n";
+}
