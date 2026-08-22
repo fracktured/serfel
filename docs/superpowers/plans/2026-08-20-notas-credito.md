@@ -231,6 +231,25 @@ export interface EmitirNcResultDto {
   urlPdfOriginal: string;
   urlPdfCedible: string;
 }
+
+/**
+ * Contract between the notas-credito lambda and the facturacion-emisor lambda.
+ * Both lambdas live in the @serfel/lambdas package; these types live here in
+ * @serfel/shared so neither lambda imports from the other's directory.
+ */
+export type EmisorEvent =
+  | { op: "procesar"; rutEmpresa: string; flatFileBase64: string }
+  | { op: "obtenerlink"; rutEmpresa: string; folio: number; tipoDte: number; cedible: boolean };
+
+export interface EmisorResult {
+  ok: boolean;
+  folio?: number;
+  urlPdfOriginal?: string;
+  urlPdfCedible?: string;
+  url?: string;
+  resultado?: string;
+  error?: string;
+}
 ```
 
 - [ ] **Step 4: Export from the shared barrel**
@@ -488,28 +507,13 @@ git commit -m "feat(shared): buildFlatFile flat-file builder"
 - Test: `lambdas/facturacion-emisor/tests/facturacion-client.test.ts`
 
 **Interfaces:**
-- Produces: `createFacturacionClient(fetchFn, baseUrl) → { login(creds), procesar(token, fileB64), obtenerLink(token, args) }`; handler event `EmisorEvent = { op: "procesar"; rutEmpresa: string; flatFileBase64: string } | { op: "obtenerlink"; rutEmpresa: string; folio: number; tipoDte: number; cedible: boolean }`; result `EmisorResult = { ok: boolean; folio?: number; urlPdfOriginal?: string; urlPdfCedible?: string; url?: string; resultado?: string; error?: string }`.
+- Produces: `createFacturacionClient(fetchFn, baseUrl) → { login(creds), procesar(token, fileB64), obtenerLink(token, args) }`; the `handler(event: EmisorEvent): Promise<EmisorResult>` uses the `EmisorEvent`/`EmisorResult` types defined in `@serfel/shared` (Task 2).
 
-- [ ] **Step 1: Create the lambda workspace package**
+> **Package structure (IMPORTANT):** all domain lambdas share the single workspace package `@serfel/lambdas` (`lambdas/package.json`). `lambdas/facturacion-emisor/` is just a subdirectory of that package — **do NOT create a `lambdas/facturacion-emisor/package.json`**. It needs no new dependencies (`@aws-sdk/client-secrets-manager` is already in `lambdas/package.json`; the HTTP client uses the global `fetch`). Run all its tests with the `@serfel/lambdas` filter.
 
-Create `lambdas/facturacion-emisor/package.json`:
+- [ ] **Step 1: (no package setup needed)**
 
-```json
-{
-  "name": "@serfel/facturacion-emisor",
-  "version": "0.0.0",
-  "private": true,
-  "type": "module",
-  "dependencies": {
-    "@aws-sdk/client-secrets-manager": "catalog:",
-    "@serfel/shared": "workspace:*"
-  },
-  "devDependencies": { "vitest": "catalog:" }
-}
-```
-
-Run: `pnpm install`
-Expected: workspace linked. (If `catalog:` versions differ, copy the exact versions used by `lambdas/ventas/package.json`.)
+Confirm `@aws-sdk/client-secrets-manager` is present in `lambdas/package.json` dependencies (it is). Nothing to install for this task. Proceed to Step 2.
 
 - [ ] **Step 2: Write failing tests for the client**
 
@@ -548,7 +552,7 @@ describe("facturacion-client", () => {
 
 - [ ] **Step 3: Run tests to verify they fail**
 
-Run: `pnpm --filter @serfel/facturacion-emisor exec vitest run`
+Run: `pnpm --filter @serfel/lambdas exec vitest run lambdas/facturacion-emisor/tests/facturacion-client.test.ts`
 Expected: FAIL — cannot find `../facturacion-client`.
 
 - [ ] **Step 4: Implement the client**
@@ -611,7 +615,7 @@ export function createFacturacionClient(fetchFn: FetchFn, baseUrl: string) {
 
 - [ ] **Step 5: Run tests to verify they pass**
 
-Run: `pnpm --filter @serfel/facturacion-emisor exec vitest run`
+Run: `pnpm --filter @serfel/lambdas exec vitest run lambdas/facturacion-emisor/tests/facturacion-client.test.ts`
 Expected: PASS (2 tests).
 
 - [ ] **Step 6: Implement the handler**
@@ -620,7 +624,7 @@ Create `lambdas/facturacion-emisor/index.ts`. Resolves the per-rut credential bl
 
 ```ts
 import { GetSecretValueCommand, SecretsManagerClient } from "@aws-sdk/client-secrets-manager";
-import { DTE_NOTA_CREDITO_ELECTRONICA } from "@serfel/shared";
+import { DTE_NOTA_CREDITO_ELECTRONICA, type EmisorEvent, type EmisorResult } from "@serfel/shared";
 import { createFacturacionClient, type Credenciales } from "./facturacion-client";
 
 const sm = new SecretsManagerClient({});
@@ -633,20 +637,6 @@ async function loadCreds(): Promise<Record<string, Credenciales>> {
   if (!secret.SecretString) throw new Error("FACT secret has no SecretString");
   credsByRut = JSON.parse(secret.SecretString) as Record<string, Credenciales>;
   return credsByRut;
-}
-
-export type EmisorEvent =
-  | { op: "procesar"; rutEmpresa: string; flatFileBase64: string }
-  | { op: "obtenerlink"; rutEmpresa: string; folio: number; tipoDte: number; cedible: boolean };
-
-export interface EmisorResult {
-  ok: boolean;
-  folio?: number;
-  urlPdfOriginal?: string;
-  urlPdfCedible?: string;
-  url?: string;
-  resultado?: string;
-  error?: string;
 }
 
 export async function handler(event: EmisorEvent): Promise<EmisorResult> {
@@ -689,21 +679,24 @@ git commit -m "feat(facturacion-emisor): non-VPC REST client + handler"
 ### Task 6: `notas-credito` lambda scaffold + search + over-credit guard
 
 **Files:**
-- Create: `lambdas/notas-credito/{index,app,service,authz,errors,types}.ts`, `lambdas/notas-credito/package.json`
+- Create: `lambdas/notas-credito/{index,app,service,authz,errors,types}.ts`
+- Modify: `lambdas/package.json` (add `@aws-sdk/client-lambda`)
 - Test: `lambdas/notas-credito/tests/{service.test.ts,helpers.ts}`
 
 **Interfaces:**
-- Consumes: `@serfel/db` tables, `@serfel/shared` DTOs, `EmisorEvent`/`EmisorResult` (Task 5).
+- Consumes: `@serfel/db` tables, `@serfel/shared` DTOs + `EmisorEvent`/`EmisorResult` (defined in shared, Task 2).
 - Produces: `AppDeps = { getDb: () => Promise<Db>; getIdUsuario: (c) => number | null; invokeEmisor: (e: EmisorEvent) => Promise<EmisorResult> }`; `getUserTipo(db, idUsuario)`; `searchVentasCreditables(db, q: string) → VentaCreditableDto[]`; `getVentaCreditable(db, idVenta) → VentaCreditableDto | null`.
 
-- [ ] **Step 1: Scaffold package.json + errors + types + authz**
+> **Package structure (IMPORTANT):** `lambdas/notas-credito/` is a subdirectory of the single `@serfel/lambdas` package — **no `lambdas/notas-credito/package.json`**. The only manifest change is adding `@aws-sdk/client-lambda` to `lambdas/package.json` (needed by `index.ts` in Task 9 to invoke the emisor).
 
-Copy `lambdas/ventas/package.json` to `lambdas/notas-credito/package.json`, rename to `@serfel/notas-credito`, and add `"@aws-sdk/client-lambda": "catalog:"` to dependencies. Then copy `lambdas/ventas/errors.ts` and `lambdas/ventas/authz.ts` verbatim into `lambdas/notas-credito/` (they are module-agnostic; `authz.ts` takes the module name as a parameter). Create `lambdas/notas-credito/types.ts`:
+- [ ] **Step 1: Add the Lambda SDK dep + scaffold errors/types/authz**
+
+Add `"@aws-sdk/client-lambda": "^3.600.0"` to the `dependencies` of `lambdas/package.json` (match the version style of the sibling `@aws-sdk/*` entries), then run `pnpm install`. Copy `lambdas/ventas/errors.ts` and `lambdas/ventas/authz.ts` verbatim into `lambdas/notas-credito/` (both are module-agnostic; `authz.ts` takes the module name as a parameter). Create `lambdas/notas-credito/types.ts`:
 
 ```ts
 import type { Context } from "hono";
 import type { Db } from "@serfel/db";
-import type { EmisorEvent, EmisorResult } from "@serfel/facturacion-emisor";
+import type { EmisorEvent, EmisorResult } from "@serfel/shared";
 
 export interface AppDeps {
   getDb: () => Promise<Db>;
@@ -713,8 +706,6 @@ export interface AppDeps {
 
 export type AppEnv = { Variables: { idUsuario: number; idTipoUsuario: number } };
 ```
-
-Add `"@serfel/facturacion-emisor": "workspace:*"` to `lambdas/notas-credito/package.json` dependencies, then run `pnpm install`.
 
 - [ ] **Step 2: Write failing test for the over-credit guard + search**
 
@@ -752,7 +743,7 @@ describe("getVentaCreditable", () => {
 Run:
 ```bash
 docker compose -f packages/db/docker-compose.yml up -d --wait
-pnpm --filter @serfel/notas-credito exec vitest run tests/service.test.ts
+pnpm --filter @serfel/lambdas exec vitest run lambdas/notas-credito/tests/service.test.ts
 ```
 Expected: FAIL — `../service` has no `getVentaCreditable`.
 
@@ -853,7 +844,7 @@ export async function searchVentasCreditables(db: Db, q: string): Promise<VentaC
 
 - [ ] **Step 5: Run test to verify it passes**
 
-Run: `pnpm --filter @serfel/notas-credito exec vitest run tests/service.test.ts`
+Run: `pnpm --filter @serfel/lambdas exec vitest run lambdas/notas-credito/tests/service.test.ts`
 Expected: PASS (2 tests).
 
 - [ ] **Step 6: Commit**
@@ -907,7 +898,7 @@ Add `seedFolioRange` to `helpers.ts` (a single insert into `t40MFoliosElectronic
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `pnpm --filter @serfel/notas-credito exec vitest run tests/service.test.ts -t resolveNextFolio`
+Run: `pnpm --filter @serfel/lambdas exec vitest run lambdas/notas-credito/tests/service.test.ts -t resolveNextFolio`
 Expected: FAIL — `resolveNextFolio` not exported.
 
 - [ ] **Step 3: Implement folio resolution**
@@ -951,7 +942,7 @@ export async function resolveNextFolio(tx: Tx, rutEmpresa: number): Promise<numb
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `pnpm --filter @serfel/notas-credito exec vitest run tests/service.test.ts -t resolveNextFolio`
+Run: `pnpm --filter @serfel/lambdas exec vitest run lambdas/notas-credito/tests/service.test.ts -t resolveNextFolio`
 Expected: PASS (3 tests).
 
 - [ ] **Step 5: Commit**
@@ -1032,7 +1023,7 @@ Add helpers `stockOf`, `ultFolioOf`, `seedNota` to `helpers.ts`.
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `pnpm --filter @serfel/notas-credito exec vitest run tests/service.test.ts -t emitirNotaCredito`
+Run: `pnpm --filter @serfel/lambdas exec vitest run lambdas/notas-credito/tests/service.test.ts -t emitirNotaCredito`
 Expected: FAIL — `emitirNotaCredito` not exported.
 
 - [ ] **Step 3: Implement emit**
@@ -1048,7 +1039,7 @@ import {
   COD_REF_ANULA, ESTADO_FINALIZADO, IMPUESTO_IVA, IMPUESTO_ESPEC, BODEGA_CENTRAL,
   TIPO_DOCTO_NOTA_CREDITO_ELECTRONICA,
 } from "@serfel/shared";
-import type { EmisorEvent, EmisorResult } from "@serfel/facturacion-emisor";
+import type { EmisorEvent, EmisorResult } from "@serfel/shared";
 
 const ESTADO_PENDIENTE = 2; // 99_p_estado: 2 = "En Proceso" (NC awaiting electronic emission)
 
@@ -1174,7 +1165,7 @@ export async function emitirNotaCredito(
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `pnpm --filter @serfel/notas-credito exec vitest run tests/service.test.ts -t emitirNotaCredito`
+Run: `pnpm --filter @serfel/lambdas exec vitest run lambdas/notas-credito/tests/service.test.ts -t emitirNotaCredito`
 Expected: PASS (3 tests).
 
 - [ ] **Step 5: Commit**
@@ -1214,7 +1205,7 @@ describe("listNotasCredito", () => {
 
 - [ ] **Step 2: Run to verify fail, then implement listNotasCredito + getPdfLinks**
 
-Run: `pnpm --filter @serfel/notas-credito exec vitest run tests/service.test.ts -t listNotasCredito` → FAIL.
+Run: `pnpm --filter @serfel/lambdas exec vitest run lambdas/notas-credito/tests/service.test.ts -t listNotasCredito` → FAIL.
 
 Add to `service.ts`:
 
@@ -1324,7 +1315,7 @@ import { handle } from "hono/aws-lambda";
 import { GetSecretValueCommand, SecretsManagerClient } from "@aws-sdk/client-secrets-manager";
 import { InvokeCommand, LambdaClient } from "@aws-sdk/client-lambda";
 import { createDb, type Db, type DbCredentials } from "@serfel/db";
-import type { EmisorEvent, EmisorResult } from "@serfel/facturacion-emisor";
+import type { EmisorEvent, EmisorResult } from "@serfel/shared";
 import { createApp } from "./app";
 
 const sm = new SecretsManagerClient({});
@@ -1369,7 +1360,7 @@ Create `lambdas/notas-credito/tests/app.test.ts`, modeled on `lambdas/ventas/tes
 
 - [ ] **Step 6: Run the whole lambda suite + typecheck**
 
-Run: `pnpm --filter @serfel/notas-credito test && pnpm typecheck`
+Run: `pnpm --filter @serfel/lambdas exec vitest run lambdas/notas-credito && pnpm typecheck`
 Expected: PASS.
 
 - [ ] **Step 7: Commit**
