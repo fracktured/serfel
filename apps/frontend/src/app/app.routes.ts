@@ -9,6 +9,7 @@ import { PrefacturacionPageComponent } from './features/prefacturacion/prefactur
 import { ClientesPageComponent } from './features/clientes/clientes-page.component';
 import { MarcasPageComponent } from './features/marcas/marcas-page.component';
 import { PreciosPageComponent } from './features/precios/precios-page.component';
+import { NotasCreditoPageComponent } from './features/notas-credito/notas-credito-page.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -21,5 +22,6 @@ export const routes: Routes = [
   { path: 'clientes', component: ClientesPageComponent, canActivate: [moduleGuard('clientes')] },
   { path: 'marcas', component: MarcasPageComponent, canActivate: [moduleGuard('marcas')] },
   { path: 'precios', component: PreciosPageComponent, canActivate: [moduleGuard('precios')] },
+  { path: 'notas-credito', component: NotasCreditoPageComponent, canActivate: [moduleGuard('notas_credito')] },
   { path: '**', redirectTo: 'productos' },
 ];
