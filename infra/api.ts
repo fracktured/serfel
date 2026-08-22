@@ -142,6 +142,47 @@ const preciosFn = new sst.aws.Function("PreciosFn", {
   },
 });
 
+const facturacionEmisorFn = new sst.aws.Function("FacturacionEmisorFn", {
+  handler: "lambdas/facturacion-emisor/index.handler",
+  runtime: "nodejs22.x",
+  architecture: "arm64",
+  timeout: "30 seconds",
+  memory: "256 MB",
+  environment: {
+    FACT_SECRET_ARN: process.env.FACT_SECRET_ARN ?? "",
+    FACT_BASE_URL: "https://www.facturacion.cl",
+  },
+  permissions: [
+    { actions: ["secretsmanager:GetSecretValue"], resources: [process.env.FACT_SECRET_ARN ?? "*"] },
+  ],
+  transform: {
+    function: { name: `serfel-${$app.stage}-facturacion-emisor`, tags: stackTags("serfel-aws") },
+    logGroup: { tags: stackTags("serfel-aws") },
+  },
+});
+
+const notasCreditoFn = new sst.aws.Function("NotasCreditoFn", {
+  handler: "lambdas/notas-credito/index.handler",
+  runtime: "nodejs22.x",
+  architecture: "arm64",
+  timeout: "30 seconds",
+  memory: "256 MB",
+  vpc: { privateSubnets: privateSubnetIds, securityGroups: [sgLambdaId] },
+  environment: {
+    DB_SECRET_ARN: dbSecretArn,
+    EMISOR_FN_ARN: facturacionEmisorFn.arn,
+  },
+  permissions: [
+    { actions: ["secretsmanager:GetSecretValue"], resources: [dbSecretArn] },
+    { actions: ["lambda:InvokeFunction"], resources: [facturacionEmisorFn.arn] },
+  ],
+  copyFiles: [{ from: "packages/db/rds-global-bundle.pem", to: "rds-global-bundle.pem" }],
+  transform: {
+    function: { name: `serfel-${$app.stage}-notas-credito`, tags: stackTags("serfel-aws") },
+    logGroup: { tags: stackTags("serfel-aws") },
+  },
+});
+
 const api = new sst.aws.ApiGatewayV2("Api", {
   // dev-only wildcard CORS (JWT still required); tighten in Fase 5
   cors: {
@@ -255,6 +296,16 @@ const preciosRoutes = [
 ] as const;
 for (const route of preciosRoutes) {
   api.route(route, preciosFn.arn, { auth: { jwt: { authorizer: jwtAuthorizer.id } } });
+}
+
+const notasCreditoRoutes = [
+  "GET /api/notas-credito/ventas",
+  "GET /api/notas-credito",
+  "POST /api/notas-credito",
+  "GET /api/notas-credito/{id}/pdf",
+] as const;
+for (const route of notasCreditoRoutes) {
+  api.route(route, notasCreditoFn.arn, { auth: { jwt: { authorizer: jwtAuthorizer.id } } });
 }
 
 export const apiUrl = api.url;
