@@ -10,3 +10,4 @@ export * from "./clientes";
 export * from "./locales";
 export * from "./marcas";
 export * from "./precios";
+export * from "./notas-credito";
