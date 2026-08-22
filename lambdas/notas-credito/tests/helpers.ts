@@ -21,6 +21,7 @@ import {
   t40MVenta,
   t40MProductoVenta,
   t40MNotaCredito,
+  t40MFoliosElectronicos,
 } from "@serfel/db";
 import { TIPO_DOCTO_NOTA_CREDITO_ELECTRONICA } from "@serfel/shared";
 
@@ -177,6 +178,24 @@ export async function seedNota(
     esNotaCredElectronica: opts.esNotaCredElectronica ?? 1,
   });
   return header.insertId;
+}
+
+/**
+ * Inserts one 40_m_folios_electronicos range row (the manual folio registry).
+ * Used by resolveNextFolio tests to seed a per-empresa/tipo-docto range.
+ */
+export async function seedFolioRange(
+  targetDb: Db,
+  opts: { rutEmpresa: number; idTipoDocto: number; folioDesde: number; folioHasta: number; ultFolio: number }
+): Promise<void> {
+  await targetDb.insert(t40MFoliosElectronicos).values({
+    fechaCreacion: NOW,
+    rutEmpresa: opts.rutEmpresa,
+    idTipoDocto: opts.idTipoDocto,
+    folioDesde: opts.folioDesde,
+    folioHasta: opts.folioHasta,
+    ultFolio: opts.ultFolio,
+  });
 }
 
 export async function teardownTestDb(): Promise<void> {

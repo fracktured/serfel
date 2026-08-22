@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import { makeTestDb, seedVenta, seedNota } from "./helpers";
-import { getVentaCreditable } from "../service";
+import { makeTestDb, seedVenta, seedNota, seedFolioRange } from "./helpers";
+import { getVentaCreditable, resolveNextFolio } from "../service";
 
 let db: Awaited<ReturnType<typeof makeTestDb>>;
 beforeAll(async () => { db = await makeTestDb(); });
@@ -33,5 +33,24 @@ describe("getVentaCreditable", () => {
     await seedNota(db, { idVenta, precioTotal: 700 });
     const v = await getVentaCreditable(db, idVenta);
     expect(v!.montoYaCreditado).toBe(1000);
+  });
+});
+
+describe("resolveNextFolio", () => {
+  it("returns folio_desde when ult_folio is 0 and no NC used a folio yet", async () => {
+    await seedFolioRange(db, { rutEmpresa: 8030856, idTipoDocto: 11, folioDesde: 500, folioHasta: 600, ultFolio: 0 });
+    const folio = await db.transaction((tx) => resolveNextFolio(tx, 8030856));
+    expect(folio).toBe(500);
+  });
+
+  it("returns ult_folio + 1 once folios have been processed", async () => {
+    await seedFolioRange(db, { rutEmpresa: 8367020, idTipoDocto: 11, folioDesde: 1, folioHasta: 10, ultFolio: 4 });
+    const folio = await db.transaction((tx) => resolveNextFolio(tx, 8367020));
+    expect(folio).toBe(5);
+  });
+
+  it("throws when the range is exhausted", async () => {
+    await seedFolioRange(db, { rutEmpresa: 76770842, idTipoDocto: 11, folioDesde: 1, folioHasta: 2, ultFolio: 2 });
+    await expect(db.transaction((tx) => resolveNextFolio(tx, 76770842))).rejects.toThrow();
   });
 });

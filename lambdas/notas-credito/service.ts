@@ -1,8 +1,13 @@
-import { and, eq, like, sql } from "drizzle-orm";
+import { and, desc, eq, gte, like, lte, sql } from "drizzle-orm";
 import {
-  t10MUsuario, t10MCliente, t20MProducto, t40MVenta, t40MProductoVenta, t40MNotaCredito, type Db,
+  t10MUsuario, t10MCliente, t20MProducto, t40MVenta, t40MProductoVenta, t40MNotaCredito,
+  t40MFoliosElectronicos, type Db,
 } from "@serfel/db";
-import { TIPO_DOCTO_FACTURA_ELECTRONICA, type VentaCreditableDto, type NcLineaDto } from "@serfel/shared";
+import {
+  TIPO_DOCTO_FACTURA_ELECTRONICA, TIPO_DOCTO_NOTA_CREDITO_ELECTRONICA,
+  type VentaCreditableDto, type NcLineaDto,
+} from "@serfel/shared";
+import { AppError } from "./errors";
 
 export type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
 type DbOrTx = Db | Tx;
@@ -65,6 +70,39 @@ export async function getVentaCreditable(db: Db, idVenta: number): Promise<Venta
     rutEmpresa: h.rutEmpresa, rutCliente: h.rutCliente, nomCliente: h.nomCliente,
     precioTotal: h.precioTotal, montoYaCreditado: creditado, lineas,
   };
+}
+
+export async function resolveNextFolio(tx: Tx, rutEmpresa: number): Promise<number> {
+  const ranges = await tx
+    .select()
+    .from(t40MFoliosElectronicos)
+    .where(and(
+      eq(t40MFoliosElectronicos.rutEmpresa, rutEmpresa),
+      eq(t40MFoliosElectronicos.idTipoDocto, TIPO_DOCTO_NOTA_CREDITO_ELECTRONICA),
+    ))
+    .orderBy(desc(t40MFoliosElectronicos.id))
+    .limit(1);
+  if (ranges.length === 0) {
+    throw new AppError("VALIDACION", 409, `No hay rango de folios de nota de crédito para la empresa ${rutEmpresa}`);
+  }
+  const r = ranges[0];
+
+  // Highest folio already reserved by a pendiente/emitida NC within this range.
+  const usados = await tx
+    .select({ maxFolio: sql<number>`COALESCE(MAX(${t40MNotaCredito.idFolio}), 0)` })
+    .from(t40MNotaCredito)
+    .innerJoin(t40MVenta, eq(t40MNotaCredito.idVenta, t40MVenta.idVenta))
+    .where(and(
+      eq(t40MVenta.rutEmpresa, rutEmpresa),
+      gte(t40MNotaCredito.idFolio, r.folioDesde),
+      lte(t40MNotaCredito.idFolio, r.folioHasta),
+    ));
+  const maxUsado = Number(usados[0]?.maxFolio ?? 0);
+  const next = Math.max(r.folioDesde, r.ultFolio + 1, maxUsado + 1);
+  if (next > r.folioHasta) {
+    throw new AppError("VALIDACION", 409, `Rango de folios agotado para la empresa ${rutEmpresa}`);
+  }
+  return next;
 }
 
 export async function searchVentasCreditables(db: Db, q: string): Promise<VentaCreditableDto[]> {
