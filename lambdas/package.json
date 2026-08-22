@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-cognito-identity-provider": "^3.600.0",
+    "@aws-sdk/client-lambda": "^3.600.0",
     "@aws-sdk/client-rds": "^3.600.0",
     "@aws-sdk/client-secrets-manager": "^3.600.0",
     "@serfel/db": "workspace:*",
