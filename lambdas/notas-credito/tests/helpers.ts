@@ -20,7 +20,9 @@ import {
   t20MProducto,
   t40MVenta,
   t40MProductoVenta,
+  t40MNotaCredito,
 } from "@serfel/db";
+import { TIPO_DOCTO_NOTA_CREDITO_ELECTRONICA } from "@serfel/shared";
 
 const ROOT = { host: "127.0.0.1", port: 3307, user: "root", password: "serfel" };
 const MIGRATIONS = fileURLToPath(new URL("../../../packages/db/migrations", import.meta.url));
@@ -153,6 +155,28 @@ export async function seedVenta(
     precioNeto: opts.precioTotal,
   });
   return idVenta;
+}
+
+/**
+ * Inserts one 40_m_nota_credito row against an existing venta (from seedVenta)
+ * and returns the new idNotaCredito. id_nota_credito is AUTO_INCREMENT — the
+ * DB assigns it, callers must not hand-assign. Kept minimal but satisfies the
+ * FKs (existing venta, existing usuario, existing estado). Reused by Task 8.
+ */
+export async function seedNota(
+  targetDb: Db,
+  opts: { idVenta: number; precioTotal: number; idUsuario?: number; esNotaCredElectronica?: 0 | 1 }
+): Promise<number> {
+  const [header] = await targetDb.insert(t40MNotaCredito).values({
+    idVenta: opts.idVenta,
+    idTipoDoctoEmitido: TIPO_DOCTO_NOTA_CREDITO_ELECTRONICA,
+    idUsuario: opts.idUsuario ?? SEED.usuarioAdmin,
+    fechaNotaCredito: NOW,
+    precioTotal: opts.precioTotal,
+    idEstado: SEED.ESTADO_ACTIVO,
+    esNotaCredElectronica: opts.esNotaCredElectronica ?? 1,
+  });
+  return header.insertId;
 }
 
 export async function teardownTestDb(): Promise<void> {
