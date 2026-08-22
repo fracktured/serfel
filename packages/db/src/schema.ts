@@ -530,7 +530,7 @@ export const t50MRecepcionCompra = mysqlTable("50_m_recepcion_compra", {
 ]);
 
 export const t40MNotaCredito = mysqlTable("40_m_nota_credito", {
-	idNotaCredito: int("id_nota_credito").notNull(),
+	idNotaCredito: int("id_nota_credito").autoincrement().notNull(),
 	idVenta: int("id_venta").notNull(),
 	numNotaCredito: int("num_nota_credito").default(0).notNull(),
 	idTipoDoctoEmitido: int("id_tipo_docto_emitido").notNull(),
@@ -557,6 +557,20 @@ export const t40MNotaCredito = mysqlTable("40_m_nota_credito", {
 	foreignKey({ name: "fk_nota_cred_venta", columns: [table.idVenta], foreignColumns: [t40MVenta.idVenta] }).onDelete("restrict").onUpdate("restrict"),
 	foreignKey({ name: "nota_cred_usu", columns: [table.idUsuario], foreignColumns: [t10MUsuario.idUsuario] }).onDelete("restrict").onUpdate("restrict"),
 	foreignKey({ name: "nota_cred_est", columns: [table.idEstado], foreignColumns: [t99PEstado.idEstado] }).onDelete("restrict").onUpdate("restrict"),
+]);
+
+export const t40MFoliosElectronicos = mysqlTable("40_m_folios_electronicos", {
+	id: int("id").autoincrement().notNull(),
+	fechaCreacion: datetime("fecha_creacion", { mode: 'string' }).notNull(),
+	rutEmpresa: int("rut_empresa").notNull(),
+	idTipoDocto: int("id_tipo_docto").notNull(),
+	folioDesde: int("folio_desde").notNull(),
+	folioHasta: int("folio_hasta").notNull(),
+	ultFolio: int("ult_folio").default(0).notNull(),
+},
+(table) => [
+	primaryKey({ columns: [table.id], name: "PRIMARY" }),
+	index("folios_emp_tipo").on(table.rutEmpresa, table.idTipoDocto),
 ]);
 
 export const t20MPorcion = mysqlTable("20_m_porcion", {
