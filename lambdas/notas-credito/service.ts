@@ -28,11 +28,17 @@ export async function getUserTipo(db: Db, idUsuario: number): Promise<number | n
   return rows.length > 0 ? rows[0].idTipoUsuario : null;
 }
 
+/**
+ * Sums only successfully-emitted NCs (esNotaCredElectronica = 1) against a venta.
+ * A PENDIENTE/failed draft (esNotaCredElectronica = 0) must NOT count — otherwise
+ * a failed emisor call would permanently lock the venta out of retry via the
+ * over-credit guard.
+ */
 async function montoYaCreditado(db: DbOrTx, idVenta: number): Promise<number> {
   const rows = await db
     .select({ total: sql<number>`COALESCE(SUM(${t40MNotaCredito.precioTotal}), 0)` })
     .from(t40MNotaCredito)
-    .where(eq(t40MNotaCredito.idVenta, idVenta));
+    .where(and(eq(t40MNotaCredito.idVenta, idVenta), eq(t40MNotaCredito.esNotaCredElectronica, 1)));
   return Number(rows[0]?.total ?? 0);
 }
 
@@ -170,32 +176,68 @@ export async function emitirNotaCredito(
   }));
   const totales = computeNcTotales(calcLineas, { ivaValor, especValor, rateOf });
 
-  // Folio reservation: committed on its own before we insert the NC row.
-  const idFolio = await db.transaction((tx) => resolveNextFolio(tx, venta.rutEmpresa));
-
-  // Insert the NC (PENDIENTE) + its líneas — committed before the external emisor call,
-  // so a failed emisor invocation leaves a retryable pendiente row instead of nothing.
+  // Reuse an existing PENDIENTE draft for this venta (a prior failed emisor call),
+  // instead of resolving a new folio and inserting a second NC row. This keeps the
+  // "retryable, same folio, no gaps" promise: the failed draft's folio is reused
+  // rather than abandoned, and the venta isn't left permanently blocked.
   const now = nowDateTime();
-  const idNotaCredito = await db.transaction(async (tx) => {
-    const [header] = await tx.insert(t40MNotaCredito).values({
-      idVenta: venta.idVenta,
-      numNotaCredito: idFolio,
-      idTipoDoctoEmitido: TIPO_DOCTO_NOTA_CREDITO_ELECTRONICA,
-      rutEmpresa: venta.rutEmpresa,
-      iva: totales.iva, iaba: totales.iaba, espec: totales.espec, subTotal: totales.subTotal,
-      idMotivo: input.idMotivo, idUsuario, fechaNotaCredito: now, precioTotal: totales.precioTotal,
-      idEstado: ESTADO_PENDIENTE, esNotaCredElectronica: 0,
-      idUsuarioMod: idUsuario, ultFechaMod: now, idFolio,
+  const pendiente = await db
+    .select({ idNotaCredito: t40MNotaCredito.idNotaCredito, idFolio: t40MNotaCredito.idFolio })
+    .from(t40MNotaCredito)
+    .where(and(
+      eq(t40MNotaCredito.idVenta, venta.idVenta),
+      eq(t40MNotaCredito.idEstado, ESTADO_PENDIENTE),
+      eq(t40MNotaCredito.esNotaCredElectronica, 0),
+    ))
+    .orderBy(desc(t40MNotaCredito.idNotaCredito))
+    .limit(1);
+
+  let idFolio: number;
+  let idNotaCredito: number;
+  if (pendiente.length > 0) {
+    // Reuse: same idNotaCredito + idFolio, refresh totales/líneas/motivo.
+    idFolio = pendiente[0].idFolio;
+    idNotaCredito = pendiente[0].idNotaCredito;
+    await db.transaction(async (tx) => {
+      await tx.update(t40MNotaCredito).set({
+        iva: totales.iva, iaba: totales.iaba, espec: totales.espec, subTotal: totales.subTotal,
+        idMotivo: input.idMotivo, precioTotal: totales.precioTotal,
+        idUsuarioMod: idUsuario, ultFechaMod: now,
+      }).where(eq(t40MNotaCredito.idNotaCredito, idNotaCredito));
+      await tx.delete(t40MProdNotaCredito).where(eq(t40MProdNotaCredito.idNotaCredito, idNotaCredito));
+      for (const l of input.lineas) {
+        await tx.insert(t40MProdNotaCredito).values({
+          idNotaCredito, idProducto: l.idProducto,
+          cantidad: l.cantidad.toString(), precio: l.precio, porcenDesc: l.porcenDesc,
+        });
+      }
     });
-    const idNc = header.insertId;
-    for (const l of input.lineas) {
-      await tx.insert(t40MProdNotaCredito).values({
-        idNotaCredito: idNc, idProducto: l.idProducto,
-        cantidad: l.cantidad.toString(), precio: l.precio, porcenDesc: l.porcenDesc,
+  } else {
+    // No reusable draft: resolve+commit a new folio, then insert the NC (PENDIENTE) + its
+    // líneas — committed before the external emisor call, so a failed invocation leaves a
+    // retryable pendiente row instead of nothing.
+    idFolio = await db.transaction((tx) => resolveNextFolio(tx, venta.rutEmpresa));
+    idNotaCredito = await db.transaction(async (tx) => {
+      const [header] = await tx.insert(t40MNotaCredito).values({
+        idVenta: venta.idVenta,
+        numNotaCredito: idFolio,
+        idTipoDoctoEmitido: TIPO_DOCTO_NOTA_CREDITO_ELECTRONICA,
+        rutEmpresa: venta.rutEmpresa,
+        iva: totales.iva, iaba: totales.iaba, espec: totales.espec, subTotal: totales.subTotal,
+        idMotivo: input.idMotivo, idUsuario, fechaNotaCredito: now, precioTotal: totales.precioTotal,
+        idEstado: ESTADO_PENDIENTE, esNotaCredElectronica: 0,
+        idUsuarioMod: idUsuario, ultFechaMod: now, idFolio,
       });
-    }
-    return idNc;
-  });
+      const idNc = header.insertId;
+      for (const l of input.lineas) {
+        await tx.insert(t40MProdNotaCredito).values({
+          idNotaCredito: idNc, idProducto: l.idProducto,
+          cantidad: l.cantidad.toString(), precio: l.precio, porcenDesc: l.porcenDesc,
+        });
+      }
+      return idNc;
+    });
+  }
 
   // Build the flat file for facturación.cl and emit.
   const flat = buildFlatFile({

@@ -1,4 +1,6 @@
 import { describe, it, expect, beforeAll } from "vitest";
+import { eq } from "drizzle-orm";
+import { t40MNotaCredito } from "@serfel/db";
 import { makeTestDb, seedVenta, seedNota, seedFolioRange, stockOf, ultFolioOf, SEED } from "./helpers";
 import { getVentaCreditable, resolveNextFolio, emitirNotaCredito } from "../service";
 import { COD_REF_ANULA, COD_REF_CORRIGE_MONTOS } from "@serfel/shared";
@@ -99,5 +101,41 @@ describe("emitirNotaCredito", () => {
     }, 1)).rejects.toThrow();
     expect(await stockOf(db, venta.lineas[0].idProducto)).toBe(before); // unchanged
     expect(await ultFolioOf(db, SEED.empresaTarget)).toBe(0); // not bumped
+  });
+
+  it("reuses the pendiente draft (same idNotaCredito + idFolio) on retry after an emisor failure", async () => {
+    const idVenta = await seedVenta(db, { idTipoDoctoEmitido: 9, idFolio: 400, precioTotal: 1190 });
+    await seedFolioRange(db, { rutEmpresa: SEED.empresaTarget, idTipoDocto: 11, folioDesde: 1000, folioHasta: 1099, ultFolio: 0 });
+    const venta = (await getVentaCreditable(db, idVenta))!;
+    const before = await stockOf(db, venta.lineas[0].idProducto);
+    const emisorFail = async () => ({ ok: false, error: "SII rechazó" });
+
+    await expect(emitirNotaCredito(db, emisorFail, {
+      idVenta, idMotivo: 5, codRef: COD_REF_ANULA,
+      lineas: venta.lineas.map((l) => ({ idProducto: l.idProducto, cantidad: l.cantidad, precio: l.precio, porcenDesc: l.porcenDesc })),
+    }, 1)).rejects.toThrow();
+
+    const rowsAfterFail = await db.select({ idNotaCredito: t40MNotaCredito.idNotaCredito, idFolio: t40MNotaCredito.idFolio })
+      .from(t40MNotaCredito).where(eq(t40MNotaCredito.idVenta, idVenta));
+    expect(rowsAfterFail).toHaveLength(1);
+    const pendienteFolio = rowsAfterFail[0].idFolio;
+    const pendienteId = rowsAfterFail[0].idNotaCredito;
+
+    const res = await emitirNotaCredito(db, emisorOk, {
+      idVenta, idMotivo: 5, codRef: COD_REF_ANULA,
+      lineas: venta.lineas.map((l) => ({ idProducto: l.idProducto, cantidad: l.cantidad, precio: l.precio, porcenDesc: l.porcenDesc })),
+    }, 1);
+
+    expect(res.idNotaCredito).toBe(pendienteId);
+    expect(res.idFolio).toBe(pendienteFolio);
+
+    const rowsAfterSuccess = await db.select({ idNotaCredito: t40MNotaCredito.idNotaCredito, esNotaCredElectronica: t40MNotaCredito.esNotaCredElectronica })
+      .from(t40MNotaCredito).where(eq(t40MNotaCredito.idVenta, idVenta));
+    expect(rowsAfterSuccess).toHaveLength(1); // still exactly one NC row for this venta
+    expect(rowsAfterSuccess[0].esNotaCredElectronica).toBe(1);
+
+    expect(await ultFolioOf(db, SEED.empresaTarget)).toBe(pendienteFolio);
+    // Stock restituted exactly once (not twice across the failed + retried call).
+    expect(await stockOf(db, venta.lineas[0].idProducto)).toBe(before + venta.lineas[0].cantidad);
   });
 });
