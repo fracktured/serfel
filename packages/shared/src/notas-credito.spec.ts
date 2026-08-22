@@ -5,9 +5,17 @@ describe("EmitirNcInputSchema", () => {
   it("accepts a valid corrige-montos NC", () => {
     const r = EmitirNcInputSchema.safeParse({
       idVenta: 5, idMotivo: 1, codRef: COD_REF_CORRIGE_MONTOS,
-      lineas: [{ idProducto: 2, cantidad: 1, precio: 1000, porcenDesc: 0 }],
+      lineas: [{ idProducto: 2, cantidad: 1, precio: 1000, porcenDesc: 0, restituirStock: true }],
     });
     expect(r.success).toBe(true);
+  });
+
+  it("rejects a line missing restituirStock", () => {
+    const r = EmitirNcInputSchema.safeParse({
+      idVenta: 5, idMotivo: 1, codRef: COD_REF_CORRIGE_MONTOS,
+      lineas: [{ idProducto: 2, cantidad: 1, precio: 1000, porcenDesc: 0 }],
+    });
+    expect(r.success).toBe(false);
   });
 
   it("rejects an empty lineas array", () => {
@@ -18,7 +26,7 @@ describe("EmitirNcInputSchema", () => {
   it("rejects codRef 2 (corrige texto, out of scope)", () => {
     const r = EmitirNcInputSchema.safeParse({
       idVenta: 5, idMotivo: 1, codRef: 2,
-      lineas: [{ idProducto: 2, cantidad: 1, precio: 1000, porcenDesc: 0 }],
+      lineas: [{ idProducto: 2, cantidad: 1, precio: 1000, porcenDesc: 0, restituirStock: true }],
     });
     expect(r.success).toBe(false);
   });

@@ -17,6 +17,7 @@ export const NcLineaInputSchema = z.object({
   cantidad: z.number().positive(),
   precio: z.number().int().nonnegative(),
   porcenDesc: z.number().int().min(0).max(100),
+  restituirStock: z.boolean(),
 });
 export type NcLineaInput = z.infer<typeof NcLineaInputSchema>;
 

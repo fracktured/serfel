@@ -69,7 +69,7 @@ describe("emitirNotaCredito", () => {
 
     const res = await emitirNotaCredito(db, emisorOk, {
       idVenta, idMotivo: 5, codRef: COD_REF_ANULA,
-      lineas: venta.lineas.map((l) => ({ idProducto: l.idProducto, cantidad: l.cantidad, precio: l.precio, porcenDesc: l.porcenDesc })),
+      lineas: venta.lineas.map((l) => ({ idProducto: l.idProducto, cantidad: l.cantidad, precio: l.precio, porcenDesc: l.porcenDesc, restituirStock: true })),
     }, 1);
 
     expect(res.esElectronica).toBe(true);
@@ -85,7 +85,7 @@ describe("emitirNotaCredito", () => {
     const venta = (await getVentaCreditable(db, idVenta))!;
     await expect(emitirNotaCredito(db, emisorOk, {
       idVenta, idMotivo: 5, codRef: COD_REF_ANULA,
-      lineas: venta.lineas.map((l) => ({ idProducto: l.idProducto, cantidad: l.cantidad, precio: l.precio, porcenDesc: l.porcenDesc })),
+      lineas: venta.lineas.map((l) => ({ idProducto: l.idProducto, cantidad: l.cantidad, precio: l.precio, porcenDesc: l.porcenDesc, restituirStock: true })),
     }, 1)).rejects.toThrow();
   });
 
@@ -97,7 +97,7 @@ describe("emitirNotaCredito", () => {
     const emisorFail = async () => ({ ok: false, error: "SII rechazó" });
     await expect(emitirNotaCredito(db, emisorFail, {
       idVenta, idMotivo: 5, codRef: COD_REF_CORRIGE_MONTOS,
-      lineas: [{ idProducto: venta.lineas[0].idProducto, cantidad: venta.lineas[0].cantidad, precio: 1, porcenDesc: 0 }],
+      lineas: [{ idProducto: venta.lineas[0].idProducto, cantidad: venta.lineas[0].cantidad, precio: 1, porcenDesc: 0, restituirStock: true }],
     }, 1)).rejects.toThrow();
     expect(await stockOf(db, venta.lineas[0].idProducto)).toBe(before); // unchanged
     expect(await ultFolioOf(db, SEED.empresaTarget)).toBe(0); // not bumped
@@ -112,7 +112,7 @@ describe("emitirNotaCredito", () => {
 
     await expect(emitirNotaCredito(db, emisorFail, {
       idVenta, idMotivo: 5, codRef: COD_REF_ANULA,
-      lineas: venta.lineas.map((l) => ({ idProducto: l.idProducto, cantidad: l.cantidad, precio: l.precio, porcenDesc: l.porcenDesc })),
+      lineas: venta.lineas.map((l) => ({ idProducto: l.idProducto, cantidad: l.cantidad, precio: l.precio, porcenDesc: l.porcenDesc, restituirStock: true })),
     }, 1)).rejects.toThrow();
 
     const rowsAfterFail = await db.select({ idNotaCredito: t40MNotaCredito.idNotaCredito, idFolio: t40MNotaCredito.idFolio })
@@ -123,7 +123,7 @@ describe("emitirNotaCredito", () => {
 
     const res = await emitirNotaCredito(db, emisorOk, {
       idVenta, idMotivo: 5, codRef: COD_REF_ANULA,
-      lineas: venta.lineas.map((l) => ({ idProducto: l.idProducto, cantidad: l.cantidad, precio: l.precio, porcenDesc: l.porcenDesc })),
+      lineas: venta.lineas.map((l) => ({ idProducto: l.idProducto, cantidad: l.cantidad, precio: l.precio, porcenDesc: l.porcenDesc, restituirStock: true })),
     }, 1);
 
     expect(res.idNotaCredito).toBe(pendienteId);
@@ -136,6 +136,36 @@ describe("emitirNotaCredito", () => {
 
     expect(await ultFolioOf(db, SEED.empresaTarget)).toBe(pendienteFolio);
     // Stock restituted exactly once (not twice across the failed + retried call).
+    expect(await stockOf(db, venta.lineas[0].idProducto)).toBe(before + venta.lineas[0].cantidad);
+  });
+
+  it("corrige-montos with restituirStock:false leaves stock unchanged (price-only correction)", async () => {
+    const idVenta = await seedVenta(db, { idTipoDoctoEmitido: 9, idFolio: 601, precioTotal: 1190 });
+    await seedFolioRange(db, { rutEmpresa: SEED.empresaTarget, idTipoDocto: 11, folioDesde: 1200, folioHasta: 1299, ultFolio: 0 });
+    const venta = (await getVentaCreditable(db, idVenta))!;
+    const before = await stockOf(db, venta.lineas[0].idProducto);
+
+    const res = await emitirNotaCredito(db, emisorOk, {
+      idVenta, idMotivo: 5, codRef: COD_REF_CORRIGE_MONTOS,
+      lineas: [{ idProducto: venta.lineas[0].idProducto, cantidad: venta.lineas[0].cantidad, precio: 1, porcenDesc: 0, restituirStock: false }],
+    }, 1);
+
+    expect(res.esElectronica).toBe(true);
+    expect(await stockOf(db, venta.lineas[0].idProducto)).toBe(before); // goods did not come back, no stock movement
+  });
+
+  it("corrige-montos with restituirStock:true restitutes that line's stock", async () => {
+    const idVenta = await seedVenta(db, { idTipoDoctoEmitido: 9, idFolio: 602, precioTotal: 1190 });
+    await seedFolioRange(db, { rutEmpresa: SEED.empresaTarget, idTipoDocto: 11, folioDesde: 1300, folioHasta: 1399, ultFolio: 0 });
+    const venta = (await getVentaCreditable(db, idVenta))!;
+    const before = await stockOf(db, venta.lineas[0].idProducto);
+
+    const res = await emitirNotaCredito(db, emisorOk, {
+      idVenta, idMotivo: 5, codRef: COD_REF_CORRIGE_MONTOS,
+      lineas: [{ idProducto: venta.lineas[0].idProducto, cantidad: venta.lineas[0].cantidad, precio: 1, porcenDesc: 0, restituirStock: true }],
+    }, 1);
+
+    expect(res.esElectronica).toBe(true);
     expect(await stockOf(db, venta.lineas[0].idProducto)).toBe(before + venta.lineas[0].cantidad);
   });
 });

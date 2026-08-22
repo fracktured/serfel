@@ -288,11 +288,12 @@ export async function emitirNotaCredito(
         sql`${t40MFoliosElectronicos.ultFolio} < ${idFolio}`,
       ));
 
-    // Stock restitution: only lines whose quantity is actually credited back
-    // (a full anulación restitutes every line; a value-only correction carries
-    // cantidad: 0 for the affected line and must not move stock).
+    // Stock restitution: a full anulación restitutes every line regardless of
+    // intent; a corrige-montos NC restitutes a line only when its explicit
+    // restituirStock flag says the goods physically came back (a price-only
+    // correction must not move stock even though cantidad is positive).
     for (const l of input.lineas) {
-      if (input.codRef === COD_REF_ANULA || l.cantidad > 0) {
+      if (input.codRef === COD_REF_ANULA || l.restituirStock) {
         await tx.update(t50MStock)
           .set({ cantidad: sql`${t50MStock.cantidad} + ${l.cantidad}` })
           .where(and(eq(t50MStock.idBodega, BODEGA_CENTRAL), eq(t50MStock.idProducto, l.idProducto)));
