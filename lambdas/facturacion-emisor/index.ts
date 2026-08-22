@@ -24,10 +24,22 @@ export async function handler(event: EmisorEvent): Promise<EmisorResult> {
     if (event.op === "procesar") {
       const r = await client.procesar(token, event.flatFileBase64);
       if (!r.ok || r.folio === undefined) return { ok: false, resultado: r.resultado, error: r.error };
-      const [orig, ced] = await Promise.all([
-        client.obtenerLink(token, { folio: r.folio, tipoDte: DTE_NOTA_CREDITO_ELECTRONICA, cedible: false }),
-        client.obtenerLink(token, { folio: r.folio, tipoDte: DTE_NOTA_CREDITO_ELECTRONICA, cedible: true }),
-      ]);
+
+      // procesar succeeded: the NC is now legally issued and the folio is consumed
+      // at facturacion.cl. From this point on we must NEVER report ok:false —
+      // a downstream retry of the whole "procesar" op would emit a duplicate NC.
+      // Link retrieval is best-effort; on failure we return empty links, which
+      // can be re-fetched later via a separate "obtenerlink" op.
+      let orig = "";
+      let ced = "";
+      try {
+        [orig, ced] = await Promise.all([
+          client.obtenerLink(token, { folio: r.folio, tipoDte: DTE_NOTA_CREDITO_ELECTRONICA, cedible: false }),
+          client.obtenerLink(token, { folio: r.folio, tipoDte: DTE_NOTA_CREDITO_ELECTRONICA, cedible: true }),
+        ]);
+      } catch {
+        // swallow: folio is already issued, links can be re-fetched later
+      }
       return { ok: true, folio: r.folio, urlPdfOriginal: orig, urlPdfCedible: ced, resultado: r.resultado };
     }
 
