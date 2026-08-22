@@ -1,5 +1,6 @@
 import { fileURLToPath } from "node:url";
 import mysql, { type Pool } from "mysql2/promise";
+import { eq, and, desc } from "drizzle-orm";
 import {
   createDb,
   migrateSchemaOnly,
@@ -22,8 +23,11 @@ import {
   t40MProductoVenta,
   t40MNotaCredito,
   t40MFoliosElectronicos,
+  t50PTipoBodega,
+  t50MBodega,
+  t50MStock,
 } from "@serfel/db";
-import { TIPO_DOCTO_NOTA_CREDITO_ELECTRONICA } from "@serfel/shared";
+import { TIPO_DOCTO_NOTA_CREDITO_ELECTRONICA, BODEGA_CENTRAL } from "@serfel/shared";
 
 const ROOT = { host: "127.0.0.1", port: 3307, user: "root", password: "serfel" };
 const MIGRATIONS = fileURLToPath(new URL("../../../packages/db/migrations", import.meta.url));
@@ -40,6 +44,7 @@ export const SEED = {
   um: 1,
   prodAgua: 1,
   ESTADO_ACTIVO: 1,
+  stockInicial: 100,
 } as const;
 
 let pool: Pool | undefined;
@@ -70,6 +75,8 @@ export async function makeTestDb(): Promise<Db> {
   await db.insert(t99PEstado).values([
     { idEstado: 0, nomEstado: "Inactivo", descEstado: "Inactivo" },
     { idEstado: 1, nomEstado: "Activo", descEstado: "Activo" },
+    { idEstado: 2, nomEstado: "En Proceso", descEstado: "En Proceso" },
+    { idEstado: 3, nomEstado: "Finalizado", descEstado: "Finalizado" },
   ]);
   await db.insert(t99PImpuesto).values([
     { idImpuesto: 2, nomImpuesto: "ESPEC", valor: 13 },
@@ -117,6 +124,14 @@ export async function makeTestDb(): Promise<Db> {
     idProducto: SEED.prodAgua, nomProducto: "Agua", descProducto: "", codBarraProducto: "",
     idTipoProducto: SEED.tipoBebidas, idMarca: SEED.marca, idUm: SEED.um, idUsuarioMod: SEED.usuarioAdmin,
     ultFechaMod: NOW, idEstado: 1, codSerfel: 100, impuesto: 0, usaPorciones: 0,
+  });
+  await db.insert(t50PTipoBodega).values({ idTipoBodega: 1, nomTipoBodega: "CENTRAL", idEstado: 1 });
+  await db.insert(t50MBodega).values({
+    idBodega: BODEGA_CENTRAL, nomBodega: "Central", descBodega: "-", idTipoBodega: 1,
+    idUsuarioMod: SEED.usuarioAdmin, ultFechaMod: NOW, idEstado: 1,
+  });
+  await db.insert(t50MStock).values({
+    idBodega: BODEGA_CENTRAL, idProducto: SEED.prodAgua, cantidad: SEED.stockInicial.toFixed(3),
   });
 
   return db;
@@ -200,4 +215,25 @@ export async function seedFolioRange(
 
 export async function teardownTestDb(): Promise<void> {
   await pool?.end();
+}
+
+/** Current 50_m_stock.cantidad for a producto in the central bodega (0 if no row). */
+export async function stockOf(targetDb: Db, idProducto: number): Promise<number> {
+  const rows = await targetDb.select({ cantidad: t50MStock.cantidad }).from(t50MStock)
+    .where(and(eq(t50MStock.idBodega, BODEGA_CENTRAL), eq(t50MStock.idProducto, idProducto)))
+    .limit(1);
+  return rows.length > 0 ? Number(rows[0].cantidad) : 0;
+}
+
+/** Current 40_m_folios_electronicos.ult_folio for the NC electrónica range of an empresa. */
+export async function ultFolioOf(targetDb: Db, rutEmpresa: number): Promise<number> {
+  const rows = await targetDb.select({ ultFolio: t40MFoliosElectronicos.ultFolio })
+    .from(t40MFoliosElectronicos)
+    .where(and(
+      eq(t40MFoliosElectronicos.rutEmpresa, rutEmpresa),
+      eq(t40MFoliosElectronicos.idTipoDocto, TIPO_DOCTO_NOTA_CREDITO_ELECTRONICA),
+    ))
+    .orderBy(desc(t40MFoliosElectronicos.id))
+    .limit(1);
+  return rows.length > 0 ? rows[0].ultFolio : 0;
 }
