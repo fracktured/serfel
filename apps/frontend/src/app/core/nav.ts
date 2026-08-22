@@ -87,6 +87,7 @@ export const NAV_GROUPS: NavGroup[] = [
       {
         children: [
           { module: "ventas", label: "Prefacturación", path: "/prefacturacion", icon: SALES_ICON },
+          { module: "notas_credito", label: "Notas de Crédito", path: "/notas-credito", icon: DOC_ICON },
         ],
       },
     ],

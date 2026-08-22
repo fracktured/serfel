@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import type { ModuleName } from "@serfel/shared";
 import { NAV_GROUPS, visibleGroups } from "./nav";
 
-const ALL: ModuleName[] = ["productos", "rutas", "usuarios", "ventas", "clientes", "marcas", "precios"];
+const ALL: ModuleName[] = ["productos", "rutas", "usuarios", "ventas", "clientes", "marcas", "precios", "notas_credito"];
 
 describe("visibleGroups", () => {
   it("admin with every module sees all three groups with expected leaves", () => {
@@ -47,6 +47,7 @@ describe("visibleGroups", () => {
       precios: "/precios",
       rutas: "/listado-carga",
       ventas: "/prefacturacion",
+      notas_credito: "/notas-credito",
     });
   });
 });

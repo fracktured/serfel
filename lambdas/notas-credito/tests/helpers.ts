@@ -36,6 +36,8 @@ const NOW = "2026-01-01 00:00:00";
 export const SEED = {
   usuarioAdmin: 1,
   tipoAdmin: 1,
+  usuarioVendedor: 2,
+  tipoVendedor: 2,
   empresaTarget: 76000000,
   cliente: 55000000,
   localNorte: 500,
@@ -81,14 +83,22 @@ export async function makeTestDb(dbName = "serfel_notas_credito_service"): Promi
     { idImpuesto: 2, nomImpuesto: "ESPEC", valor: 13 },
     { idImpuesto: 3, nomImpuesto: "IVA", valor: 19 },
   ]);
-  await db.insert(t10PTipoUsuario).values({
-    idTipoUsuario: SEED.tipoAdmin, nomTipoUsuario: "Admin", descTipoUsuario: "Administrador",
-  });
-  await db.insert(t10MUsuario).values({
-    idUsuario: SEED.usuarioAdmin, rutUsuario: 11111111, dvUsuario: "1", nomUsuario: "Admin",
-    apellPatUsuario: "Perez", apellMatUsuario: "Soto", password: "unused", idTipoUsuario: SEED.tipoAdmin,
-    direccionUsuario: "-", idUsuarioMod: SEED.usuarioAdmin, ultFechaMod: NOW, idEstado: 1,
-  });
+  await db.insert(t10PTipoUsuario).values([
+    { idTipoUsuario: SEED.tipoAdmin, nomTipoUsuario: "Admin", descTipoUsuario: "Administrador" },
+    { idTipoUsuario: SEED.tipoVendedor, nomTipoUsuario: "Vendedor", descTipoUsuario: "Vendedor" },
+  ]);
+  await db.insert(t10MUsuario).values([
+    {
+      idUsuario: SEED.usuarioAdmin, rutUsuario: 11111111, dvUsuario: "1", nomUsuario: "Admin",
+      apellPatUsuario: "Perez", apellMatUsuario: "Soto", password: "unused", idTipoUsuario: SEED.tipoAdmin,
+      direccionUsuario: "-", idUsuarioMod: SEED.usuarioAdmin, ultFechaMod: NOW, idEstado: 1,
+    },
+    {
+      idUsuario: SEED.usuarioVendedor, rutUsuario: 22222222, dvUsuario: "2", nomUsuario: "Vendedor",
+      apellPatUsuario: "Lopez", apellMatUsuario: "Diaz", password: "unused", idTipoUsuario: SEED.tipoVendedor,
+      direccionUsuario: "-", idUsuarioMod: SEED.usuarioAdmin, ultFechaMod: NOW, idEstado: 1,
+    },
+  ]);
   await db.insert(t40MListaPrecio).values({
     idListaPrecio: 1, nomListaPrecio: "GENERAL", idUsuarioMod: SEED.usuarioAdmin, ultFechaMod: NOW, idEstado: 1,
   });

@@ -1,23 +1,11 @@
-import { describe, it, expect, beforeAll, vi } from "vitest";
-import { createMiddleware } from "hono/factory";
+import { describe, it, expect, beforeAll } from "vitest";
 import type { Db } from "@serfel/db";
 import type { EmisorEvent, EmisorResult } from "@serfel/shared";
 import { makeTestDb, seedVenta, seedNota, SEED } from "./helpers";
 
-// "notas_credito" is not yet registered in @serfel/shared's MODULE_ROLES — that
-// lands in a later task (registering the module + updating the ripple fixtures
-// in lambdas/products and the frontend nav). Until then requireModule("notas_credito", ...)
-// can never authorize any tipo, so this app-level test stubs the local authz gate
-// to a no-op pass-through: it exercises the routing/service wiring this task delivers,
-// not the not-yet-done module registration. Swap back to the real requireModule once
-// that task lands and MODULE_ROLES.notas_credito exists.
-vi.mock("../authz", () => ({
-  requireModule: () => createMiddleware(async (c, next) => {
-    c.set("idTipoUsuario", 1);
-    await next();
-  }),
-}));
-
+// "notas_credito" is now registered in @serfel/shared's MODULE_ROLES, so this
+// app-level test runs through the real requireModule("notas_credito", ...) gate
+// (no authz mock) to exercise both routing/service wiring and authorization.
 const { createApp } = await import("../app");
 
 let db: Db;
@@ -38,6 +26,17 @@ describe("authz", () => {
   it("403s when there is no id_usuario mapping", async () => {
     const res = await appFor(null).request("/api/notas-credito");
     expect(res.status).toBe(403);
+  });
+
+  it("200s for an admin (tipo 1) through the real requireModule gate", async () => {
+    const res = await appFor(SEED.usuarioAdmin).request("/api/notas-credito");
+    expect(res.status).toBe(200);
+  });
+
+  it("403s PROHIBIDO for a non-admin (vendedor, tipo 2) through the real requireModule gate", async () => {
+    const res = await appFor(SEED.usuarioVendedor).request("/api/notas-credito");
+    expect(res.status).toBe(403);
+    expect((await res.json()).error.code).toBe("PROHIBIDO");
   });
 });
 

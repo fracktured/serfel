@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { EmitirNcInputSchema, type ApiErrorBody, type ModuleName } from "@serfel/shared";
+import { EmitirNcInputSchema, type ApiErrorBody } from "@serfel/shared";
 import { AppError, isDbUnreachable } from "./errors";
 import { searchVentasCreditables, listNotasCredito, emitirNotaCredito, getPdfLinks } from "./service";
 import { requireModule } from "./authz";
@@ -26,9 +26,7 @@ export function createApp(deps: AppDeps) {
     await next();
   });
 
-  // "notas_credito" is not yet registered in @serfel/shared's MODULE_ROLES (a later
-  // task adds it); cast is intentional so this gate compiles and is wired ahead of that.
-  const gate = requireModule("notas_credito" as ModuleName, deps);
+  const gate = requireModule("notas_credito", deps);
   app.use("/notas-credito", gate);
   app.use("/notas-credito/*", gate);
 
