@@ -89,3 +89,35 @@ export interface EmisorResult {
   resultado?: string;
   error?: string;
 }
+
+const IMPUESTO_ESPEC = 2;
+
+export interface NcTotales {
+  subTotal: number;
+  iva: number;
+  espec: number;
+  iaba: number;
+  precioTotal: number;
+}
+
+export function computeNcTotales(
+  lineas: { cantidad: number; precio: number; porcenDesc: number; impuesto: number }[],
+  opts: { ivaValor: number; especValor: number; rateOf: (impuesto: number) => number | null },
+): NcTotales {
+  let subTotal = 0;
+  let espec = 0;
+  let iaba = 0;
+  for (const l of lineas) {
+    const bruto = Math.round(l.cantidad * l.precio);
+    const conDesc = bruto - Math.round((bruto * l.porcenDesc) / 100);
+    subTotal += conDesc;
+    if (l.impuesto === IMPUESTO_ESPEC) {
+      espec += Math.round((conDesc * opts.especValor) / 100);
+    } else if (l.impuesto > 0) {
+      const rate = opts.rateOf(l.impuesto);
+      if (rate !== null) iaba += Math.round((conDesc * rate) / 100);
+    }
+  }
+  const iva = Math.round((subTotal * opts.ivaValor) / 100);
+  return { subTotal, iva, espec, iaba, precioTotal: subTotal + espec + iaba + iva };
+}
