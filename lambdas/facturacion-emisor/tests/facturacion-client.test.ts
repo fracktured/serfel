@@ -12,6 +12,8 @@ describe("facturacion-client", () => {
     const token = await c.login({ usuario: "U", rut: "1-9", clave: "P" });
     expect(token).toBe("JWT123");
     expect(fetchFn).toHaveBeenCalledWith("https://api.test/login", expect.objectContaining({ method: "POST" }));
+    const callArgs = fetchFn.mock.calls[0][1] as { body: string };
+    expect(JSON.parse(callArgs.body)).toEqual({ usuario: "U", rut: "1-9", clave: "P" });
   });
 
   it("procesar sends the base64 file with formato=1 and returns folio", async () => {

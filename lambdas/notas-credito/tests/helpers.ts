@@ -23,6 +23,7 @@ import {
   t40MProductoVenta,
   t40MNotaCredito,
   t40MFoliosElectronicos,
+  t40MMotivoNotaCredito,
   t50PTipoBodega,
   t50MBodega,
   t50MStock,
@@ -107,6 +108,7 @@ export async function makeTestDb(dbName = "serfel_notas_credito_service"): Promi
     { idTipoDocto: 9, nomTipoDocto: "FACTURA_ELECTRONICA", descTipoDocto: "Factura Electronica" },
   ]);
   await db.insert(t40PFormaPago).values({ idFormaPago: 7, nomFormaPago: "CREDITO", descFormaPago: "Pago a credito" }).onDuplicateKeyUpdate({ set: { nomFormaPago: "CREDITO" } });
+  await db.insert(t40MMotivoNotaCredito).values({ idMotivo: 5, nomMotivo: "OTROS" });
 
   await db.insert(t10MEmpresa).values({
     rutEmpresa: SEED.empresaTarget, dvEmpresa: "0", razonSocial: "SERFEL", nomFantasia: "SERFEL",

@@ -1,7 +1,7 @@
 import { and, desc, eq, gte, like, lte, sql } from "drizzle-orm";
 import {
-  t10MUsuario, t10MCliente, t20MProducto, t40MVenta, t40MProductoVenta, t40MNotaCredito,
-  t40MFoliosElectronicos, t40MProdNotaCredito, t50MStock, t99PImpuesto, type Db,
+  t10MUsuario, t10MCliente, t10MLocalCliente, t20MProducto, t40MVenta, t40MProductoVenta, t40MNotaCredito,
+  t40MFoliosElectronicos, t40MMotivoNotaCredito, t40MProdNotaCredito, t50MStock, t99PImpuesto, type Db,
 } from "@serfel/db";
 import {
   TIPO_DOCTO_FACTURA_ELECTRONICA, TIPO_DOCTO_NOTA_CREDITO_ELECTRONICA,
@@ -18,8 +18,19 @@ type DbOrTx = Db | Tx;
 /** 99_p_estado: 2 = "En Proceso" — the NC sits here until the emisor confirms the DTE. */
 const ESTADO_PENDIENTE = 2;
 
+/**
+ * Formats the current instant in America/Santiago as a MySQL datetime string
+ * ("YYYY-MM-DD HH:mm:ss"). new Date().toISOString() (UTC) is wrong here: Chile
+ * evenings roll to the next UTC day, which would skew fechaNotaCredito and the
+ * flat-file's date one day ahead.
+ */
 function nowDateTime(): string {
-  return new Date().toISOString().slice(0, 19).replace("T", " ");
+  const parts = new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "America/Santiago",
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
+  }).format(new Date());
+  return parts.replace(",", "");
 }
 
 export async function getUserTipo(db: Db, idUsuario: number): Promise<number | null> {
@@ -75,6 +86,48 @@ async function ventaHeader(db: DbOrTx, idVenta: number) {
     .where(eq(t40MVenta.idVenta, idVenta))
     .limit(1);
   return rows[0] ?? null;
+}
+
+/**
+ * Loads the SII-facing receptor identity for the flat file: legal name +
+ * giro + address + comuna + email, sourced from 10_m_cliente with a
+ * fallback to the venta's 10_m_local_cliente for address/comuna (the local
+ * often carries the delivery-point details the cliente row leaves blank).
+ */
+async function receptorDatos(db: DbOrTx, idVenta: number) {
+  const rows = await db
+    .select({
+      razonSocial: t10MCliente.razonSocial,
+      direccionCliente: t10MCliente.direccionCliente,
+      comuna: t10MCliente.comuna,
+      emailCliente: t10MCliente.emailCliente,
+      giro: t10MLocalCliente.giro,
+      direccionLocalCliente: t10MLocalCliente.direccionLocalCliente,
+      comunaLocalCliente: t10MLocalCliente.comunaLocalCliente,
+    })
+    .from(t40MVenta)
+    .innerJoin(t10MCliente, eq(t40MVenta.rutCliente, t10MCliente.rutCliente))
+    .leftJoin(t10MLocalCliente, eq(t40MVenta.idLocalCliente, t10MLocalCliente.idLocalCliente))
+    .where(eq(t40MVenta.idVenta, idVenta))
+    .limit(1);
+  const r = rows[0];
+  return {
+    razonSocial: r?.razonSocial ?? "",
+    giro: r?.giro ?? "",
+    direccion: r?.direccionCliente || r?.direccionLocalCliente || "",
+    comuna: r?.comuna || r?.comunaLocalCliente || "",
+    email: r?.emailCliente ?? "",
+  };
+}
+
+/** 40_m_motivo_nota_credito.nom_motivo for the given idMotivo, or "OTROS" if not found. */
+async function motivoNombre(db: DbOrTx, idMotivo: number): Promise<string> {
+  const rows = await db
+    .select({ nomMotivo: t40MMotivoNotaCredito.nomMotivo })
+    .from(t40MMotivoNotaCredito)
+    .where(eq(t40MMotivoNotaCredito.idMotivo, idMotivo))
+    .limit(1);
+  return rows[0]?.nomMotivo ?? "OTROS";
 }
 
 export async function getVentaCreditable(db: Db, idVenta: number): Promise<VentaCreditableDto | null> {
@@ -176,6 +229,13 @@ export async function emitirNotaCredito(
   }));
   const totales = computeNcTotales(calcLineas, { ivaValor, especValor, rateOf });
 
+  // Receptor identity for the flat file + the human-readable motivo text (razonRef
+  // must never be a bare integer — facturación.cl expects the reason as text).
+  const [receptor, razonRef] = await Promise.all([
+    receptorDatos(db, venta.idVenta),
+    motivoNombre(db, input.idMotivo),
+  ]);
+
   // Reuse an existing PENDIENTE draft for this venta (a prior failed emisor call),
   // instead of resolving a new folio and inserting a second NC row. This keeps the
   // "retryable, same folio, no gaps" promise: the failed draft's folio is reused
@@ -243,8 +303,9 @@ export async function emitirNotaCredito(
   const flat = buildFlatFile({
     folio: idFolio,
     fecha: now.slice(0, 10),
-    rutReceptor: String(venta.rutCliente), rsReceptor: venta.nomCliente,
-    giroReceptor: "", dirReceptor: "", comReceptor: "", ciuReceptor: "", emailReceptor: "",
+    rutReceptor: String(venta.rutCliente), rsReceptor: receptor.razonSocial,
+    giroReceptor: receptor.giro, dirReceptor: receptor.direccion,
+    comReceptor: receptor.comuna, ciuReceptor: receptor.comuna, emailReceptor: receptor.email,
     totales,
     lineas: input.lineas.map((l) => {
       const vl = ventaLineaByProd.get(l.idProducto);
@@ -258,7 +319,7 @@ export async function emitirNotaCredito(
     }),
     referencia: {
       folioRef: venta.idFolio, fchRef: venta.fechaVenta.slice(0, 10),
-      codRef: input.codRef, razonRef: String(input.idMotivo),
+      codRef: input.codRef, razonRef,
     },
   });
 
@@ -273,33 +334,44 @@ export async function emitirNotaCredito(
   }
 
   // Success: mark electrónica, bump ult_folio, and restitute stock — one committed txn.
-  await db.transaction(async (tx) => {
-    await tx.update(t40MNotaCredito).set({
-      esNotaCredElectronica: 1, idEstado: ESTADO_FINALIZADO,
-      urlPdfOriginal: emitResult.urlPdfOriginal ?? "", urlPdfCedible: emitResult.urlPdfCedible ?? "",
-      idUsuarioMod: idUsuario, ultFechaMod: nowDateTime(),
-    }).where(eq(t40MNotaCredito.idNotaCredito, idNotaCredito));
+  // By this point facturación.cl has already consumed the folio; if this txn throws,
+  // the NC is stuck PENDIENTE despite being emitted (folio burned, stock/ult_folio not
+  // advanced) — log a greppable breadcrumb so CloudWatch surfaces it for reconciliation.
+  try {
+    await db.transaction(async (tx) => {
+      await tx.update(t40MNotaCredito).set({
+        esNotaCredElectronica: 1, idEstado: ESTADO_FINALIZADO,
+        urlPdfOriginal: emitResult.urlPdfOriginal ?? "", urlPdfCedible: emitResult.urlPdfCedible ?? "",
+        idUsuarioMod: idUsuario, ultFechaMod: nowDateTime(),
+      }).where(eq(t40MNotaCredito.idNotaCredito, idNotaCredito));
 
-    await tx.update(t40MFoliosElectronicos)
-      .set({ ultFolio: idFolio })
-      .where(and(
-        eq(t40MFoliosElectronicos.rutEmpresa, venta.rutEmpresa),
-        eq(t40MFoliosElectronicos.idTipoDocto, TIPO_DOCTO_NOTA_CREDITO_ELECTRONICA),
-        sql`${t40MFoliosElectronicos.ultFolio} < ${idFolio}`,
-      ));
+      await tx.update(t40MFoliosElectronicos)
+        .set({ ultFolio: idFolio })
+        .where(and(
+          eq(t40MFoliosElectronicos.rutEmpresa, venta.rutEmpresa),
+          eq(t40MFoliosElectronicos.idTipoDocto, TIPO_DOCTO_NOTA_CREDITO_ELECTRONICA),
+          sql`${t40MFoliosElectronicos.ultFolio} < ${idFolio}`,
+        ));
 
-    // Stock restitution: a full anulación restitutes every line regardless of
-    // intent; a corrige-montos NC restitutes a line only when its explicit
-    // restituirStock flag says the goods physically came back (a price-only
-    // correction must not move stock even though cantidad is positive).
-    for (const l of input.lineas) {
-      if (input.codRef === COD_REF_ANULA || l.restituirStock) {
-        await tx.update(t50MStock)
-          .set({ cantidad: sql`${t50MStock.cantidad} + ${l.cantidad}` })
-          .where(and(eq(t50MStock.idBodega, BODEGA_CENTRAL), eq(t50MStock.idProducto, l.idProducto)));
+      // Stock restitution: a full anulación restitutes every line regardless of
+      // intent; a corrige-montos NC restitutes a line only when its explicit
+      // restituirStock flag says the goods physically came back (a price-only
+      // correction must not move stock even though cantidad is positive).
+      for (const l of input.lineas) {
+        if (input.codRef === COD_REF_ANULA || l.restituirStock) {
+          await tx.update(t50MStock)
+            .set({ cantidad: sql`${t50MStock.cantidad} + ${l.cantidad}` })
+            .where(and(eq(t50MStock.idBodega, BODEGA_CENTRAL), eq(t50MStock.idProducto, l.idProducto)));
+        }
       }
-    }
-  });
+    });
+  } catch (err) {
+    console.error(
+      "NC emitida en facturación.cl pero fallo la post-transacción; requiere reconciliación",
+      { idNotaCredito, idFolio },
+    );
+    throw err;
+  }
 
   return {
     idNotaCredito, idFolio, esElectronica: true,
@@ -332,10 +404,16 @@ export async function getPdfLinks(
   db: Db, invokeEmisor: (e: EmisorEvent) => Promise<EmisorResult>, idNotaCredito: number,
 ): Promise<{ urlPdfOriginal: string; urlPdfCedible: string }> {
   const rows = await db
-    .select({ idFolio: t40MNotaCredito.idFolio, rutEmpresa: t40MNotaCredito.rutEmpresa })
+    .select({
+      idFolio: t40MNotaCredito.idFolio, rutEmpresa: t40MNotaCredito.rutEmpresa,
+      esNotaCredElectronica: t40MNotaCredito.esNotaCredElectronica,
+    })
     .from(t40MNotaCredito).where(eq(t40MNotaCredito.idNotaCredito, idNotaCredito)).limit(1);
   if (rows.length === 0) throw new AppError("VALIDACION", 404, "Nota de crédito no encontrada");
-  const { idFolio, rutEmpresa } = rows[0];
+  const { idFolio, rutEmpresa, esNotaCredElectronica } = rows[0];
+  if (esNotaCredElectronica !== 1) {
+    throw new AppError("VALIDACION", 409, "La nota de crédito no ha sido emitida electrónicamente");
+  }
   const [orig, ced] = await Promise.all([
     invokeEmisor({ op: "obtenerlink", rutEmpresa: String(rutEmpresa), folio: idFolio, tipoDte: DTE_NOTA_CREDITO_ELECTRONICA, cedible: false }),
     invokeEmisor({ op: "obtenerlink", rutEmpresa: String(rutEmpresa), folio: idFolio, tipoDte: DTE_NOTA_CREDITO_ELECTRONICA, cedible: true }),
